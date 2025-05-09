@@ -5,10 +5,19 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import MapView from "@/components/MapView";
 
+interface CheckpointType {
+  id: string;
+  name: string;
+  location: { lat: number; lng: number };
+  description?: string;
+  challengeDescription?: string;
+  nextCheckpoint?: string;
+}
+
 export default function MissionDetailPage() {
   const { id } = useParams();
   const [mission, setMission] = useState<any>(null);
-  const [checkpoints, setCheckpoints] = useState<any[]>([]);
+  const [checkpoints, setCheckpoints] = useState<CheckpointType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,15 +32,15 @@ export default function MissionDetailPage() {
       const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
       const cpSnap = await getDocs(q);
       // 依 nextCheckpoint 排序（如有）
-      let cpList = cpSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      let cpList = cpSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as CheckpointType) }));
       // 若有 nextCheckpoint，可依序串連
       if (cpList.length > 1 && cpList[0].nextCheckpoint) {
         const cpMap = Object.fromEntries(cpList.map(cp => [cp.id, cp]));
-        let ordered: any[] = [];
+        let ordered: CheckpointType[] = [];
         let current = cpList.find(cp => !cpList.some(c => c.nextCheckpoint === cp.id));
         while (current) {
           ordered.push(current);
-          current = cpMap[current.nextCheckpoint];
+          current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
         }
         cpList = ordered;
       }
