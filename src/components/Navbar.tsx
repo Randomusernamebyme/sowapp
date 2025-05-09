@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const menuItems = [
   { label: "主頁", path: "/dashboard" },
@@ -10,10 +10,20 @@ const menuItems = [
   { label: "登出", path: "/auth" },
 ];
 
+const getTitle = (pathname: string) => {
+  if (pathname.startsWith("/dashboard")) return "Dashboard";
+  if (pathname.startsWith("/missions")) return "Missions";
+  if (pathname.startsWith("/profile-setup")) return "Profile";
+  if (pathname.startsWith("/teams")) return "Teams";
+  if (pathname.startsWith("/auth")) return "Login/Register";
+  return "Sowapp";
+};
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -32,7 +42,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm">
       <div className="flex-1 flex justify-center">
-        <span className="text-lg font-bold tracking-tight select-none">Sowapp</span>
+        <span className="text-lg font-bold tracking-tight select-none">{getTitle(pathname)}</span>
       </div>
       <div className="absolute right-4">
         <button

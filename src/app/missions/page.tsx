@@ -21,7 +21,6 @@ export default function MissionsPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
-      <h1 className="text-2xl font-bold mb-6 text-black tracking-tight">任務列表</h1>
       {loading ? (
         <div className="text-gray-500">載入中...</div>
       ) : missions.length === 0 ? (
