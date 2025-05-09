@@ -32,7 +32,10 @@ export default function MissionDetailPage() {
       const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
       const cpSnap = await getDocs(q);
       // 依 nextCheckpoint 排序（如有）
-      let cpList = cpSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as CheckpointType) }));
+      let cpList = cpSnap.docs.map(doc => {
+        const data = doc.data() as Omit<CheckpointType, "id">;
+        return { ...data, id: doc.id };
+      });
       // 若有 nextCheckpoint，可依序串連
       if (cpList.length > 1 && cpList[0].nextCheckpoint) {
         const cpMap = Object.fromEntries(cpList.map(cp => [cp.id, cp]));
