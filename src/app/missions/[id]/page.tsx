@@ -31,22 +31,11 @@ export default function MissionDetailPage() {
       // 取得該任務所有 checkpoints
       const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
       const cpSnap = await getDocs(q);
-      // 依 nextCheckpoint 排序（如有）
       let cpList = cpSnap.docs.map(doc => {
         const data = doc.data() as Omit<CheckpointType, "id">;
         return { ...data, id: doc.id };
       });
-      // 若有 nextCheckpoint，可依序串連
-      if (cpList.length > 1 && cpList[0].nextCheckpoint) {
-        const cpMap = Object.fromEntries(cpList.map(cp => [cp.id, cp]));
-        let ordered: CheckpointType[] = [];
-        let current = cpList.find(cp => !cpList.some(c => c.nextCheckpoint === cp.id));
-        while (current) {
-          ordered.push(current);
-          current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
-        }
-        cpList = ordered;
-      }
+      // 直接顯示所有 checkpoint，不排序
       setCheckpoints(cpList);
       setLoading(false);
     }
