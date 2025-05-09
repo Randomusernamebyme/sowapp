@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import MapView from "@/components/MapView";
@@ -15,6 +15,7 @@ interface CheckpointType {
 }
 
 export default function MissionDetailPage() {
+  const router = useRouter();
   const { id } = useParams();
   const [mission, setMission] = useState<any>(null);
   const [checkpoints, setCheckpoints] = useState<CheckpointType[]>([]);
@@ -87,6 +88,12 @@ export default function MissionDetailPage() {
           </div>
         ))}
       </div>
+      <button
+        className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
+        onClick={() => router.push(`/missions/${id}/active`)}
+      >
+        開始任務
+      </button>
     </div>
   );
 } 
