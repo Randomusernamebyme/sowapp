@@ -596,13 +596,9 @@ module.exports = withPWA({
 - Local storage for mission progress
 
 ## 8. UI Design Guidelines (iOS Simple Style)
-
-### Color Palette
-- Primary: #007AFF (iOS blue)
-- Secondary: #34C759 (iOS green)
-- Background: #F2F2F7
-- Text: #000000 (primary), #8E8E93 (secondary)
-- Error: #FF3B30
+全部改為極簡 iOS 風格
+主色調只用黑、白、灰（不要藍、綠等彩色）
+介面乾淨、圓角、陰影、字體簡潔
 
 ### Typography
 - System font (San Francisco):

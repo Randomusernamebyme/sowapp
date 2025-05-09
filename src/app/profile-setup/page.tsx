@@ -45,34 +45,34 @@ export default function ProfileSetupPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center">個人檔案設定</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <h1 className="text-2xl font-bold mb-6 text-center text-black tracking-tight">個人檔案設定</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             placeholder="暱稱"
             value={displayName}
             onChange={e => setDisplayName(e.target.value)}
-            className="w-full px-4 py-2 border rounded"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
           <div>
-            <label className="block mb-2 font-semibold">體能等級</label>
+            <label className="block mb-2 font-semibold text-black">體能等級</label>
             <select
               value={fitnessLevel}
               onChange={e => setFitnessLevel(e.target.value)}
-              className="w-full px-4 py-2 border rounded"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-black"
             >
               {fitnessLevels.map(level => (
                 <option key={level.value} value={level.value}>{level.label}</option>
               ))}
             </select>
           </div>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition"
             disabled={loading}
           >
             {loading ? "儲存中..." : "儲存並繼續"}
