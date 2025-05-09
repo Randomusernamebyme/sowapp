@@ -40,9 +40,11 @@ export default function Navbar() {
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="block w-6 h-0.5 bg-black rounded mb-1"></span>
-          <span className="block w-6 h-0.5 bg-black rounded mb-1"></span>
-          <span className="block w-6 h-0.5 bg-black rounded"></span>
+          <span className="flex flex-col items-center space-y-1">
+            <span className="block w-6 h-0.5 bg-black rounded"></span>
+            <span className="block w-6 h-0.5 bg-black rounded"></span>
+            <span className="block w-6 h-0.5 bg-black rounded"></span>
+          </span>
         </button>
         {open && (
           <div ref={menuRef} className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-200 py-2">
