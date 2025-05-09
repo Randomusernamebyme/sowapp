@@ -1,0 +1,765 @@
+# Seek our Ways - MVP Web App (PWA) Development Plan
+
+## 1. MVP Scope & Goals
+
+### Core Functions to Include
+- User registration and profile creation
+- Simple role selection (A, B, C, D characters)
+- GPS-based checkpoint navigation
+- Basic challenge completion verification
+- "Defuse the Bomb" storyline implementation
+- Team formation capabilities
+- Progress tracking
+
+### Excluded for MVP (Future Development)
+- AR features
+- User-generated content
+- Advanced character progression
+- Multiple storylines
+- Community events calendar
+- Advanced analytics
+
+## 2. Tech Stack
+
+### Frontend
+- **Framework**: Next.js (for Vercel deployment)
+- **PWA Implementation**: next-pwa
+- **UI Framework**: TailwindCSS (for iOS-like simplicity)
+- **State Management**: React Context API
+- **Map Integration**: Leaflet.js (open-source maps)
+- **Geolocation**: Browser Geolocation API
+
+### Backend
+- **Authentication**: Firebase Authentication
+- **Database**: Firebase Firestore
+- **Storage**: Firebase Storage (for challenge photos)
+- **Functions**: Firebase Cloud Functions (minimal use)
+- **Hosting**: Vercel (frontend), Firebase (backend functions)
+
+## 3. Application Architecture
+
+### Data Structure (Firestore)
+
+```
+/users/{userId}
+  - displayName
+  - email
+  - role (A/B/C/D)
+  - teams: [teamId1, teamId2]
+  - completedMissions: [missionId1, missionId2]
+  - fitnessLevel: "beginner"|"intermediate"|"advanced"
+  - createdAt
+
+/teams/{teamId}
+  - name
+  - members: [{userId, role, status}]
+  - activeMission: missionId
+  - missionProgress: {
+      currentCheckpoint,
+      collectedDigits: [digit1, digit2, ...],
+      timeRemaining,
+      startedAt
+    }
+  - completedMissions: [missionId1, missionId2]
+  - createdAt
+
+/missions/{missionId}
+  - title
+  - description
+  - difficulty
+  - startLocation: {lat, lng}
+  - endLocation: {lat, lng}
+  - checkpoints: [checkpointId1, checkpointId2, ...]
+  - estimatedDuration
+  - password: "123456" (the 6-digit code)
+  - isActive
+
+/checkpoints/{checkpointId}
+  - location: {lat, lng}
+  - name
+  - description
+  - challengeType: "physical"|"puzzle"|"photo"
+  - challengeDescription
+  - clue
+  - passwordDigit: {position, value}
+  - nextCheckpoint
+```
+
+## 4. App Screens & User Flow
+
+### 1. Onboarding Flow
+- **Splash Screen**
+  - App logo and tagline
+  - "Get Started" button
+
+- **Authentication**
+  - Email/password login
+  - Google authentication option
+  - Registration form (simple)
+
+- **Profile Setup**
+  - Display name selection
+  - Fitness level selection (3 options)
+  - Basic tutorial (3 slides max)
+
+### 2. Home Screen (Dashboard)
+- **Simple tab navigation**
+  - Home
+  - Map
+  - Teams
+  - Profile
+
+- **Home content**
+  - "Active Mission" card (if any)
+  - "Join/Create Team" button
+  - "Start New Mission" button
+  - Basic stats (missions completed, distance walked)
+
+### 3. Mission Flow
+- **Mission Selection**
+  - "Defuse the Bomb" mission card with description
+  - Difficulty indicator
+  - Time estimate
+  - "Start Mission" button
+
+- **Team Formation**
+  - Create new team
+  - Join existing team via code
+  - Solo play option
+  - Role selection (A, B, C, D)
+  - "Ready" toggle for each team member
+
+- **Mission Briefing**
+  - Story introduction (simple text/image)
+  - Mission objective explanation
+  - Starting location map
+  - "Begin Mission" button
+
+- **Active Mission Screen**
+  - Map showing current location and next checkpoint
+  - Distance to checkpoint
+  - Mission timer
+  - Team status indicators
+  - "SOS" help button
+  - "Abort Mission" option
+
+- **Checkpoint Interaction**
+  - Verification that user is at location (GPS)
+  - Challenge instructions
+  - Challenge completion verification
+    - For physical: Timer + "I completed this" button
+    - For puzzle: Simple input field
+    - For photo: Camera capture button
+  - "Collect Digit" confirmation
+  - Next checkpoint directions
+
+- **Final Checkpoint (Bomb Defusal)**
+  - Password entry screen
+  - Collected digits display
+  - Countdown timer
+  - "Defuse" button
+  - Success/failure screen
+
+- **Mission Completion**
+  - Summary screen
+  - Basic stats (time, distance, checkpoints)
+  - "Share Results" button
+  - "Return to Home" button
+
+### 4. Teams Management
+- **My Teams**
+  - List of teams user belongs to
+  - Create new team button
+  - Join team with code
+
+- **Team Detail**
+  - Team members list with roles
+  - Active mission status (if any)
+  - Team history
+  - Leave team option
+
+### 5. Profile Screen
+- **User Info**
+  - Display name
+  - Selected role icon
+  - Fitness level
+  - Basic stats
+
+- **Settings**
+  - Account settings
+  - Notification preferences
+  - Logout button
+
+## 5. Key Components Development
+
+### 1. Core Components
+- **User Authentication System**
+  ```jsx
+  // pages/auth.js
+  import { useState } from 'react';
+  import { signIn, signUp } from '../firebase/auth';
+  
+  export default function Auth() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    
+    const handleSignIn = async (e) => {
+      e.preventDefault();
+      await signIn(email, password);
+    };
+    
+    return (
+      <div className="auth-container">
+        <h1>Welcome to Seek our Ways</h1>
+        <form onSubmit={handleSignIn}>
+          {/* Form inputs */}
+        </form>
+      </div>
+    );
+  }
+  ```
+
+- **Location Tracking Service**
+  ```jsx
+  // hooks/useLocation.js
+  import { useState, useEffect } from 'react';
+  
+  export function useLocation() {
+    const [location, setLocation] = useState(null);
+    const [error, setError] = useState(null);
+    
+    useEffect(() => {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          });
+        },
+        (err) => {
+          setError(err.message);
+        },
+        { enableHighAccuracy: true, maximumAge: 10000 }
+      );
+      
+      return () => navigator.geolocation.clearWatch(watchId);
+    }, []);
+    
+    return { location, error };
+  }
+  ```
+
+- **Mission Progress Tracker**
+  ```jsx
+  // contexts/MissionContext.js
+  import { createContext, useContext, useState, useEffect } from 'react';
+  import { db } from '../firebase/config';
+  
+  const MissionContext = createContext();
+  
+  export function MissionProvider({ children }) {
+    const [activeMission, setActiveMission] = useState(null);
+    const [checkpoints, setCheckpoints] = useState([]);
+    const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
+    const [collectedDigits, setCollectedDigits] = useState([]);
+    
+    // Functions to manage mission state
+    
+    return (
+      <MissionContext.Provider value={{
+        activeMission,
+        checkpoints,
+        currentCheckpoint,
+        collectedDigits,
+        startMission,
+        completeMission,
+        completeCheckpoint
+      }}>
+        {children}
+      </MissionContext.Provider>
+    );
+  }
+  
+  export const useMission = () => useContext(MissionContext);
+  ```
+
+### 2. Map & Navigation
+- **Interactive Map Component**
+  ```jsx
+  // components/MapView.js
+  import { useEffect } from 'react';
+  import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+  import { useLocation } from '../hooks/useLocation';
+  import { useMission } from '../contexts/MissionContext';
+  
+  export default function MapView() {
+    const { location } = useLocation();
+    const { checkpoints, currentCheckpoint } = useMission();
+    
+    return (
+      <MapContainer center={location || [22.2833, 114.1500]} zoom={15}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {/* User location marker */}
+        {location && <UserMarker position={[location.lat, location.lng]} />}
+        
+        {/* Checkpoint markers */}
+        {checkpoints.map(checkpoint => (
+          <CheckpointMarker
+            key={checkpoint.id}
+            checkpoint={checkpoint}
+            isCurrent={currentCheckpoint?.id === checkpoint.id}
+          />
+        ))}
+      </MapContainer>
+    );
+  }
+  ```
+
+- **Checkpoint Navigation**
+  ```jsx
+  // components/CheckpointNavigation.js
+  import { useState, useEffect } from 'react';
+  import { useLocation } from '../hooks/useLocation';
+  import { useMission } from '../contexts/MissionContext';
+  
+  export default function CheckpointNavigation() {
+    const { location } = useLocation();
+    const { currentCheckpoint } = useMission();
+    const [distance, setDistance] = useState(null);
+    
+    useEffect(() => {
+      if (location && currentCheckpoint) {
+        // Calculate distance between user and checkpoint
+        const d = calculateDistance(
+          location.lat, 
+          location.lng, 
+          currentCheckpoint.location.lat, 
+          currentCheckpoint.location.lng
+        );
+        setDistance(d);
+      }
+    }, [location, currentCheckpoint]);
+    
+    return (
+      <div className="navigation-container">
+        <h3>Next Checkpoint: {currentCheckpoint?.name}</h3>
+        <p>Distance: {distance ? `${distance.toFixed(1)} meters` : 'Calculating...'}</p>
+        <p>Direction: {calculateDirection()}</p>
+      </div>
+    );
+  }
+  ```
+
+### 3. Challenge Verification
+- **Physical Challenge Component**
+  ```jsx
+  // components/challenges/PhysicalChallenge.js
+  import { useState } from 'react';
+  import { useMission } from '../../contexts/MissionContext';
+  
+  export default function PhysicalChallenge({ checkpoint }) {
+    const [timer, setTimer] = useState(null);
+    const [isActive, setIsActive] = useState(false);
+    const { completeCheckpoint } = useMission();
+    
+    const startChallenge = () => {
+      setIsActive(true);
+      setTimer(0);
+      // Start timer
+    };
+    
+    const completeChallenge = () => {
+      setIsActive(false);
+      // Stop timer
+      completeCheckpoint(checkpoint.id);
+    };
+    
+    return (
+      <div className="challenge-container">
+        <h3>{checkpoint.challengeDescription}</h3>
+        {!isActive ? (
+          <button onClick={startChallenge}>Start Challenge</button>
+        ) : (
+          <>
+            <div className="timer">{formatTime(timer)}</div>
+            <button onClick={completeChallenge}>I completed this!</button>
+          </>
+        )}
+      </div>
+    );
+  }
+  ```
+
+- **Puzzle Challenge Component**
+  ```jsx
+  // components/challenges/PuzzleChallenge.js
+  import { useState } from 'react';
+  import { useMission } from '../../contexts/MissionContext';
+  
+  export default function PuzzleChallenge({ checkpoint }) {
+    const [answer, setAnswer] = useState('');
+    const { completeCheckpoint } = useMission();
+    
+    const checkAnswer = () => {
+      if (answer.toLowerCase() === checkpoint.correctAnswer.toLowerCase()) {
+        completeCheckpoint(checkpoint.id);
+      } else {
+        // Show error
+      }
+    };
+    
+    return (
+      <div className="challenge-container">
+        <h3>{checkpoint.challengeDescription}</h3>
+        <div className="clue">{checkpoint.clue}</div>
+        <input
+          type="text"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="Enter your answer"
+        />
+        <button onClick={checkAnswer}>Submit Answer</button>
+      </div>
+    );
+  }
+  ```
+
+### 4. Team Management
+- **Team Creation**
+  ```jsx
+  // components/teams/CreateTeam.js
+  import { useState } from 'react';
+  import { createTeam } from '../../firebase/teams';
+  import { useAuth } from '../../contexts/AuthContext';
+  
+  export default function CreateTeam() {
+    const [teamName, setTeamName] = useState('');
+    const { currentUser } = useAuth();
+    
+    const handleCreateTeam = async () => {
+      try {
+        const teamId = await createTeam({
+          name: teamName,
+          members: [{
+            userId: currentUser.uid,
+            role: null, // To be selected later
+            status: 'active'
+          }]
+        });
+        
+        // Redirect to team detail page
+      } catch (error) {
+        // Handle error
+      }
+    };
+    
+    return (
+      <div className="create-team-container">
+        <h2>Create New Team</h2>
+        <input
+          type="text"
+          value={teamName}
+          onChange={(e) => setTeamName(e.target.value)}
+          placeholder="Team Name"
+        />
+        <button onClick={handleCreateTeam}>Create Team</button>
+      </div>
+    );
+  }
+  ```
+
+- **Team Join**
+  ```jsx
+  // components/teams/JoinTeam.js
+  import { useState } from 'react';
+  import { joinTeam } from '../../firebase/teams';
+  import { useAuth } from '../../contexts/AuthContext';
+  
+  export default function JoinTeam() {
+    const [teamCode, setTeamCode] = useState('');
+    const { currentUser } = useAuth();
+    
+    const handleJoinTeam = async () => {
+      try {
+        await joinTeam(teamCode, currentUser.uid);
+        // Redirect to team detail page
+      } catch (error) {
+        // Handle error
+      }
+    };
+    
+    return (
+      <div className="join-team-container">
+        <h2>Join Team</h2>
+        <input
+          type="text"
+          value={teamCode}
+          onChange={(e) => setTeamCode(e.target.value)}
+          placeholder="Enter Team Code"
+        />
+        <button onClick={handleJoinTeam}>Join Team</button>
+      </div>
+    );
+  }
+  ```
+
+## 6. Firebase Setup
+
+### Authentication Configuration
+- Enable Email/Password authentication
+- Enable Google authentication
+- Set up security rules for authenticated access
+
+### Firestore Rules
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow users to read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Team rules
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
+    }
+    
+    // Mission data is readable by all authenticated users
+    match /missions/{missionId} {
+      allow read: if request.auth != null;
+    }
+    
+    match /checkpoints/{checkpointId} {
+      allow read: if request.auth != null;
+    }
+  }
+}
+```
+
+### Database Initialization
+- Set up initial mission data ("Defuse the Bomb")
+- Configure checkpoint data
+- Create admin account for content management
+
+## 7. PWA Setup
+
+### Next.js Configuration
+- Create manifest.json in the public folder
+```json
+{
+  "name": "Seek our Ways",
+  "short_name": "SeekWays",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
+```
+
+- Configure next.config.js for PWA
+```js
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+});
+
+module.exports = withPWA({
+  // Next.js config
+});
+```
+
+### Offline Capabilities
+- Cache mission and checkpoint data for offline use
+- Implement background sync for challenge completions
+- Local storage for mission progress
+
+## 8. UI Design Guidelines (iOS Simple Style)
+
+### Color Palette
+- Primary: #007AFF (iOS blue)
+- Secondary: #34C759 (iOS green)
+- Background: #F2F2F7
+- Text: #000000 (primary), #8E8E93 (secondary)
+- Error: #FF3B30
+
+### Typography
+- System font (San Francisco):
+  ```css
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  ```
+- Font sizes:
+  - Heading: 20px bold
+  - Subheading: 17px semibold
+  - Body: 16px regular
+  - Caption: 14px regular
+
+### UI Components
+- Buttons: Rounded rectangles with subtle shadows
+- Cards: White background with subtle border radius (10px)
+- Tab Bar: Bottom navigation with icons and labels
+- Navigation Bar: Simple top bar with title and back button
+- Modals: Slide up from bottom with rounded top corners
+
+### Sample UI Component Styles
+```css
+/* Button */
+.ios-button {
+  background-color: #007AFF;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card */
+.ios-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 10px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab Bar */
+.ios-tab-bar {
+  display: flex;
+  justify-content: space-around;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 8px 0 20px; /* Extra padding for home indicator */
+  border-top: 1px solid #E5E5EA;
+}
+```
+
+## 9. Implementation Plan
+
+### Week 1: Setup & Core Structure
+- Project initialization with Next.js
+- Firebase configuration
+- Authentication system implementation
+- Basic UI components creation
+
+### Week 2: Location & Mission Framework
+- Geolocation implementation
+- Map integration
+- Mission data structure setup
+- Basic checkpoint navigation
+
+### Week 3: Challenge System
+- Challenge completion verification
+- Password collection mechanism
+- Team formation functionality
+- Mission progression tracking
+
+### Week 4: Story Implementation & Testing
+- "Defuse the Bomb" storyline implementation
+- Checkpoint data population
+- UI refinement for iOS simple style
+- Initial testing on multiple devices
+
+### Week 5: PWA & Deployment
+- Service worker configuration
+- Offline capability implementation
+- Performance optimization
+- Deployment to Vercel and Firebase
+- Final testing
+
+## 10. Deployment Instructions
+
+### Vercel Deployment
+1. Connect GitHub repository to Vercel
+2. Configure environment variables:
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=xxxxx
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=xxxxx
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=xxxxx
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=xxxxx
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=xxxxx
+   NEXT_PUBLIC_FIREBASE_APP_ID=xxxxx
+   ```
+3. Set build command:
+   ```
+   npm run build
+   ```
+4. Deploy to production
+
+### Firebase Configuration
+1. Initialize Firebase project
+2. Enable Authentication providers
+3. Set up Firestore databases with initial data
+4. Configure security rules
+5. Deploy Cloud Functions if needed
+
+## 11. Testing Checklist
+
+### Functionality Testing
+- User registration and login
+- Geolocation accuracy
+- Checkpoint detection
+- Challenge completion verification
+- Team formation and management
+- Mission progression tracking
+- Password collection and verification
+
+### PWA Testing
+- Installation on devices
+- Offline functionality
+- Background sync
+- Push notifications
+
+### Performance Testing
+- Load time optimization
+- Battery usage monitoring
+- Data usage optimization
+
+### Device Testing
+- iOS devices
+- Android devices
+- Various screen sizes
+
+## 12. Post-MVP Roadmap
+
+### Phase 1 Enhancements
+- AR implementation for checkpoint interaction
+- Additional storylines beyond "Defuse the Bomb"
+- User-generated challenges
+- Extended profile customization
+
+### Phase 2 Expansion
+- Community events calendar
+- Cross-team competitions
+- Social sharing integration
+- Achievement system
+
+### Phase 3 Advanced Features
+- Advanced analytics dashboard
+- Health metrics integration
+- Partner business integration
+- Multiple difficulty levels
