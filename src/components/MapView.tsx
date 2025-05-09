@@ -1,5 +1,5 @@
 "use client";
-import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Polyline, Popup, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -16,10 +16,11 @@ const blackIcon = new L.Icon({
   className: "grayscale"
 });
 
-export default function MapView({ checkpoints, startLocation, endLocation }: {
+export default function MapView({ checkpoints, startLocation, endLocation, userLocation }: {
   checkpoints: { location: { lat: number, lng: number }, name: string, id: string }[],
   startLocation?: { lat: number, lng: number },
-  endLocation?: { lat: number, lng: number }
+  endLocation?: { lat: number, lng: number },
+  userLocation?: { lat: number, lng: number } | null
 }) {
   // 路線座標：起點 + checkpoints + 終點
   const route = [
@@ -27,7 +28,7 @@ export default function MapView({ checkpoints, startLocation, endLocation }: {
     ...checkpoints.map(cp => cp.location),
     ...(endLocation ? [endLocation] : [])
   ];
-  const center = route.length > 0 ? route[0] : { lat: 22.3, lng: 114.2 };
+  const center = userLocation || (route.length > 0 ? route[0] : { lat: 22.3, lng: 114.2 });
 
   return (
     <div className="w-full h-96 rounded-2xl overflow-hidden border border-gray-200 shadow mb-4">
@@ -41,6 +42,11 @@ export default function MapView({ checkpoints, startLocation, endLocation }: {
           </Marker>
         ))}
         <Polyline positions={route} color="#222" weight={4} />
+        {userLocation && (
+          <CircleMarker center={userLocation} radius={10} pathOptions={{ color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.7 }}>
+            <Popup>你的位置</Popup>
+          </CircleMarker>
+        )}
       </MapContainer>
     </div>
   );
