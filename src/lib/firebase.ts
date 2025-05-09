@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyAm9BzPvU4qPVQJ7lD7Fry7ccvvZeVRG8s",
+  authDomain: "sowapp-3d85f.firebaseapp.com",
+  projectId: "sowapp-3d85f",
+  storageBucket: "sowapp-3d85f.firebasestorage.app",
+  messagingSenderId: "715816519247",
+  appId: "1:715816519247:web:cc8d96f6a5e3e43c1b4c3a",
+  measurementId: "G-5Q20H356RJ"
 };
 
 // 初始化 Firebase
