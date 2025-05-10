@@ -32,7 +32,7 @@ export default function MissionDetailPage() {
   const [team, setTeam] = useState<any>(null);
   const [activeTeamMission, setActiveTeamMission] = useState<any>(null);
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [isLeader, setIsLeader] = useState(false);
   const [userTeams, setUserTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
@@ -40,38 +40,39 @@ export default function MissionDetailPage() {
   useEffect(() => {
     async function fetchData() {
       if (!id) return;
-      // 取得任務資料
-      const missionSnap = await getDoc(doc(db, "missions", id as string));
-      if (!missionSnap.exists()) return;
-      const missionData = missionSnap.data();
-      setMission(missionData);
-      // 取得該任務所有 checkpoints
-      const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
-      const cpSnap = await getDocs(q);
-      // 先取得所有 checkpoint
-      let checkpointsRaw = cpSnap.docs.map(doc => {
-        const data = doc.data() as Omit<CheckpointType, "id">;
-        return { ...data, id: doc.id };
-      });
-      // 用 nextCheckpoint 串連所有 checkpoint
-      let ordered: CheckpointType[] = [];
-      if (checkpointsRaw.length > 0) {
-        const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
-        // 找到起點（沒有被其他 checkpoint 指向的）
-        let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
-        let current = start;
-        while (current) {
-          ordered.push(current);
-          current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
+      try {
+        // 取得任務資料
+        const missionSnap = await getDoc(doc(db, "missions", id as string));
+        if (!missionSnap.exists()) throw new Error("找不到任務");
+        const missionData = missionSnap.data();
+        setMission(missionData);
+        // 取得該任務所有 checkpoints
+        const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
+        const cpSnap = await getDocs(q);
+        let checkpointsRaw = cpSnap.docs.map(doc => {
+          const data = doc.data() as Omit<CheckpointType, "id">;
+          return { ...data, id: doc.id };
+        });
+        let ordered: CheckpointType[] = [];
+        if (checkpointsRaw.length > 0) {
+          const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
+          let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
+          let current = start;
+          while (current) {
+            ordered.push(current);
+            current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
+          }
+          if (ordered.length < checkpointsRaw.length) {
+            const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
+            ordered = [...ordered, ...missing];
+          }
         }
-        // 若串連不完整，補上遺漏的點
-        if (ordered.length < checkpointsRaw.length) {
-          const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
-          ordered = [...ordered, ...missing];
-        }
+        setCheckpoints(ordered);
+        setLoading(false);
+      } catch (err: any) {
+        setError(err?.message || "載入任務資料時發生錯誤");
+        setLoading(false);
       }
-      setCheckpoints(ordered);
-      setLoading(false);
     }
     fetchData();
   }, [id]);
@@ -107,6 +108,9 @@ export default function MissionDetailPage() {
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
+  }
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-red-500">{error}</div>;
   }
   if (!mission) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務</div>;
@@ -184,7 +188,6 @@ export default function MissionDetailPage() {
         {buttonLoading ? "啟動中..." : "開始任務"}
       </button>
       {!selectedTeamId && isLeader && <div className="text-red-500 text-sm mt-2">請先選擇團隊才能開始任務</div>}
-      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 } 
