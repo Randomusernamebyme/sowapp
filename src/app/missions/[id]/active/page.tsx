@@ -40,6 +40,9 @@ export default function ActiveMissionPage() {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
+  const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
+
   useEffect(() => {
     if (authLoading) return;
     if (!id) return;
@@ -150,6 +153,17 @@ export default function ActiveMissionPage() {
     }
   };
 
+  // 新增：完成任務時自動導向完成頁
+  useEffect(() => {
+    if (
+      !currentCheckpointId &&
+      completedCheckpoints.length === checkpoints.length &&
+      checkpoints.length > 0
+    ) {
+      router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+    }
+  }, [currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
+
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -160,14 +174,8 @@ export default function ActiveMissionPage() {
     return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務或檢查點</div>;
   }
 
-  const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
-  const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      // 自動導向完成頁
-      useEffect(() => {
-        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-      }, [id, team]);
       return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成，正在導向...</div>;
     } else {
       return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
