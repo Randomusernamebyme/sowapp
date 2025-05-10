@@ -4,7 +4,7 @@ import { useState } from "react";
 interface PuzzleChallengeProps {
   description: string;
   clue: string;
-  onComplete: () => void;
+  onComplete: (answer: string) => void;
 }
 
 export default function PuzzleChallenge({ description, clue, onComplete }: PuzzleChallengeProps) {
@@ -17,7 +17,7 @@ export default function PuzzleChallenge({ description, clue, onComplete }: Puzzl
       setError("請輸入答案");
       return;
     }
-    onComplete();
+    onComplete(answer);
   };
 
   return (

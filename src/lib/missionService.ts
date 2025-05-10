@@ -46,7 +46,7 @@ export async function getActiveTeamMission(teamId: string) {
 }
 
 // 更新團隊任務進度
-export async function updateTeamMissionProgress(teamId: string, checkpointId: string, passwordDigit?: number) {
+export async function updateTeamMissionProgress(teamId: string, checkpointId: string, passwordDigit?: number, answer?: string) {
   const teamRef = doc(db, "teams", teamId);
   const teamSnap = await getDoc(teamRef);
   if (!teamSnap.exists()) throw new Error("找不到團隊");
@@ -68,10 +68,15 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
   const currentDigits = progress.collectedDigits || [];
   const newDigits = passwordDigit !== undefined ? [...currentDigits, Number(passwordDigit)] : currentDigits;
 
+  // 記錄 puzzle 答案
+  const currentAnswers = progress.answers || {};
+  const newAnswers = answer !== undefined ? { ...currentAnswers, [checkpointId]: answer } : currentAnswers;
+
   await updateDoc(teamRef, {
     "missionProgress.currentCheckpoint": nextCheckpoint,
     "missionProgress.completedCheckpoints": [...(progress.completedCheckpoints || []), checkpointId],
     "missionProgress.collectedDigits": newDigits,
+    "missionProgress.answers": newAnswers,
   });
 }
 
@@ -130,6 +135,9 @@ export async function completeTeamMission(teamId: string, missionId: string) {
 
   // 取得當前 missionProgress 並記錄到 completedMissionProgress 陣列
   const currentProgress = data.missionProgress || {};
+  // 將 completedAt 寫入 currentProgress
+  currentProgress.completedAt = completedAt;
+
   const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
   const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
   const newCompletedMissionProgress = [
@@ -137,7 +145,6 @@ export async function completeTeamMission(teamId: string, missionId: string) {
     {
       missionId,
       playCount,
-      completedAt,
       ...currentProgress
     }
   ];
@@ -155,7 +162,7 @@ export async function completeTeamMission(teamId: string, missionId: string) {
   // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確，並記錄 completedMissionProgress
   await updateDoc(teamRef, {
     activeMission: "",
-    missionProgress: { completedAt },
+    missionProgress: {},
     completedMissions: newTeamCompletedMissions,
     completedMissionProgress: newCompletedMissionProgress
   });

@@ -132,11 +132,11 @@ export default function ActiveMissionPage() {
     return () => unsub();
   }, [id, user, authLoading, router, teamId]);
 
-  const handleChallengeComplete = async () => {
+  const handleChallengeComplete = async (answer?: string) => {
     if (!team || !currentCheckpoint || buttonLoading) return;
     setButtonLoading(true);
     try {
-      await updateTeamMissionProgress(team.id, currentCheckpoint.id, currentCheckpoint.passwordDigit?.value);
+      await updateTeamMissionProgress(team.id, currentCheckpoint.id, currentCheckpoint.passwordDigit?.value, answer);
       if (currentIdx < checkpoints.length - 1) {
         setCurrentIdx(i => i + 1);
       } else {

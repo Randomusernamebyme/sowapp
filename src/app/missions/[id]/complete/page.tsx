@@ -47,14 +47,17 @@ export default function MissionCompletePage() {
     return <div className="min-h-screen flex items-center justify-center bg-white text-red-500">{error}</div>;
   }
 
-  // 取得團隊 missionProgress 完成資訊
-  const completedAt = team.missionProgress?.completedAt
-    ? (team.missionProgress.completedAt instanceof Timestamp
-        ? team.missionProgress.completedAt.toDate()
-        : new Date(team.missionProgress.completedAt))
+  // 取得團隊 completedMissionProgress 最後一筆紀錄
+  const completedList = Array.isArray(team.completedMissionProgress) ? team.completedMissionProgress.filter((c: any) => c.missionId === mission.id) : [];
+  const lastCompleted = completedList.length > 0 ? completedList[completedList.length - 1] : null;
+  const completedAt = lastCompleted?.completedAt
+    ? (lastCompleted.completedAt instanceof Timestamp
+        ? lastCompleted.completedAt.toDate()
+        : new Date(lastCompleted.completedAt))
     : null;
-  const collectedDigits = team.missionProgress?.collectedDigits || [];
-  const completedCheckpoints = team.missionProgress?.completedCheckpoints || [];
+  const collectedDigits = lastCompleted?.collectedDigits || [];
+  const completedCheckpoints = lastCompleted?.completedCheckpoints || [];
+  const answers = lastCompleted?.answers || {};
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
@@ -74,7 +77,16 @@ export default function MissionCompletePage() {
         <div className="mb-4">
           <div className="text-gray-600">完成檢查點數量：</div>
           <div className="font-semibold text-black">{completedCheckpoints.length}</div>
+          {completedCheckpoints.length > 0 && (
+            <div className="text-xs text-gray-500 mt-1">ID: {completedCheckpoints.join(", ")}</div>
+          )}
         </div>
+        {Object.keys(answers).length > 0 && (
+          <div className="mb-4">
+            <div className="text-gray-600">解謎答案紀錄：</div>
+            <div className="text-xs text-black break-all">{Object.entries(answers).map(([cid, ans]) => `#${cid}: ${ans}`).join("； ")}</div>
+          </div>
+        )}
         <div className="mb-4">
           <div className="text-gray-600">團隊成員：</div>
           <div className="font-mono text-black">
