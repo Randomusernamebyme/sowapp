@@ -113,7 +113,7 @@ export async function completeTeamMission(teamId: string) {
   }
   await updateDoc(teamRef, {
     activeMission: "",
-    completedMissions: [...(data.completedMissions || []), data.activeMission],
+    completedMissions: Array.from(new Set([...(data.completedMissions || []), missionId])),
     missionProgress: {},
   });
 }
