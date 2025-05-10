@@ -8,7 +8,7 @@ import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
 import PhotoChallenge from "@/components/challenges/PhotoChallenge";
-import { startMission, completeCheckpoint, completeMission, getMissionProgress, UserMissionProgress } from "@/lib/missionProgress";
+import { startMission, updateCheckpointProgress, completeMission, getMissionProgress, MissionProgress } from "@/lib/missionProgress";
 
 interface CheckpointType {
   id: string;
@@ -43,28 +43,25 @@ export default function ActiveMissionPage() {
   const [checkpoints, setCheckpoints] = useState<CheckpointType[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState<UserMissionProgress | null>(null);
+  const [progress, setProgress] = useState<MissionProgress | null>(null);
   const userLocation = useUserLocation();
 
   useEffect(() => {
     async function fetchData() {
       if (!id || !user) return;
-      
       // 取得任務資料
       const missionSnap = await getDoc(doc(db, "missions", id as string));
       if (!missionSnap.exists()) return;
       const missionData = missionSnap.data();
       setMission(missionData);
-
-      // 取得檢查點資料
+      // 取得該任務所有 checkpoints
       const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
       const cpSnap = await getDocs(q);
       let checkpointsRaw = cpSnap.docs.map(doc => {
         const data = doc.data() as Omit<CheckpointType, "id">;
         return { ...data, id: doc.id };
       });
-
-      // 排序檢查點
+      // 用 nextCheckpoint 串連所有 checkpoint
       let ordered: CheckpointType[] = [];
       if (checkpointsRaw.length > 0) {
         const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
@@ -81,40 +78,45 @@ export default function ActiveMissionPage() {
       }
       setCheckpoints(ordered);
 
-      // 取得任務進度
+      // 取得或建立任務進度
       const existingProgress = await getMissionProgress(user.uid, id as string);
       if (existingProgress) {
         setProgress(existingProgress);
         setCurrentIdx(existingProgress.currentCheckpoint);
       } else {
-        // 開始新任務
-        const newProgress = await startMission(user.uid, id as string);
+        const newProgress = await startMission(
+          user.uid,
+          id as string,
+          ordered.map(cp => cp.id)
+        );
         setProgress(newProgress);
       }
-
       setLoading(false);
     }
     fetchData();
   }, [id, user]);
 
-  const handleChallengeComplete = async (result?: any) => {
+  const handleChallengeComplete = async (challengeData?: any) => {
     if (!user || !id || !progress) return;
-
     const currentCheckpoint = checkpoints[currentIdx];
-    await completeCheckpoint(
-      user.uid,
-      id as string,
-      currentCheckpoint.id,
-      currentCheckpoint.challengeType || "none",
-      result
-    );
+    
+    try {
+      await updateCheckpointProgress(
+        user.uid,
+        id as string,
+        currentCheckpoint.id,
+        challengeData
+      );
 
-    if (currentIdx < checkpoints.length - 1) {
-      setCurrentIdx(i => i + 1);
-    } else {
-      // 任務完成
-      await completeMission(user.uid, id as string);
-      router.push(`/missions/${id}/complete`);
+      if (currentIdx < checkpoints.length - 1) {
+        setCurrentIdx(i => i + 1);
+      } else {
+        await completeMission(user.uid, id as string);
+        router.push(`/missions/${id}/complete`);
+      }
+    } catch (error) {
+      console.error("更新進度失敗：", error);
+      // TODO: 顯示錯誤訊息
     }
   };
 
@@ -133,7 +135,7 @@ export default function ActiveMissionPage() {
         return (
           <PhysicalChallenge
             description={currentCheckpoint.challengeDescription || ""}
-            onComplete={handleChallengeComplete}
+            onComplete={() => handleChallengeComplete({ type: "physical" })}
           />
         );
       case "puzzle":
@@ -141,14 +143,14 @@ export default function ActiveMissionPage() {
           <PuzzleChallenge
             description={currentCheckpoint.challengeDescription || ""}
             clue={currentCheckpoint.clue || ""}
-            onComplete={handleChallengeComplete}
+            onComplete={() => handleChallengeComplete({ type: "puzzle" })}
           />
         );
       case "photo":
         return (
           <PhotoChallenge
             description={currentCheckpoint.challengeDescription || ""}
-            onComplete={handleChallengeComplete}
+            onComplete={() => handleChallengeComplete({ type: "photo" })}
           />
         );
       default:
