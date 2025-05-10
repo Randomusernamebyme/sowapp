@@ -49,7 +49,7 @@ export default function MissionCompletePage() {
 
   // 取得團隊 completedMissionProgress 最後一筆紀錄
   const completedList = Array.isArray(team.completedMissionProgress) ? team.completedMissionProgress.filter((c: any) => c.missionId === mission.id) : [];
-  const lastCompleted = completedList.length > 0 ? completedList[completedList.length - 1] : null;
+  const lastCompleted = completedList.length > 0 ? completedList[completedList.length - 1] : (team.missionProgress || null);
   const completedAt = lastCompleted?.completedAt
     ? (lastCompleted.completedAt instanceof Timestamp
         ? lastCompleted.completedAt.toDate()
