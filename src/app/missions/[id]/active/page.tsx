@@ -11,6 +11,7 @@ import PhotoChallenge from "@/components/challenges/PhotoChallenge";
 import QuizChallenge from "@/components/challenges/QuizChallenge";
 import { Mission, CheckpointType, UserMission } from "@/types/mission";
 import { startTeamMission, updateTeamMissionProgress, completeTeamMission, getActiveTeamMission } from "@/lib/missionService";
+import Image from "next/image";
 
 // 計算兩點之間的距離（米）
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -58,6 +59,14 @@ export default function ActiveMissionPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [lastPasswordDigit, setLastPasswordDigit] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showTimeReminder, setShowTimeReminder] = useState(false);
+  const [reminderImgIdx, setReminderImgIdx] = useState(0);
+  const reminderImages = [
+    "/reminder/reminder1.png",
+    "/reminder/reminder2.png",
+    "/reminder/reminder3.png"
+  ];
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -151,6 +160,29 @@ export default function ActiveMissionPage() {
     return () => unsub();
   }, [id, user, authLoading, router, teamId]);
 
+  // 倒數計時
+  useEffect(() => {
+    if (!mission || !team) return;
+    const startedAt = team.missionProgress?.startedAt ? new Date(team.missionProgress.startedAt) : new Date();
+    const durationMs = (parseInt(mission.estimatedDuration) || 60) * 60 * 1000;
+    const endAt = new Date(startedAt.getTime() + durationMs);
+    const timer = setInterval(() => {
+      const now = new Date();
+      const left = Math.max(0, Math.floor((endAt.getTime() - now.getTime()) / 1000));
+      setTimeLeft(left);
+      // 每 15 分鐘彈窗提醒
+      if (left > 0 && left % (15 * 60) === 0) {
+        setShowTimeReminder(true);
+        setReminderImgIdx(Math.floor(Math.random() * reminderImages.length));
+      }
+      if (left === 0) {
+        clearInterval(timer);
+        router.replace(`/missions/${id}/fail?teamId=${team.id}`);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [mission, team, id, router]);
+
   const handleChallengeComplete = async (answer?: string) => {
     if (!team || !currentCheckpoint || buttonLoading) return;
     setButtonLoading(true);
@@ -187,7 +219,7 @@ export default function ActiveMissionPage() {
       !currentCheckpointId &&
       completedCheckpoints.length === checkpoints.length &&
       checkpoints.length > 0 &&
-      completedCheckpoints.every(cid => checkpoints.find(cp => cp.id === cid))
+      completedCheckpoints.every((cid: string) => checkpoints.find(cp => cp.id === cid))
     ) {
       // 強制呼叫 completeTeamMission，確保 Firestore 寫入
       if (team && mission) {
@@ -233,6 +265,20 @@ export default function ActiveMissionPage() {
             }}
           >
             確認</button>
+        </div>
+      </div>
+    ) : null
+  );
+
+  // 時間提醒彈窗
+  const TimeReminderModal = () => (
+    showTimeReminder ? (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+          <div className="text-2xl font-bold text-black mb-2">剩餘時間提醒</div>
+          <Image src={reminderImages[reminderImgIdx]} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
+          <div className="text-lg text-black mb-4">剩餘 {timeLeft ? Math.floor(timeLeft/60) : 0} 分鐘</div>
+          <button className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition" onClick={() => setShowTimeReminder(false)}>確認</button>
         </div>
       </div>
     ) : null
@@ -330,6 +376,7 @@ export default function ActiveMissionPage() {
   return (
     <>
       <PasswordModal />
+      <TimeReminderModal />
       <div className="min-h-screen flex flex-col items-center bg-white pt-8">
         <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <MapView
