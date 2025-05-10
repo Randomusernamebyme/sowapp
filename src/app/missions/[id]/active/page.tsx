@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -35,6 +35,8 @@ export default function ActiveMissionPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const userLocation = useUserLocation();
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get("teamId");
 
   useEffect(() => {
     if (authLoading) return;
@@ -43,25 +45,25 @@ export default function ActiveMissionPage() {
       router.push("/auth");
       return;
     }
+    if (!teamId) {
+      router.push("/teams");
+      return;
+    }
     async function fetchData() {
       if (!user) return;
-      // 取得所有團隊
-      const teamSnap = await getDocs(collection(db, "teams"));
-      const userTeam = teamSnap.docs.find(doc => doc.data().members.some((m: any) => m.userId === user.uid));
-      if (!userTeam) {
+      // 取得指定 teamId 的團隊
+      const teamDoc = await getDoc(doc(db, "teams", teamId!));
+      if (!teamDoc.exists()) {
         router.push("/teams");
         return;
       }
-      setTeam({ id: userTeam.id, ...userTeam.data() });
+      setTeam({ id: teamDoc.id, ...teamDoc.data() });
       // 取得團隊 activeMission
-      let activeMission = await getActiveTeamMission(userTeam.id);
+      let activeMission = await getActiveTeamMission(teamId!);
       if (!activeMission || activeMission.missionId !== id) {
-        // 啟動團隊任務
-        await startTeamMission(userTeam.id, id as string);
-        activeMission = await getActiveTeamMission(userTeam.id);
-      }
-      if (!activeMission) {
-        throw new Error("無法建立任務進度");
+        // 啟動團隊任務（僅隊長可觸發，這裡僅同步）
+        setLoading(false);
+        return;
       }
       // 取得任務和檢查點資料
       const missionSnap = await getDoc(doc(db, "missions", id as string));
@@ -100,7 +102,7 @@ export default function ActiveMissionPage() {
       setLoading(false);
     }
     fetchData();
-  }, [id, user, authLoading, router]);
+  }, [id, user, authLoading, router, teamId]);
 
   const handleChallengeComplete = async () => {
     if (!team) return;
@@ -112,7 +114,7 @@ export default function ActiveMissionPage() {
       } else {
         await completeTeamMission(team.id);
         await new Promise(r => setTimeout(r, 500));
-        router.push(`/missions/${id}/complete`);
+        router.push(`/missions/${id}/complete?teamId=${team.id}`);
       }
     } catch (error) {
       console.error("Error updating mission progress:", error);

@@ -16,6 +16,12 @@ interface CheckpointType {
   nextCheckpoint?: string;
 }
 
+interface Team {
+  id: string;
+  name: string;
+  members: { userId: string; role: string }[];
+}
+
 export default function MissionDetailPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -28,6 +34,8 @@ export default function MissionDetailPage() {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLeader, setIsLeader] = useState(false);
+  const [userTeams, setUserTeams] = useState<Team[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
 
   useEffect(() => {
     async function fetchData() {
@@ -69,22 +77,33 @@ export default function MissionDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    async function fetchTeam() {
+    async function fetchTeams() {
       if (!user) return;
-      // 取得用戶所屬團隊
+      // 取得所有用戶所屬團隊
       const teamSnap = await getDocs(query(collection(db, "teams")));
-      const userTeam = teamSnap.docs.find(doc => doc.data().members.some((m: any) => m.userId === user.uid));
-      if (userTeam) {
-        setTeam({ id: userTeam.id, ...userTeam.data() });
-        const activeMission = await getActiveTeamMission(userTeam.id);
+      const teams = teamSnap.docs
+        .filter(doc => doc.data().members.some((m: any) => m.userId === user.uid))
+        .map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+          members: doc.data().members
+        } as Team));
+      setUserTeams(teams);
+      // 預設選第一個隊長團隊
+      const leaderTeam = teams.find(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A"));
+      setSelectedTeamId(leaderTeam?.id || "");
+      setIsLeader(!!leaderTeam);
+      if (leaderTeam) {
+        const activeMission = await getActiveTeamMission(leaderTeam.id);
         setActiveTeamMission(activeMission);
-        // 判斷是否為隊長（role A）
-        const member = userTeam.data().members.find((m: any) => m.userId === user.uid);
-        setIsLeader(member?.role === "A");
       }
     }
-    fetchTeam();
+    fetchTeams();
   }, [user]);
+
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">請先登入</div>;
+  }
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
@@ -114,36 +133,45 @@ export default function MissionDetailPage() {
           </div>
         ))}
       </div>
+      {isLeader && (
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-1">選擇要啟動任務的團隊：</label>
+          <select
+            className="border border-gray-300 rounded-lg px-3 py-2"
+            value={selectedTeamId}
+            onChange={e => setSelectedTeamId(e.target.value)}
+          >
+            <option value="">請選擇團隊</option>
+            {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).map(team => (
+              <option key={team.id} value={team.id}>{team.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <button
         className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-        disabled={!team || (!!activeTeamMission && activeTeamMission.missionId) || !isLeader}
+        disabled={!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId)}
         onClick={async () => {
           setButtonLoading(true);
           setError("");
-          if (!team) {
-            setError("請先加入團隊");
-            setButtonLoading(false);
-            return;
-          }
-          if (!isLeader) {
-            setError("只有隊長（A 角色）可以啟動任務");
+          if (!selectedTeamId) {
+            setError("請先選擇團隊");
             setButtonLoading(false);
             return;
           }
           if (activeTeamMission && activeTeamMission.missionId) {
-            setError("團隊已有進行中任務，請先完成");
+            setError("該團隊已有進行中任務，請先完成");
             setButtonLoading(false);
             return;
           }
-          await startTeamMission(team.id, id as string);
-          router.push(`/missions/${id}/active`);
+          await startTeamMission(selectedTeamId, id as string);
+          router.push(`/missions/${id}/active?teamId=${selectedTeamId}`);
           setButtonLoading(false);
         }}
       >
         {buttonLoading ? "啟動中..." : "開始任務"}
       </button>
-      {!team && <div className="text-red-500 text-sm mt-2">請先加入團隊才能開始任務</div>}
-      {!isLeader && team && <div className="text-gray-500 text-sm mt-2">只有隊長（A 角色）可以啟動任務</div>}
+      {!selectedTeamId && isLeader && <div className="text-red-500 text-sm mt-2">請先選擇團隊才能開始任務</div>}
       {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
