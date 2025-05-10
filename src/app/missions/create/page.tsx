@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
 import Link from "next/link";
@@ -41,6 +41,9 @@ export default function MissionCreatePage() {
   });
   const [checkpoints, setCheckpoints] = useState<CheckpointForm[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [missions, setMissions] = useState<any[]>([]);
+  const [selectedMission, setSelectedMission] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
 
   useEffect(() => {
     async function checkAdmin() {
@@ -48,9 +51,13 @@ export default function MissionCreatePage() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       setIsAdmin(userDoc.exists() && userDoc.data()?.isAdmin === true);
       setLoading(false);
+      // 載入所有任務
+      const q = query(collection(db, "missions"));
+      const snap = await getDocs(q);
+      setMissions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     }
     checkAdmin();
-  }, [user]);
+  }, [user, success]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
@@ -137,6 +144,39 @@ export default function MissionCreatePage() {
       setCheckpoints([]);
     } catch (err: any) {
       setError("建立任務失敗：" + err.message);
+    }
+  };
+
+  const handleSelectMission = (mission: any) => {
+    setSelectedMission(mission);
+    setMission({ ...mission });
+    // 載入 checkpoints
+    // 可根據需要載入並編輯 checkpoints
+  };
+
+  const handleDeleteMission = async () => {
+    if (!selectedMission || deleteConfirm !== selectedMission.title) {
+      setError("請正確輸入完整任務標題以確認刪除");
+      return;
+    }
+    try {
+      // 刪除相關 checkpoints
+      const cpQ = query(collection(db, "checkpoints"), where("missionId", "==", selectedMission.id));
+      const cpSnap = await getDocs(cpQ);
+      for (const docSnap of cpSnap.docs) {
+        await deleteDoc(doc(db, "checkpoints", docSnap.id));
+      }
+      // 刪除 mission
+      await deleteDoc(doc(db, "missions", selectedMission.id));
+      setSuccess("任務與相關檢查點已刪除");
+      setSelectedMission(null);
+      setDeleteConfirm("");
+      // 重新載入任務
+      const q = query(collection(db, "missions"));
+      const snap = await getDocs(q);
+      setMissions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (err: any) {
+      setError("刪除失敗：" + err.message);
     }
   };
 
@@ -267,6 +307,27 @@ export default function MissionCreatePage() {
           <button type="submit" className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition">建立任務</button>
         </form>
         <div className="mt-8 text-gray-500 text-sm">請將任務封面圖片放到 <span className="text-blue-600">public/missions/</span> 目錄下，並於上方選擇檔案。</div>
+        <div className="mb-8">
+          <h2 className="text-lg font-bold mb-2">現有任務</h2>
+          <div className="space-y-2">
+            {missions.map(m => (
+              <div key={m.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
+                <span className="flex-1 cursor-pointer" onClick={() => handleSelectMission(m)}>{m.title}</span>
+                <button className="text-blue-600 underline" onClick={() => handleSelectMission(m)}>編輯</button>
+                <button className="text-red-600 underline" onClick={() => setSelectedMission(m)}>刪除</button>
+              </div>
+            ))}
+          </div>
+        </div>
+        {selectedMission && (
+          <div className="mb-8 border p-4 rounded bg-red-50">
+            <div className="mb-2 font-bold text-red-700">刪除任務：{selectedMission.title}</div>
+            <div className="mb-2 text-sm text-gray-700">請輸入完整任務標題以確認刪除：</div>
+            <input className="border rounded p-2 w-full mb-2" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
+            <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleDeleteMission}>確認刪除</button>
+            <button className="ml-2 px-4 py-2 rounded border" onClick={() => setSelectedMission(null)}>取消</button>
+          </div>
+        )}
       </div>
     </div>
   );
