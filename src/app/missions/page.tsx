@@ -45,7 +45,7 @@ export default function MissionsPage() {
     if (selectedTypes.length > 0) {
       filtered = filtered.filter(mission =>
         mission.checkpoints?.some((checkpoint: any) =>
-          selectedTypes.includes(checkpoint.type)
+          selectedTypes.includes(checkpoint.challengeType)
         )
       );
     }
@@ -53,7 +53,7 @@ export default function MissionsPage() {
     // 地理區域過濾
     if (selectedAreas.length > 0) {
       filtered = filtered.filter(mission =>
-        selectedAreas.includes(mission.geographicalArea)
+        selectedAreas.includes(mission.area)
       );
     }
 
@@ -205,7 +205,7 @@ export default function MissionsPage() {
                         key={index}
                         className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
                       >
-                        {CHECKPOINT_TYPES.find(t => t.id === checkpoint.type)?.label}
+                        {CHECKPOINT_TYPES.find(t => t.id === checkpoint.challengeType)?.label}
                       </span>
                     ))}
                   </div>
@@ -213,7 +213,7 @@ export default function MissionsPage() {
                 <div className="flex gap-4 mt-4 text-xs text-gray-500">
                   <span>難度：{MISSION_DIFFICULTY.find(d => d.id === mission.difficulty)?.label || "-"}</span>
                   <span>預估時間：{mission.estimatedDuration || "-"} 分鐘</span>
-                  <span>區域：{GEOGRAPHICAL_AREAS.find(a => a.id === mission.geographicalArea)?.label || "-"}</span>
+                  <span>區域：{GEOGRAPHICAL_AREAS.find(a => a.id === mission.area)?.label || "-"}</span>
                 </div>
               </button>
             ))}
