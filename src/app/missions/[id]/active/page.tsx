@@ -138,6 +138,10 @@ export default function ActiveMissionPage() {
 
   const currentCheckpoint = checkpoints[currentIdx];
 
+  if (!currentCheckpoint) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到檢查點</div>;
+  }
+
   const renderChallenge = () => {
     switch (currentCheckpoint.challengeType) {
       case "physical":
