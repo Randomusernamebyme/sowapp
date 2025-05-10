@@ -134,9 +134,12 @@ export async function completeTeamMission(teamId: string, missionId: string) {
   const completedAt = new Date();
 
   // 取得當前 missionProgress 並記錄到 completedMissionProgress 陣列
-  const currentProgress = data.missionProgress || {};
+  const currentProgress = data.missionProgress ? JSON.parse(JSON.stringify(data.missionProgress)) : {};
   // 將 completedAt 寫入 currentProgress
   currentProgress.completedAt = completedAt;
+  if (!currentProgress.completedCheckpoints || !Array.isArray(currentProgress.completedCheckpoints) || currentProgress.completedCheckpoints.length === 0) {
+    console.warn('[completeTeamMission] missionProgress 為空或缺少檢查點，資料可能不完整', { teamId, missionId, currentProgress });
+  }
 
   const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
   const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
