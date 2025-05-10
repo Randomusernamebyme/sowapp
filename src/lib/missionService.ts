@@ -70,7 +70,7 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
 
   // 記錄 puzzle 答案
   const currentAnswers = progress.answers || {};
-  const newAnswers = answer !== undefined ? { ...currentAnswers, [checkpointId]: answer } : currentAnswers;
+  const newAnswers = (typeof answer === 'string') ? { ...currentAnswers, [checkpointId]: answer } : currentAnswers;
 
   await updateDoc(teamRef, {
     "missionProgress.currentCheckpoint": nextCheckpoint,
