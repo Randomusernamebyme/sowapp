@@ -152,22 +152,6 @@ export default function ActiveMissionPage() {
   const handleChallengeComplete = async (answer?: string) => {
     if (!team || !currentCheckpoint || buttonLoading) return;
     
-    // 檢查用戶是否在檢查點附近
-    if (userLocation) {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        currentCheckpoint.location.lat,
-        currentCheckpoint.location.lng
-      );
-      
-      // 如果距離超過 50 米，顯示錯誤
-      if (distance > 50) {
-        setError("您需要靠近檢查點才能完成挑戰");
-        return;
-      }
-    }
-    
     setButtonLoading(true);
     try {
       await updateTeamMissionProgress(
