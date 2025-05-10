@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, arrayRemove } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -16,6 +16,8 @@ interface Team {
   createdAt?: any;
 }
 
+const ROLES = ["A", "B", "C", "D"];
+
 export default function TeamDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -24,7 +26,7 @@ export default function TeamDetailPage() {
   const [loading, setLoading] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
     async function loadTeam() {
@@ -46,6 +48,55 @@ export default function TeamDetailPage() {
 
     loadTeam();
   }, [user, id, router]);
+
+  async function handleUpdateRole(memberId: string, newRole: string) {
+    if (!user || !team) return;
+    
+    setUpdatingRole(true);
+    setError("");
+
+    try {
+      const member = team.members.find(m => m.userId === memberId);
+      if (!member) {
+        setError("找不到成員");
+        return;
+      }
+
+      // 從團隊成員列表中移除舊角色
+      await updateDoc(doc(db, "teams", team.id), {
+        members: arrayRemove({
+          userId: memberId,
+          role: member.role,
+          status: member.status
+        })
+      });
+
+      // 加入新角色
+      await updateDoc(doc(db, "teams", team.id), {
+        members: arrayUnion({
+          userId: memberId,
+          role: newRole,
+          status: member.status
+        })
+      });
+
+      // 更新本地狀態
+      setTeam(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          members: prev.members.map(m => 
+            m.userId === memberId ? { ...m, role: newRole } : m
+          )
+        };
+      });
+    } catch (err) {
+      console.error("更新角色失敗:", err);
+      setError("更新角色失敗，請稍後再試");
+    } finally {
+      setUpdatingRole(false);
+    }
+  }
 
   async function handleLeaveTeam() {
     if (!user || !team) return;
@@ -81,17 +132,6 @@ export default function TeamDetailPage() {
       setError("離開團隊失敗，請稍後再試");
     } finally {
       setLeaving(false);
-    }
-  }
-
-  async function copyInviteCode() {
-    if (!team) return;
-    try {
-      await navigator.clipboard.writeText(team.inviteCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("複製失敗:", err);
     }
   }
 
@@ -149,21 +189,12 @@ export default function TeamDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">團隊資訊</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <div>
-                <p className="text-gray-600 text-sm">邀請碼</p>
-                <p className="text-black font-mono text-lg">{team.inviteCode}</p>
-              </div>
-              <button
-                onClick={copyInviteCode}
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
-              >
-                {copied ? "已複製！" : "複製"}
-              </button>
-            </div>
+          <div className="space-y-2">
             <p className="text-gray-600">
               團隊 ID：{team.id}
+            </p>
+            <p className="text-gray-600">
+              邀請碼：{team.inviteCode}
             </p>
             <p className="text-gray-600">
               成員數：{team.members?.length || 0}
@@ -177,7 +208,7 @@ export default function TeamDetailPage() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">成員列表</h2>
           <div className="space-y-4">
-            {team.members?.map((member: any) => (
+            {team.members?.map((member) => (
               <div
                 key={member.userId}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
@@ -186,9 +217,23 @@ export default function TeamDetailPage() {
                   <p className="text-black font-medium">
                     {member.userId === user.uid ? "你" : "成員"}
                   </p>
-                  <p className="text-gray-600 text-sm">
-                    角色：{member.role}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-gray-600 text-sm">
+                      角色：
+                    </p>
+                    <select
+                      value={member.role}
+                      onChange={(e) => handleUpdateRole(member.userId, e.target.value)}
+                      disabled={updatingRole || member.userId !== user.uid}
+                      className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      {ROLES.map(role => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <p className="text-gray-600 text-sm">
                   狀態：{member.status}
