@@ -119,6 +119,9 @@ export default function MissionDetailPage() {
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        {mission.imageUrl && (
+          <img src={mission.imageUrl} alt="任務封面" className="w-full h-48 object-cover rounded-xl mb-4" />
+        )}
         <div className="text-2xl font-bold text-black mb-2">{mission.title}</div>
         <div className="text-gray-600 mb-4">{mission.description}</div>
         <MapView
@@ -152,42 +155,43 @@ export default function MissionDetailPage() {
           </select>
         </div>
       )}
-      <button
-        className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-        disabled={!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId)}
-        onClick={async () => {
-          alert('clicked');
-          console.log('clicked');
-          setButtonLoading(true);
-          setError("");
-          try {
-            if (!selectedTeamId) {
-              setError("請先選擇團隊");
+      <div className="w-full max-w-xl flex justify-center mt-4">
+        <button
+          type="button"
+          className={`px-6 py-3 rounded-xl font-bold text-lg transition-all duration-150 shadow-md ${!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId) ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}
+          disabled={!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId) || buttonLoading}
+          onClick={async (e) => {
+            e.preventDefault();
+            setButtonLoading(true);
+            setError("");
+            try {
+              if (!selectedTeamId) {
+                setError("請先選擇團隊");
+                setButtonLoading(false);
+                return;
+              }
+              if (activeTeamMission && activeTeamMission.missionId) {
+                setError("該團隊已有進行中任務，請先完成");
+                setButtonLoading(false);
+                return;
+              }
+              await startTeamMission(selectedTeamId, id as string);
+              const newActive = await getActiveTeamMission(selectedTeamId);
+              setActiveTeamMission(newActive);
+              router.push(`/missions/${id}/active?teamId=${selectedTeamId}`);
+            } catch (err: any) {
+              setError(err?.message || "啟動任務失敗");
+              console.error('startTeamMission error', err);
+            } finally {
               setButtonLoading(false);
-              return;
             }
-            if (activeTeamMission && activeTeamMission.missionId) {
-              setError("該團隊已有進行中任務，請先完成");
-              setButtonLoading(false);
-              return;
-            }
-            console.log('startTeamMission', selectedTeamId, id);
-            await startTeamMission(selectedTeamId, id as string);
-            // 重新取得最新 activeTeamMission 狀態
-            const newActive = await getActiveTeamMission(selectedTeamId);
-            setActiveTeamMission(newActive);
-            router.push(`/missions/${id}/active?teamId=${selectedTeamId}`);
-          } catch (err: any) {
-            setError(err?.message || "啟動任務失敗");
-            console.error('startTeamMission error', err);
-          } finally {
-            setButtonLoading(false);
-          }
-        }}
-      >
-        {buttonLoading ? "啟動中..." : "開始任務"}
-      </button>
+          }}
+        >
+          {buttonLoading ? "啟動中..." : "開始任務"}
+        </button>
+      </div>
       {!selectedTeamId && isLeader && <div className="text-red-500 text-sm mt-2">請先選擇團隊才能開始任務</div>}
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 } 
