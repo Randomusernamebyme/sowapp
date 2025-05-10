@@ -156,7 +156,11 @@ export default function ActiveMissionPage() {
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成！</div>;
+      // 自動導向完成頁
+      useEffect(() => {
+        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+      }, [id, team]);
+      return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成，正在導向...</div>;
     } else {
       return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
     }

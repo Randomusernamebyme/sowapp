@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, getDocs, collection } from "firebase/firestore";
+import { doc, getDoc, getDocs, collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
@@ -21,13 +21,14 @@ export default function DashboardPage() {
         return;
       }
       const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setUserData(userSnap.data());
-      }
-      setLoading(false);
+      const unsub = onSnapshot(userRef, (userSnap) => {
+        if (userSnap.exists()) {
+          setUserData(userSnap.data());
+        }
+        setLoading(false);
+      });
+      return () => unsub();
     });
-    return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {

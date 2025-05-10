@@ -97,13 +97,17 @@ export async function completeTeamMission(teamId: string) {
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
       const userData = userSnap.data();
-      const newPoints = (userData.points || 0) + points;
+      const newPoints = (userData.points ?? 0) + points;
       let fitnessLevel = "beginner";
       if (newPoints >= 50) fitnessLevel = "advanced";
       else if (newPoints >= 25) fitnessLevel = "intermediate";
+      // 更新 completedMissions
+      const completedMissions = Array.isArray(userData.completedMissions) ? userData.completedMissions : [];
+      const newCompletedMissions = completedMissions.includes(missionId) ? completedMissions : [...completedMissions, missionId];
       await updateDoc(userRef, {
         points: newPoints,
-        fitnessLevel
+        fitnessLevel,
+        completedMissions: newCompletedMissions
       });
     }
   }
