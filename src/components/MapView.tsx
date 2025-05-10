@@ -57,19 +57,15 @@ function MapController({ userLocation, nextCheckpoint }: {
   nextCheckpoint: { lat: number, lng: number } | null 
 }) {
   const map = useMap();
+  const [hasFit, setHasFit] = useState(false);
 
   useEffect(() => {
-    if (userLocation) {
-      map.setView(userLocation, 15);
-    }
-  }, [userLocation, map]);
-
-  useEffect(() => {
-    if (nextCheckpoint) {
-      const bounds = L.latLngBounds([userLocation, nextCheckpoint].filter(Boolean) as L.LatLngExpression[]);
+    if (!hasFit && userLocation && nextCheckpoint) {
+      const bounds = L.latLngBounds([userLocation, nextCheckpoint]);
       map.fitBounds(bounds, { padding: [50, 50] });
+      setHasFit(true);
     }
-  }, [nextCheckpoint, userLocation, map]);
+  }, [userLocation, nextCheckpoint, map, hasFit]);
 
   return null;
 }
