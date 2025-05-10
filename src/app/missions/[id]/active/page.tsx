@@ -37,6 +37,7 @@ export default function ActiveMissionPage() {
   const userLocation = useUserLocation();
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -100,8 +101,8 @@ export default function ActiveMissionPage() {
   }, [id, user, authLoading, router, teamId]);
 
   const handleChallengeComplete = async () => {
-    if (!team) return;
-    const currentCheckpoint = checkpoints[currentIdx];
+    if (!team || !currentCheckpoint || buttonLoading) return;
+    setButtonLoading(true);
     try {
       await updateTeamMissionProgress(team.id, currentCheckpoint.id, currentCheckpoint.passwordDigit?.value);
       if (currentIdx < checkpoints.length - 1) {
@@ -113,6 +114,8 @@ export default function ActiveMissionPage() {
       }
     } catch (error) {
       console.error("Error updating mission progress:", error);
+    } finally {
+      setButtonLoading(false);
     }
   };
 
@@ -126,35 +129,44 @@ export default function ActiveMissionPage() {
     return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務或檢查點</div>;
   }
 
-  const currentCheckpoint = checkpoints[currentIdx];
-
+  const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
+  const currentCheckpoint = checkpoints.find(cp => cp.id === currentCheckpointId);
+  if (!currentCheckpointId) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成！</div>;
+  }
   if (!currentCheckpoint) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到檢查點</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">請稍候同步進度...</div>;
   }
 
   const renderChallenge = () => {
     switch (currentCheckpoint.challengeType) {
       case "physical":
         return (
-          <PhysicalChallenge
-            description={currentCheckpoint.challengeDescription || ""}
-            onComplete={handleChallengeComplete}
-          />
+          <div className={buttonLoading ? "pointer-events-none opacity-60" : ""}>
+            <PhysicalChallenge
+              description={currentCheckpoint.challengeDescription || ""}
+              onComplete={handleChallengeComplete}
+            />
+          </div>
         );
       case "puzzle":
         return (
-          <PuzzleChallenge
-            description={currentCheckpoint.challengeDescription || ""}
-            clue={currentCheckpoint.clue || ""}
-            onComplete={handleChallengeComplete}
-          />
+          <div className={buttonLoading ? "pointer-events-none opacity-60" : ""}>
+            <PuzzleChallenge
+              description={currentCheckpoint.challengeDescription || ""}
+              clue={currentCheckpoint.clue || ""}
+              onComplete={handleChallengeComplete}
+            />
+          </div>
         );
       case "photo":
         return (
-          <PhotoChallenge
-            description={currentCheckpoint.challengeDescription || ""}
-            onComplete={handleChallengeComplete}
-          />
+          <div className={buttonLoading ? "pointer-events-none opacity-60" : ""}>
+            <PhotoChallenge
+              description={currentCheckpoint.challengeDescription || ""}
+              onComplete={handleChallengeComplete}
+            />
+          </div>
         );
       default:
         return (
@@ -163,6 +175,7 @@ export default function ActiveMissionPage() {
             <button
               className="w-full px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
               onClick={handleChallengeComplete}
+              disabled={buttonLoading}
             >
               完成檢查點
             </button>
