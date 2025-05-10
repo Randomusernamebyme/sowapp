@@ -27,6 +27,7 @@ export default function MissionDetailPage() {
   const [activeTeamMission, setActiveTeamMission] = useState<any>(null);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isLeader, setIsLeader] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -77,6 +78,9 @@ export default function MissionDetailPage() {
         setTeam({ id: userTeam.id, ...userTeam.data() });
         const activeMission = await getActiveTeamMission(userTeam.id);
         setActiveTeamMission(activeMission);
+        // 判斷是否為隊長（role A）
+        const member = userTeam.data().members.find((m: any) => m.userId === user.uid);
+        setIsLeader(member?.role === "A");
       }
     }
     fetchTeam();
@@ -112,12 +116,17 @@ export default function MissionDetailPage() {
       </div>
       <button
         className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-        disabled={!team || (!!activeTeamMission && activeTeamMission.missionId)}
+        disabled={!team || (!!activeTeamMission && activeTeamMission.missionId) || !isLeader}
         onClick={async () => {
           setButtonLoading(true);
           setError("");
           if (!team) {
             setError("請先加入團隊");
+            setButtonLoading(false);
+            return;
+          }
+          if (!isLeader) {
+            setError("只有隊長（A 角色）可以啟動任務");
             setButtonLoading(false);
             return;
           }
@@ -134,6 +143,7 @@ export default function MissionDetailPage() {
         {buttonLoading ? "啟動中..." : "開始任務"}
       </button>
       {!team && <div className="text-red-500 text-sm mt-2">請先加入團隊才能開始任務</div>}
+      {!isLeader && team && <div className="text-gray-500 text-sm mt-2">只有隊長（A 角色）可以啟動任務</div>}
       {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
