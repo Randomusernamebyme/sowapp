@@ -68,6 +68,13 @@ function MapController({ userLocation, nextCheckpoint }: {
     }
   }, [userLocation, map]);
 
+  useEffect(() => {
+    if (nextCheckpoint) {
+      const bounds = L.latLngBounds([userLocation, nextCheckpoint].filter(Boolean) as L.LatLngExpression[]);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [nextCheckpoint, userLocation, map]);
+
   return null;
 }
 
@@ -126,7 +133,7 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
   return (
     <div className="space-y-4">
       <div className="w-full h-96 rounded-2xl overflow-hidden border border-gray-200 shadow">
-        <MapContainer center={center} zoom={15} scrollWheelZoom={false} className="w-full h-full grayscale">
+        <MapContainer center={center} zoom={15} scrollWheelZoom={false} className="w-full h-full">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
@@ -137,7 +144,7 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
               </Popup>
             </Marker>
           ))}
-          <Polyline positions={route} color="#222" weight={4} />
+          <Polyline positions={route} color="#2563eb" weight={4} />
           {userLocation && (
             <CircleMarker 
               center={userLocation} 
