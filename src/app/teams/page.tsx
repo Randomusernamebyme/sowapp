@@ -1,13 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
+interface Team {
+  id: string;
+  name: string;
+  members: { userId: string; role: string; status: string }[];
+  activeMission?: string;
+  completedMissions?: string[];
+  inviteCode: string;
+  createdAt?: any;
+}
+
 export default function TeamsPage() {
   const { user } = useAuth();
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,12 +25,16 @@ export default function TeamsPage() {
       if (!user) return;
       
       try {
-        const q = query(collection(db, "teams"), where("members", "array-contains", { userId: user.uid }));
-        const snap = await getDocs(q);
-        const teamsData = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        // 獲取所有團隊
+        const snap = await getDocs(collection(db, "teams"));
+        // 在前端過濾出用戶所屬的團隊
+        const teamsData = snap.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          } as Team))
+          .filter(team => team.members?.some(member => member.userId === user.uid));
+        
         setTeams(teamsData);
       } catch (err) {
         console.error("載入團隊失敗:", err);
