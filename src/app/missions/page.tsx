@@ -5,6 +5,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
+import GenerateTestMission from "@/components/GenerateTestMission";
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<any[]>([]);
@@ -93,6 +94,13 @@ export default function MissionsPage() {
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold text-black mb-6">任務列表</h1>
+        
+        {/* 添加生成測試任務按鈕 */}
+        <div className="mb-6">
+          <GenerateTestMission />
+        </div>
+
         {/* 搜索和過濾區域 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 mb-6">
           <div className="space-y-4">
