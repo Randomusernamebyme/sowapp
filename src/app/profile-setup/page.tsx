@@ -5,15 +5,8 @@ import { auth, db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
-const fitnessLevels = [
-  { value: "beginner", label: "初學者" },
-  { value: "intermediate", label: "中階" },
-  { value: "advanced", label: "進階" },
-];
-
 export default function ProfileSetupPage() {
   const [displayName, setDisplayName] = useState("");
-  const [fitnessLevel, setFitnessLevel] = useState(fitnessLevels[0].value);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -31,7 +24,6 @@ export default function ProfileSetupPage() {
       try {
         await setDoc(doc(db, "users", user.uid), {
           displayName,
-          fitnessLevel,
           email: user.email,
           createdAt: new Date(),
         }, { merge: true });
@@ -57,17 +49,13 @@ export default function ProfileSetupPage() {
             className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
-          <div>
-            <label className="block mb-2 font-semibold text-black">體能等級</label>
-            <select
-              value={fitnessLevel}
-              onChange={e => setFitnessLevel(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-black"
-            >
-              {fitnessLevels.map(level => (
-                <option key={level.value} value={level.value}>{level.label}</option>
-              ))}
-            </select>
+          <div className="text-gray-700 text-sm bg-gray-50 rounded-xl p-4">
+            體能等級將由系統根據您完成任務所累積的分數自動判斷與升級。
+            <br />
+            <span className="block mt-2">分數對應等級：</span>
+            <span>0~24 分：初學者（beginner）</span><br />
+            <span>25~49 分：中階（intermediate）</span><br />
+            <span>50 分以上：進階（advanced）</span>
           </div>
           {error && <div className="text-red-500 text-sm text-center">{error}</div>}
           <button
