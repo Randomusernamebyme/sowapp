@@ -145,32 +145,54 @@ export default function MissionDetailPage() {
         ))}
       </div>
       {isLeader && (
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-1">選擇要啟動任務的團隊：</label>
-          <div className="relative">
-            <select
-              className="border border-gray-300 rounded-xl px-4 py-3 pr-10 shadow focus:ring-2 focus:ring-black focus:border-black transition bg-white text-black appearance-none w-full hover:border-gray-400 focus:outline-none"
-              value={selectedTeamId}
-              onChange={e => setSelectedTeamId(e.target.value)}
-            >
-              <option value="">請選擇團隊</option>
-              {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).map(team => (
-                <option key={team.id} value={team.id}>{team.name}</option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        <div className="w-full max-w-xl mb-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col gap-2">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 10-8 0 4 4 0 008 0zm6 4v2a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2a2 2 0 012-2h4a2 2 0 012 2z" /></svg>
+              <span className="text-lg font-semibold text-black">選擇要啟動任務的團隊</span>
             </div>
+            {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).length === 0 ? (
+              <div className="text-gray-500 text-sm mb-2">你目前沒有可啟動任務的團隊。
+                <a href="/teams" className="ml-2 text-blue-600 underline">前往建立團隊</a>
+              </div>
+            ) : (
+              <div className="relative">
+                <select
+                  className="border border-gray-300 rounded-xl px-4 py-3 pr-10 shadow focus:ring-2 focus:ring-black focus:border-black transition bg-white text-black appearance-none w-full hover:border-gray-400 focus:outline-none"
+                  value={selectedTeamId}
+                  onChange={e => setSelectedTeamId(e.target.value)}
+                >
+                  <option value="">請選擇團隊</option>
+                  {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).map(team => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+                {/* 團隊成員頭像顯示 */}
+                {selectedTeamId && (() => {
+                  const selectedTeam = userTeams.find(t => t.id === selectedTeamId);
+                  if (!selectedTeam) return null;
+                  return (
+                    <div className="flex gap-1 mt-2">
+                      {selectedTeam.members.slice(0, 4).map((m, idx) => (
+                        <img key={m.userId} src={`/avatars/avatar${idx + 1}.png`} alt="成員頭像" className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100" />
+                      ))}
+                      {selectedTeam.members.length > 4 && (
+                        <span className="ml-1 text-xs text-gray-400">+{selectedTeam.members.length - 4}</span>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
       )}
       <div className="w-full max-w-xl flex flex-col items-center justify-center mt-4">
-        {/* Debug 狀態顯示 */}
-        <div className="text-xs text-gray-500 mb-2">
-          <div>selectedTeamId: {selectedTeamId}</div>
-          <div>activeTeamMission: {JSON.stringify(activeTeamMission)}</div>
-          <div>buttonLoading: {buttonLoading ? "true" : "false"}</div>
-        </div>
         <button
           type="button"
           className={`px-6 py-3 rounded-xl font-bold text-lg transition-all duration-150 shadow-md ${!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId) ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}
