@@ -60,6 +60,7 @@ export default function MissionCreatePage() {
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [passwordLength, setPasswordLength] = useState(6);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -224,6 +225,7 @@ export default function MissionCreatePage() {
       setSuccess("任務與相關檢查點已刪除");
       setSelectedMission(null);
       setDeleteConfirm("");
+      setShowDeleteModal(false);
       // 重新載入任務
       const q = query(collection(db, "missions"));
       const snap = await getDocs(q);
@@ -375,18 +377,21 @@ export default function MissionCreatePage() {
               <div key={m.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
                 <span className="flex-1 cursor-pointer" onClick={() => handleSelectMission(m)}>{m.title}</span>
                 <button className="text-blue-600 underline" onClick={() => handleSelectMission(m)}>編輯</button>
-                <button className="text-red-600 underline" onClick={() => setSelectedMission(m)}>刪除</button>
+                <button className="text-red-600 underline" onClick={() => { setSelectedMission(m); setShowDeleteModal(true); }}>刪除</button>
               </div>
             ))}
           </div>
         </div>
-        {selectedMission && (
-          <div className="mb-8 border p-4 rounded bg-red-50">
-            <div className="mb-2 font-bold text-red-700">刪除任務：{selectedMission.title}</div>
-            <div className="mb-2 text-sm text-gray-700">請輸入完整任務標題以確認刪除：</div>
-            <input className="border rounded p-2 w-full mb-2" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
-            <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleDeleteMission}>確認刪除</button>
-            <button className="ml-2 px-4 py-2 rounded border" onClick={() => setSelectedMission(null)}>取消</button>
+        {/* 刪除任務彈窗 */}
+        {showDeleteModal && selectedMission && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+              <div className="mb-2 font-bold text-red-700 text-lg">刪除任務：{selectedMission.title}</div>
+              <div className="mb-2 text-sm text-gray-700">請輸入完整任務標題以確認刪除：</div>
+              <input className="border rounded-lg p-2 w-full mb-2 bg-white text-black" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
+              <button className="bg-red-600 text-white px-4 py-2 rounded-xl w-full font-semibold mb-2" onClick={handleDeleteMission}>確認刪除</button>
+              <button className="px-4 py-2 rounded-xl border w-full" onClick={() => setShowDeleteModal(false)}>取消</button>
+            </div>
           </div>
         )}
       </div>
