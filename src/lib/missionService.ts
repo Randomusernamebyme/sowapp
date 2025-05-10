@@ -104,7 +104,11 @@ export async function completeTeamMission(teamId: string, missionId: string) {
       else if (newPoints >= 25) fitnessLevel = "intermediate";
       // 更新 completedMissions
       const completedMissions = Array.isArray(userData.completedMissions) ? userData.completedMissions : [];
-      const newCompletedMissions = completedMissions.includes(missionId) ? completedMissions : [...completedMissions, missionId];
+      const newCompletedMissions = completedMissions
+        .filter((id: any) => typeof id === 'string' && id.trim() !== '')
+        .includes(missionId)
+        ? completedMissions
+        : [...completedMissions, missionId].filter((id: any) => typeof id === 'string' && id.trim() !== '');
       await updateDoc(userRef, {
         points: newPoints,
         fitnessLevel,
@@ -115,10 +119,20 @@ export async function completeTeamMission(teamId: string, missionId: string) {
 
   // 團隊 completedMissions
   const teamCompletedMissions = Array.isArray(data.completedMissions) ? data.completedMissions : [];
-  const newTeamCompletedMissions = teamCompletedMissions.includes(missionId) ? teamCompletedMissions : [...teamCompletedMissions, missionId];
+  const newTeamCompletedMissions = teamCompletedMissions
+    .filter((id: any) => typeof id === 'string' && id.trim() !== '')
+    .includes(missionId)
+    ? teamCompletedMissions
+    : [...teamCompletedMissions, missionId].filter((id: any) => typeof id === 'string' && id.trim() !== '');
 
   // log for debug
-  console.log('completeTeamMission:', { teamId, missionId, newTeamCompletedMissions });
+  console.log('completeTeamMission:即將寫入', {
+    teamId,
+    missionId,
+    newTeamCompletedMissions,
+    activeMission: "",
+    missionProgress: {}
+  });
 
   await updateDoc(teamRef, {
     activeMission: "",
