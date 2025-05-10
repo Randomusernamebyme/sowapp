@@ -88,12 +88,33 @@ export default function MissionCreatePage() {
 
   const handleCheckpointChange = (idx: number, field: string, value: any) => {
     const newCheckpoints = [...checkpoints];
-    if (field === "location") {
-      newCheckpoints[idx].location = value;
-    } else if (field === "passwordDigit") {
-      newCheckpoints[idx].passwordDigit = value;
-    } else {
-      newCheckpoints[idx][field] = value;
+    switch (field) {
+      case "name":
+        newCheckpoints[idx].name = value;
+        break;
+      case "description":
+        newCheckpoints[idx].description = value;
+        break;
+      case "location":
+        newCheckpoints[idx].location = value;
+        break;
+      case "challengeType":
+        newCheckpoints[idx].challengeType = value;
+        break;
+      case "challengeDescription":
+        newCheckpoints[idx].challengeDescription = value;
+        break;
+      case "clue":
+        newCheckpoints[idx].clue = value;
+        break;
+      case "passwordDigit":
+        newCheckpoints[idx].passwordDigit = value;
+        break;
+      case "challengeConfig":
+        newCheckpoints[idx].challengeConfig = value;
+        break;
+      default:
+        break;
     }
     setCheckpoints(newCheckpoints);
   };
