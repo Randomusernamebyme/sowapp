@@ -222,7 +222,7 @@ export default function ActiveMissionPage() {
             <p className="text-gray-600">此檢查點沒有挑戰內容</p>
             <button
               className="w-full px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-              onClick={handleChallengeComplete}
+              onClick={() => handleChallengeComplete()}
               disabled={buttonLoading}
             >
               完成檢查點
