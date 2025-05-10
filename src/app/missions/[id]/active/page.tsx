@@ -8,7 +8,8 @@ import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
 import PhotoChallenge from "@/components/challenges/PhotoChallenge";
-import { startMission, completeCheckpoint, completeMission, getActiveMission, MissionProgress } from "@/lib/missionProgress";
+import { startMission, completeCheckpoint, completeMission, getActiveMission } from "@/lib/missionProgress";
+import { MissionProgress } from "@/types/mission";
 
 interface CheckpointType {
   id: string;
