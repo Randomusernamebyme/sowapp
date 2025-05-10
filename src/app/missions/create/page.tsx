@@ -23,7 +23,22 @@ export default function MissionCreatePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [mission, setMission] = useState({
+  const [mission, setMission] = useState<{
+    title: string;
+    description: string;
+    area: string;
+    type: string;
+    difficulty: string;
+    startLocation: { lat: number; lng: number };
+    endLocation: { lat: number; lng: number };
+    estimatedDuration: string;
+    password: string;
+    isActive: boolean;
+    cover: string;
+    checkpoints: string[];
+    createdAt: string;
+    updatedAt: string;
+  }>({
     title: "",
     description: "",
     area: "",
