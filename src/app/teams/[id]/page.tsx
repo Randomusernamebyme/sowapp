@@ -189,55 +189,64 @@ export default function TeamDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">團隊資訊</h2>
-          <div className="space-y-2">
-            <p className="text-gray-600">
-              團隊 ID：{team.id}
-            </p>
-            <p className="text-gray-600">
-              邀請碼：{team.inviteCode}
-            </p>
-            <p className="text-gray-600">
-              成員數：{team.members?.length || 0}
-            </p>
-            <p className="text-gray-600">
-              進行中任務：{team.activeMission ? "是" : "否"}
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <span className="text-gray-600">團隊 ID</span>
+              <span className="text-black font-mono">{team.id}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <span className="text-gray-600">邀請碼</span>
+              <span className="text-black font-mono">{team.inviteCode}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <span className="text-gray-600">成員數</span>
+              <span className="text-black">{team.members?.length || 0}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <span className="text-gray-600">進行中任務</span>
+              <span className="text-black">{team.activeMission ? "是" : "否"}</span>
+            </div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">成員列表</h2>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {team.members?.map((member) => (
               <div
                 key={member.userId}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
               >
-                <div>
-                  <p className="text-black font-medium">
-                    {member.userId === user.uid ? "你" : "成員"}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-gray-600 text-sm">
-                      角色：
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span className="text-black font-medium">
+                      {member.userId === user?.uid ? "你" : "成"}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-black font-medium">
+                      {member.userId === user?.uid ? "你" : "成員"}
                     </p>
-                    <select
-                      value={member.role}
-                      onChange={(e) => handleUpdateRole(member.userId, e.target.value)}
-                      disabled={updatingRole || member.userId !== user.uid}
-                      className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
-                    >
-                      {ROLES.map(role => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2 mt-1">
+                      <select
+                        value={member.role}
+                        onChange={(e) => handleUpdateRole(member.userId, e.target.value)}
+                        disabled={updatingRole || member.userId !== user?.uid}
+                        className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
+                      >
+                        {ROLES.map(role => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm">
-                  狀態：{member.status}
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-sm">狀態</span>
+                  <span className="text-black text-sm">{member.status}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -252,7 +261,7 @@ export default function TeamDetailPage() {
         <button
           onClick={handleLeaveTeam}
           disabled={leaving}
-          className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold shadow hover:bg-red-600 transition disabled:opacity-50"
+          className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition disabled:opacity-50"
         >
           {leaving ? "離開中..." : "離開團隊"}
         </button>
