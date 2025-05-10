@@ -1,4 +1,4 @@
-import { auth } from "./config";
+import { auth } from "../firebase";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   return (
