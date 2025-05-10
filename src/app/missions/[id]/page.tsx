@@ -155,12 +155,25 @@ export default function MissionDetailPage() {
           </select>
         </div>
       )}
-      <div className="w-full max-w-xl flex justify-center mt-4">
+      <div className="w-full max-w-xl flex flex-col items-center justify-center mt-4">
+        {/* Debug 狀態顯示 */}
+        <div className="text-xs text-gray-500 mb-2">
+          <div>selectedTeamId: {selectedTeamId}</div>
+          <div>activeTeamMission: {JSON.stringify(activeTeamMission)}</div>
+          <div>buttonLoading: {buttonLoading ? "true" : "false"}</div>
+        </div>
         <button
           type="button"
           className={`px-6 py-3 rounded-xl font-bold text-lg transition-all duration-150 shadow-md ${!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId) ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}
           disabled={!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId) || buttonLoading}
           onClick={async (e) => {
+            if (!selectedTeamId) {
+              console.log('Button disabled: selectedTeamId is empty');
+            } else if (activeTeamMission && activeTeamMission.missionId) {
+              console.log('Button disabled: activeTeamMission exists', activeTeamMission);
+            } else if (buttonLoading) {
+              console.log('Button disabled: buttonLoading is true');
+            }
             e.preventDefault();
             setButtonLoading(true);
             setError("");
