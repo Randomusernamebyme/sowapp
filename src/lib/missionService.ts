@@ -1,6 +1,6 @@
 import { db } from "./firebase";
 import { collection, doc, setDoc, updateDoc, getDoc, query, where, getDocs } from "firebase/firestore";
-import { UserMission, Mission, Checkpoint } from "@/types/mission";
+import { UserMission, Mission, CheckpointType } from "@/types/mission";
 
 // 啟動團隊任務
 export async function startTeamMission(teamId: string, missionId: string) {
@@ -170,7 +170,7 @@ export async function completeTeamMission(teamId: string, missionId: string) {
 
 export async function getMissionWithCheckpoints(missionId: string): Promise<{
   mission: Mission;
-  checkpoints: Checkpoint[];
+  checkpoints: CheckpointType[];
 }> {
   const missionSnap = await getDoc(doc(db, "missions", missionId));
   if (!missionSnap.exists()) {
@@ -183,7 +183,7 @@ export async function getMissionWithCheckpoints(missionId: string): Promise<{
   const checkpoints = cpSnap.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
-  })) as Checkpoint[];
+  })) as CheckpointType[];
 
   return { mission, checkpoints };
 } 
