@@ -22,12 +22,28 @@ interface Team {
   }>;
 }
 
+interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  estimatedDuration: string;
+  imageUrl?: string;
+}
+
 export default function TeamsPage() {
   const { user } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
   const [teamStats, setTeamStats] = useState<Record<string, any>>({});
+  const [recentMissions, setRecentMissions] = useState<Array<{
+    teamId: string;
+    teamName: string;
+    missionId: string;
+    missionTitle: string;
+    completedAt: any;
+  }>>([]);
 
   useEffect(() => {
     async function loadTeams() {
@@ -77,6 +93,37 @@ export default function TeamsPage() {
           };
         }
         setTeamStats(stats);
+
+        // 獲取最近完成的任務
+        const recentMissionsData: Array<{
+          teamId: string;
+          teamName: string;
+          missionId: string;
+          missionTitle: string;
+          completedAt: any;
+        }> = [];
+
+        for (const team of teamsData) {
+          if (team.completedMissionProgress) {
+            for (const progress of team.completedMissionProgress) {
+              const missionDoc = await getDoc(doc(db, "missions", progress.missionId));
+              if (missionDoc.exists()) {
+                recentMissionsData.push({
+                  teamId: team.id,
+                  teamName: team.name,
+                  missionId: progress.missionId,
+                  missionTitle: missionDoc.data().title,
+                  completedAt: progress.completedAt
+                });
+              }
+            }
+          }
+        }
+
+        // 按完成時間排序
+        recentMissionsData.sort((a, b) => b.completedAt.toDate() - a.completedAt.toDate());
+        // 只取最近5個任務
+        setRecentMissions(recentMissionsData.slice(0, 5));
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -125,84 +172,100 @@ export default function TeamsPage() {
             <p className="text-gray-600">你還沒有加入任何團隊</p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {teams.map(team => (
-              <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-semibold text-black">{team.name}</h2>
-                  <span className="text-sm text-gray-500">
-                    完成任務：{teamStats[team.id]?.completedMissions || 0}
-                  </span>
-                </div>
-
-                {/* 團隊成員 */}
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">團隊成員</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {team.members?.map(member => (
-                      <span 
-                        key={member.userId} 
-                        className={`inline-block px-3 py-1 rounded-full text-sm ${
-                          member.role === "A" 
-                            ? "bg-black text-white" 
-                            : "bg-gray-100 text-black"
-                        }`}
-                      >
-                        {userDisplayNames[member.userId] || "匿名"}
-                        {member.role === "A" && " (隊長)"}
-                      </span>
-                    ))}
+          <>
+            <div className="grid gap-4 md:grid-cols-2 mb-6">
+              {teams.map(team => (
+                <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-xl font-semibold text-black">{team.name}</h2>
+                    <span className="text-sm text-gray-500">
+                      完成任務：{teamStats[team.id]?.completedMissions || 0}
+                    </span>
                   </div>
-                </div>
 
-                {/* 當前任務進度 */}
-                {teamStats[team.id]?.activeMission && (
+                  {/* 團隊成員 */}
                   <div className="mb-4">
-                    <h3 className="text-sm font-medium text-gray-600 mb-2">當前任務進度</h3>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div 
-                        className="bg-black h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${(teamStats[team.id].activeMission.progress / teamStats[team.id].activeMission.totalCheckpoints) * 100}%` 
-                        }}
-                      />
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      {teamStats[team.id].activeMission.progress} / {teamStats[team.id].activeMission.totalCheckpoints} 檢查點
-                    </div>
-                  </div>
-                )}
-
-                {/* 最近完成任務 */}
-                {teamStats[team.id]?.lastCompletedMission && (
-                  <div className="mb-4">
-                    <h3 className="text-sm font-medium text-gray-600 mb-2">最近完成任務</h3>
-                    <div className="text-sm text-gray-500">
-                      {teamStats[team.id].lastCompletedMission.completedAt?.toDate?.().toLocaleString() || "未知時間"}
+                    <h3 className="text-sm font-medium text-gray-600 mb-2">團隊成員</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {team.members?.map(member => (
+                        <span 
+                          key={member.userId} 
+                          className={`inline-block px-3 py-1 rounded-full text-sm ${
+                            member.role === "A" 
+                              ? "bg-black text-white" 
+                              : "bg-gray-100 text-black"
+                          }`}
+                        >
+                          {userDisplayNames[member.userId] || "匿名"}
+                          {member.role === "A" && " (隊長)"}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                )}
 
-                {/* 操作按鈕 */}
-                <div className="mt-4 space-x-2">
-                  {team.activeMission && (
-                    <Link
-                      href={`/missions/${team.activeMission}/active?teamId=${team.id}`}
-                      className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
-                    >
-                      繼續任務
-                    </Link>
+                  {/* 當前任務進度 */}
+                  {teamStats[team.id]?.activeMission && (
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium text-gray-600 mb-2">當前任務進度</h3>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div 
+                          className="bg-black h-2 rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${(teamStats[team.id].activeMission.progress / teamStats[team.id].activeMission.totalCheckpoints) * 100}%` 
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {teamStats[team.id].activeMission.progress} / {teamStats[team.id].activeMission.totalCheckpoints} 檢查點
+                      </div>
+                    </div>
                   )}
-                  <Link
-                    href={`/teams/${team.id}`}
-                    className="inline-block px-4 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
-                  >
-                    查看詳情
-                  </Link>
+
+                  {/* 操作按鈕 */}
+                  <div className="mt-4 space-x-2">
+                    {team.activeMission && (
+                      <Link
+                        href={`/missions/${team.activeMission}/active?teamId=${team.id}`}
+                        className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                      >
+                        繼續任務
+                      </Link>
+                    )}
+                    <Link
+                      href={`/teams/${team.id}`}
+                      className="inline-block px-4 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
+                    >
+                      查看詳情
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 最近完成任務 */}
+            {recentMissions.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-black mb-4">最近完成任務</h2>
+                <div className="space-y-4">
+                  {recentMissions.map((mission, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                      onClick={() => window.location.href = `/missions/${mission.missionId}/complete?teamId=${mission.teamId}`}
+                    >
+                      <div className="text-black font-semibold">{mission.missionTitle}</div>
+                      <div className="text-gray-600 text-sm">
+                        團隊：{mission.teamName}
+                      </div>
+                      <div className="text-gray-500 text-sm">
+                        完成時間：{mission.completedAt?.toDate?.().toLocaleString() || "未知"}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
