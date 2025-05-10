@@ -148,7 +148,23 @@ export default function MissionCreatePage() {
     try {
       const missionRef = doc(collection(db, "missions"));
       const now = new Date().toISOString();
-      const missionData = {
+      const missionData: {
+        id: string;
+        title: string;
+        description: string;
+        area: string;
+        type: string;
+        difficulty: string;
+        startLocation: { lat: number; lng: number };
+        endLocation: { lat: number; lng: number };
+        estimatedDuration: string;
+        password: string;
+        isActive: boolean;
+        cover: string;
+        checkpoints: string[];
+        createdAt: string;
+        updatedAt: string;
+      } = {
         ...mission,
         id: missionRef.id,
         createdAt: now,
