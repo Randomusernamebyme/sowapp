@@ -152,6 +152,8 @@ export default function MissionDetailPage() {
         className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
         disabled={!selectedTeamId || (!!activeTeamMission && activeTeamMission.missionId)}
         onClick={async () => {
+          alert('clicked');
+          console.log('clicked');
           setButtonLoading(true);
           setError("");
           try {
