@@ -134,10 +134,11 @@ export async function completeTeamMission(teamId: string, missionId: string) {
     missionProgress: {}
   });
 
+  // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確
   await updateDoc(teamRef, {
     activeMission: "",
-    completedMissions: newTeamCompletedMissions,
     missionProgress: {},
+    completedMissions: newTeamCompletedMissions,
   });
 }
 

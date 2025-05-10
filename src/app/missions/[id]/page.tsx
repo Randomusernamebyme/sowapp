@@ -53,6 +53,9 @@ export default function MissionDetailPage() {
           const data = doc.data() as Omit<CheckpointType, "id">;
           return { ...data, id: doc.id };
         });
+        if (checkpointsRaw.length === 0) {
+          throw new Error("找不到任何檢查點，請聯絡管理員");
+        }
         let ordered: CheckpointType[] = [];
         if (checkpointsRaw.length > 0) {
           const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
@@ -70,6 +73,7 @@ export default function MissionDetailPage() {
         setCheckpoints(ordered);
         setLoading(false);
       } catch (err: any) {
+        console.error("[missions/[id]] fetchData error", err);
         setError(err?.message || "載入任務資料時發生錯誤");
         setLoading(false);
       }
