@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs, Timestamp } from "firebase/firestore";
@@ -10,46 +10,51 @@ export default function MissionCompletePage() {
   const { id } = useParams();
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get("teamId");
   const [mission, setMission] = useState<Mission | null>(null);
-  const [userMission, setUserMission] = useState<UserMission | null>(null);
+  const [team, setTeam] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
-      if (!user || !id) return;
+      if (!user || !id || !teamId) return;
       // 取得任務資料
       const missionSnap = await getDoc(doc(db, "missions", id as string));
       if (missionSnap.exists()) {
         setMission({ id: missionSnap.id, ...missionSnap.data() } as Mission);
       }
-      // 取得用戶任務進度
-      const q = query(
-        collection(db, "userMissions"),
-        where("userId", "==", user.uid),
-        where("missionId", "==", id)
-      );
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        const docSnap = snap.docs[0];
-        setUserMission({ id: docSnap.id, ...docSnap.data() } as UserMission);
+      // 取得團隊資料
+      const teamSnap = await getDoc(doc(db, "teams", teamId));
+      if (teamSnap.exists()) {
+        setTeam({ id: teamSnap.id, ...teamSnap.data() });
+      } else {
+        setError("找不到團隊資料");
       }
       setLoading(false);
     }
     fetchData();
-  }, [user, id]);
+  }, [user, id, teamId]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
-  if (!mission || !userMission) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務資料</div>;
+  if (!mission || !team) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務或團隊資料</div>;
+  }
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-red-500">{error}</div>;
   }
 
-  const completedAt = userMission.completedAt
-    ? (userMission.completedAt instanceof Timestamp
-        ? userMission.completedAt.toDate()
-        : new Date(userMission.completedAt))
+  // 取得團隊 missionProgress 完成資訊
+  const completedAt = team.missionProgress?.completedAt
+    ? (team.missionProgress.completedAt instanceof Timestamp
+        ? team.missionProgress.completedAt.toDate()
+        : new Date(team.missionProgress.completedAt))
     : null;
+  const collectedDigits = team.missionProgress?.collectedDigits || [];
+  const completedCheckpoints = team.missionProgress?.completedCheckpoints || [];
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
@@ -63,14 +68,18 @@ export default function MissionCompletePage() {
         <div className="mb-4">
           <div className="text-gray-600">收集到的密碼數字：</div>
           <div className="font-mono text-xl tracking-widest text-black">
-            {userMission.collectedDigits && userMission.collectedDigits.length > 0
-              ? userMission.collectedDigits.join(" ")
-              : "-"}
+            {collectedDigits.length > 0 ? collectedDigits.join(" ") : "-"}
           </div>
         </div>
         <div className="mb-4">
           <div className="text-gray-600">完成檢查點數量：</div>
-          <div className="font-semibold text-black">{userMission.completedCheckpoints.length}</div>
+          <div className="font-semibold text-black">{completedCheckpoints.length}</div>
+        </div>
+        <div className="mb-4">
+          <div className="text-gray-600">團隊成員：</div>
+          <div className="font-mono text-black">
+            {team.members?.map((m: any) => m.nickname || m.userId).join("、")}
+          </div>
         </div>
         <div className="flex flex-col gap-3 mt-6">
           <button
@@ -78,8 +87,8 @@ export default function MissionCompletePage() {
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: `我完成了「${mission.title}」任務！`,
-                  text: `我在 Seek our Ways 完成了「${mission.title}」，快來挑戰吧！`,
+                  title: `我們完成了「${mission.title}」任務！`,
+                  text: `我們在 Seek our Ways 完成了「${mission.title}」，快來挑戰吧！`,
                   url: window.location.origin + `/missions/${id}`,
                 });
               } else {
