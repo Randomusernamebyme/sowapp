@@ -24,6 +24,7 @@ export default function TeamDetailPage() {
   const [loading, setLoading] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function loadTeam() {
@@ -83,6 +84,17 @@ export default function TeamDetailPage() {
     }
   }
 
+  async function copyInviteCode() {
+    if (!team) return;
+    try {
+      await navigator.clipboard.writeText(team.inviteCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("複製失敗:", err);
+    }
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
@@ -137,12 +149,21 @@ export default function TeamDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">團隊資訊</h2>
-          <div className="space-y-2">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <p className="text-gray-600 text-sm">邀請碼</p>
+                <p className="text-black font-mono text-lg">{team.inviteCode}</p>
+              </div>
+              <button
+                onClick={copyInviteCode}
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
+              >
+                {copied ? "已複製！" : "複製"}
+              </button>
+            </div>
             <p className="text-gray-600">
               團隊 ID：{team.id}
-            </p>
-            <p className="text-gray-600">
-              邀請碼：{team.inviteCode}
             </p>
             <p className="text-gray-600">
               成員數：{team.members?.length || 0}
