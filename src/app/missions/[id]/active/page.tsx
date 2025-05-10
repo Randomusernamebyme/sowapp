@@ -56,24 +56,29 @@ export default function ActiveMissionPage() {
         router.push("/teams");
         return;
       }
-      setTeam({ id: teamDoc.id, ...teamDoc.data() });
+      const teamData = teamDoc.data();
+      setTeam({ id: teamDoc.id, ...teamData });
+      
       // 取得團隊 activeMission
       let activeMission = await getActiveTeamMission(teamId!);
       if (!activeMission || activeMission.missionId !== id) {
         setLoading(false);
         return;
       }
+
       // 取得任務和檢查點資料
       const missionSnap = await getDoc(doc(db, "missions", id as string));
       if (!missionSnap.exists()) return;
       const missionData = missionSnap.data() as Mission;
       setMission(missionData);
+
       const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
       const cpSnap = await getDocs(q);
       let checkpointsRaw = cpSnap.docs.map(doc => {
         const data = doc.data() as Omit<Checkpoint, "id">;
         return { ...data, id: doc.id };
       });
+
       let ordered: Checkpoint[] = [];
       if (checkpointsRaw.length > 0) {
         const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
@@ -89,12 +94,30 @@ export default function ActiveMissionPage() {
         }
       }
       setCheckpoints(ordered);
-      if (activeMission.missionProgress && activeMission.missionProgress.currentCheckpoint) {
-        const currentIdx = ordered.findIndex(cp => cp.id === activeMission.missionProgress.currentCheckpoint);
-        if (currentIdx !== -1) {
-          setCurrentIdx(currentIdx);
+
+      // 根據 missionProgress 設置當前檢查點
+      if (activeMission.missionProgress) {
+        const { currentCheckpoint, completedCheckpoints } = activeMission.missionProgress;
+        
+        // 如果沒有當前檢查點，但有已完成的檢查點，找到最後一個完成的檢查點的下一個
+        if (!currentCheckpoint && completedCheckpoints?.length > 0) {
+          const lastCompleted = completedCheckpoints[completedCheckpoints.length - 1];
+          const lastCheckpoint = ordered.find(cp => cp.id === lastCompleted);
+          if (lastCheckpoint?.nextCheckpoint) {
+            const nextIdx = ordered.findIndex(cp => cp.id === lastCheckpoint.nextCheckpoint);
+            if (nextIdx !== -1) {
+              setCurrentIdx(nextIdx);
+            }
+          }
+        } else if (currentCheckpoint) {
+          // 如果有當前檢查點，直接設置
+          const currentIdx = ordered.findIndex(cp => cp.id === currentCheckpoint);
+          if (currentIdx !== -1) {
+            setCurrentIdx(currentIdx);
+          }
         }
       }
+      
       setLoading(false);
     });
     return () => unsub();

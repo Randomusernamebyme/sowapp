@@ -36,16 +36,27 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
   const teamSnap = await getDoc(teamRef);
   if (!teamSnap.exists()) throw new Error("找不到團隊");
   const progress = teamSnap.data().missionProgress || {};
+  
+  // 檢查檢查點是否已經完成
+  if (progress.completedCheckpoints?.includes(checkpointId)) {
+    throw new Error("此檢查點已完成");
+  }
+
   // 查詢目前 checkpoint 的 nextCheckpoint
   const checkpointSnap = await getDoc(doc(db, "checkpoints", checkpointId));
   let nextCheckpoint = "";
   if (checkpointSnap.exists()) {
     nextCheckpoint = checkpointSnap.data().nextCheckpoint || "";
   }
+
+  // 確保 collectedDigits 是數字陣列
+  const currentDigits = progress.collectedDigits || [];
+  const newDigits = passwordDigit !== undefined ? [...currentDigits, Number(passwordDigit)] : currentDigits;
+
   await updateDoc(teamRef, {
     "missionProgress.currentCheckpoint": nextCheckpoint,
     "missionProgress.completedCheckpoints": [...(progress.completedCheckpoints || []), checkpointId],
-    "missionProgress.collectedDigits": passwordDigit !== undefined ? [...(progress.collectedDigits || []), passwordDigit] : progress.collectedDigits,
+    "missionProgress.collectedDigits": newDigits,
   });
 }
 
