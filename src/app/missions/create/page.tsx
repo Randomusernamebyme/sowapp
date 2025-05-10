@@ -34,7 +34,10 @@ export default function MissionCreatePage() {
     estimatedDuration: "60",
     password: "",
     isActive: true,
-    cover: ""
+    cover: "",
+    checkpoints: [],
+    createdAt: "",
+    updatedAt: ""
   });
   const [checkpoints, setCheckpoints] = useState<CheckpointForm[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -100,29 +103,34 @@ export default function MissionCreatePage() {
     setError("");
     setSuccess("");
     try {
-      // 上傳封面圖片（僅複製到 public/missions，需手動）
-      // 建立 mission 文件
       const missionRef = doc(collection(db, "missions"));
+      const now = new Date().toISOString();
       const missionData = {
         ...mission,
         id: missionRef.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
         checkpoints: [],
       };
-      await setDoc(missionRef, missionData);
       // 建立 checkpoints
+      let prevCpId = null;
       for (let i = 0; i < checkpoints.length; i++) {
         const cpRef = doc(collection(db, "checkpoints"));
-        await setDoc(cpRef, {
+        const cpData = {
           ...checkpoints[i],
           id: cpRef.id,
           missionId: missionRef.id,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: now,
+          updatedAt: now,
           nextCheckpoint: i < checkpoints.length - 1 ? undefined : null
-        });
+        };
+        await setDoc(cpRef, cpData);
         missionData.checkpoints.push(cpRef.id);
+        // 設定上一個 checkpoint 的 nextCheckpoint
+        if (prevCpId) {
+          await setDoc(doc(db, "checkpoints", prevCpId), { nextCheckpoint: cpRef.id }, { merge: true });
+        }
+        prevCpId = cpRef.id;
       }
       await setDoc(missionRef, missionData, { merge: true });
       setSuccess("任務建立成功！請將封面圖片放到 public/missions 目錄下。");
