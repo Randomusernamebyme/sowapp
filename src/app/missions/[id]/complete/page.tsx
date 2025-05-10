@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { Mission, UserMission } from "@/types/mission";
 
 export default function MissionCompletePage() {
@@ -23,9 +23,15 @@ export default function MissionCompletePage() {
         setMission({ id: missionSnap.id, ...missionSnap.data() } as Mission);
       }
       // 取得用戶任務進度
-      const userMissionsSnap = await getDoc(doc(db, "userMissions", `${user.uid}_${id}`));
-      if (userMissionsSnap.exists()) {
-        setUserMission({ id: userMissionsSnap.id, ...userMissionsSnap.data() } as UserMission);
+      const q = query(
+        collection(db, "userMissions"),
+        where("userId", "==", user.uid),
+        where("missionId", "==", id)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const docSnap = snap.docs[0];
+        setUserMission({ id: docSnap.id, ...docSnap.data() } as UserMission);
       }
       setLoading(false);
     }
