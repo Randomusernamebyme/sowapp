@@ -164,7 +164,7 @@ export default function ActiveMissionPage() {
       // 彈窗顯示密碼數字
       setLastPasswordDigit(currentCheckpoint.passwordDigit?.value || null);
       setShowPasswordModal(true);
-      // 等待用戶關閉彈窗後再進行下一步
+      // 不自動跳轉，等用戶點擊確認
     } catch (error) {
       console.error("Error updating mission progress:", error);
       setError("更新任務進度時發生錯誤");
@@ -173,16 +173,17 @@ export default function ActiveMissionPage() {
     }
   };
 
-  // 新增：完成任務時自動導向完成頁
+  // 新增：完成任務時自動導向完成頁（只在未顯示密碼彈窗時觸發）
   useEffect(() => {
     if (
+      !showPasswordModal &&
       !currentCheckpointId &&
       completedCheckpoints.length === checkpoints.length &&
       checkpoints.length > 0
     ) {
       router.replace(`/missions/${id}/complete?teamId=${team.id}`);
     }
-  }, [currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
+  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
 
   // 密碼彈窗
   const PasswordModal = () => (
@@ -193,14 +194,14 @@ export default function ActiveMissionPage() {
           <div className="text-5xl font-mono text-black mb-4 tracking-widest">{lastPasswordDigit}</div>
           <button
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
-            onClick={() => {
+            onClick={async () => {
               setShowPasswordModal(false);
               // 完成後自動跳到下一個 checkpoint
               if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
               } else {
                 if (mission) {
-                  completeTeamMission(team.id, mission.id);
+                  await completeTeamMission(team.id, mission.id);
                 }
                 setTimeout(() => {
                   router.push(`/missions/${id}/complete?teamId=${team.id}`);

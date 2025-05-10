@@ -307,7 +307,7 @@ export default function TeamDetailPage() {
         </div>
 
         {/* 當前任務 */}
-        {activeMission && (
+        {activeMission && team?.missionProgress?.currentCheckpoint && (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
             <h2 className="text-xl font-semibold text-black mb-4">當前任務</h2>
             <div className="flex items-center gap-4">
