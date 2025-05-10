@@ -38,6 +38,7 @@ export default function ActiveMissionPage() {
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -52,73 +53,78 @@ export default function ActiveMissionPage() {
     }
     // 監聽團隊文件，進度即時同步
     const unsub = onSnapshot(doc(db, "teams", teamId!), async (teamDoc) => {
-      if (!teamDoc.exists()) {
-        router.push("/teams");
-        return;
-      }
-      const teamData = teamDoc.data();
-      setTeam({ id: teamDoc.id, ...teamData });
-      
-      // 取得團隊 activeMission
-      let activeMission = await getActiveTeamMission(teamId!);
-      if (!activeMission || activeMission.missionId !== id) {
-        setLoading(false);
-        return;
-      }
-
-      // 取得任務和檢查點資料
-      const missionSnap = await getDoc(doc(db, "missions", id as string));
-      if (!missionSnap.exists()) return;
-      const missionData = missionSnap.data() as Mission;
-      setMission(missionData);
-
-      const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
-      const cpSnap = await getDocs(q);
-      let checkpointsRaw = cpSnap.docs.map(doc => {
-        const data = doc.data() as Omit<Checkpoint, "id">;
-        return { ...data, id: doc.id };
-      });
-
-      let ordered: Checkpoint[] = [];
-      if (checkpointsRaw.length > 0) {
-        const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
-        let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
-        let current = start;
-        while (current) {
-          ordered.push(current);
-          current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
+      try {
+        if (!teamDoc.exists()) {
+          router.push("/teams");
+          return;
         }
-        if (ordered.length < checkpointsRaw.length) {
-          const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
-          ordered = [...ordered, ...missing];
-        }
-      }
-      setCheckpoints(ordered);
-
-      // 根據 missionProgress 設置當前檢查點
-      if (activeMission.missionProgress) {
-        const { currentCheckpoint, completedCheckpoints } = activeMission.missionProgress;
+        const teamData = teamDoc.data();
+        setTeam({ id: teamDoc.id, ...teamData });
         
-        // 如果沒有當前檢查點，但有已完成的檢查點，找到最後一個完成的檢查點的下一個
-        if (!currentCheckpoint && completedCheckpoints?.length > 0) {
-          const lastCompleted = completedCheckpoints[completedCheckpoints.length - 1];
-          const lastCheckpoint = ordered.find(cp => cp.id === lastCompleted);
-          if (lastCheckpoint?.nextCheckpoint) {
-            const nextIdx = ordered.findIndex(cp => cp.id === lastCheckpoint.nextCheckpoint);
-            if (nextIdx !== -1) {
-              setCurrentIdx(nextIdx);
+        // 取得團隊 activeMission
+        let activeMission = await getActiveTeamMission(teamId!);
+        if (!activeMission || activeMission.missionId !== id) {
+          setLoading(false);
+          return;
+        }
+
+        // 取得任務和檢查點資料
+        const missionSnap = await getDoc(doc(db, "missions", id as string));
+        if (!missionSnap.exists()) throw new Error("找不到任務");
+        const missionData = missionSnap.data() as Mission;
+        setMission(missionData);
+
+        const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
+        const cpSnap = await getDocs(q);
+        let checkpointsRaw = cpSnap.docs.map(doc => {
+          const data = doc.data() as Omit<Checkpoint, "id">;
+          return { ...data, id: doc.id };
+        });
+
+        let ordered: Checkpoint[] = [];
+        if (checkpointsRaw.length > 0) {
+          const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
+          let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
+          let current = start;
+          while (current) {
+            ordered.push(current);
+            current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
+          }
+          if (ordered.length < checkpointsRaw.length) {
+            const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
+            ordered = [...ordered, ...missing];
+          }
+        }
+        setCheckpoints(ordered);
+
+        // 根據 missionProgress 設置當前檢查點
+        if (activeMission.missionProgress) {
+          const { currentCheckpoint, completedCheckpoints } = activeMission.missionProgress;
+          
+          // 如果沒有當前檢查點，但有已完成的檢查點，找到最後一個完成的檢查點的下一個
+          if (!currentCheckpoint && completedCheckpoints?.length > 0) {
+            const lastCompleted = completedCheckpoints[completedCheckpoints.length - 1];
+            const lastCheckpoint = ordered.find(cp => cp.id === lastCompleted);
+            if (lastCheckpoint?.nextCheckpoint) {
+              const nextIdx = ordered.findIndex(cp => cp.id === lastCheckpoint.nextCheckpoint);
+              if (nextIdx !== -1) {
+                setCurrentIdx(nextIdx);
+              }
+            }
+          } else if (currentCheckpoint) {
+            // 如果有當前檢查點，直接設置
+            const currentIdx = ordered.findIndex(cp => cp.id === currentCheckpoint);
+            if (currentIdx !== -1) {
+              setCurrentIdx(currentIdx);
             }
           }
-        } else if (currentCheckpoint) {
-          // 如果有當前檢查點，直接設置
-          const currentIdx = ordered.findIndex(cp => cp.id === currentCheckpoint);
-          if (currentIdx !== -1) {
-            setCurrentIdx(currentIdx);
-          }
         }
+        
+        setLoading(false);
+      } catch (err: any) {
+        setError(err?.message || "載入任務資料時發生錯誤");
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
     return () => unsub();
   }, [id, user, authLoading, router, teamId]);
@@ -217,6 +223,10 @@ export default function ActiveMissionPage() {
         );
     }
   };
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-red-500">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
