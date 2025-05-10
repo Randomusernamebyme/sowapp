@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, collection, getDocs, query, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -45,6 +45,7 @@ export default function TeamDetailPage() {
   const [activeMission, setActiveMission] = useState<Mission | null>(null);
   const [completedMissions, setCompletedMissions] = useState<Mission[]>([]);
   const [teamStats, setTeamStats] = useState<any>(null);
+  const [recentMissions, setRecentMissions] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadTeam() {
@@ -105,6 +106,31 @@ export default function TeamDetailPage() {
             : null
         };
         setTeamStats(stats);
+
+        // 取得最近完成任務（同 teams page）
+        const recentMissionsData: Array<{
+          teamId: string;
+          teamName: string;
+          missionId: string;
+          missionTitle: string;
+          completedAt: any;
+        }> = [];
+        if (teamData.completedMissionProgress) {
+          for (const progress of teamData.completedMissionProgress) {
+            const missionDoc = await getDoc(doc(db, "missions", progress.missionId));
+            if (missionDoc.exists()) {
+              recentMissionsData.push({
+                teamId: teamData.id,
+                teamName: teamData.name,
+                missionId: progress.missionId,
+                missionTitle: missionDoc.data().title,
+                completedAt: progress.completedAt
+              });
+            }
+          }
+        }
+        recentMissionsData.sort((a, b) => b.completedAt.toDate() - a.completedAt.toDate());
+        setRecentMissions(recentMissionsData.slice(0, 5));
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -321,27 +347,20 @@ export default function TeamDetailPage() {
           </div>
         )}
 
-        {/* 已完成任務 */}
-        {completedMissions.length > 0 && (
+        {/* 已完成任務（改為最近完成任務） */}
+        {recentMissions.length > 0 && (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-black mb-4">已完成任務</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {completedMissions.map(mission => (
-                <div key={mission.id} className="bg-gray-50 p-4 rounded-xl">
-                  <div className="flex items-center gap-4">
-                    {mission.imageUrl && (
-                      <img 
-                        src={mission.imageUrl} 
-                        alt={mission.title} 
-                        className="w-16 h-16 object-cover rounded-xl"
-                      />
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-black">{mission.title}</h3>
-                      <div className="text-sm text-gray-500">
-                        難度：{mission.difficulty}
-                      </div>
-                    </div>
+            <h2 className="text-xl font-semibold text-black mb-4">最近完成任務</h2>
+            <div className="space-y-4">
+              {recentMissions.map((mission, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  onClick={() => window.location.href = `/missions/${mission.missionId}/complete?teamId=${mission.teamId}`}
+                >
+                  <div className="text-black font-semibold">{mission.missionTitle}</div>
+                  <div className="text-gray-600 text-sm">
+                    完成時間：{mission.completedAt?.toDate?.().toLocaleString() || "未知"}
                   </div>
                 </div>
               ))}

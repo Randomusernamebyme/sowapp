@@ -241,30 +241,6 @@ export default function TeamsPage() {
                 </div>
               ))}
             </div>
-
-            {/* 最近完成任務 */}
-            {recentMissions.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-black mb-4">最近完成任務</h2>
-                <div className="space-y-4">
-                  {recentMissions.map((mission, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
-                      onClick={() => window.location.href = `/missions/${mission.missionId}/complete?teamId=${mission.teamId}`}
-                    >
-                      <div className="text-black font-semibold">{mission.missionTitle}</div>
-                      <div className="text-gray-600 text-sm">
-                        團隊：{mission.teamName}
-                      </div>
-                      <div className="text-gray-500 text-sm">
-                        完成時間：{mission.completedAt?.toDate?.().toLocaleString() || "未知"}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
