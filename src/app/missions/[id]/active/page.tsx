@@ -28,7 +28,7 @@ function useUserLocation() {
 export default function ActiveMissionPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [mission, setMission] = useState<Mission | null>(null);
   const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -37,38 +37,36 @@ export default function ActiveMissionPage() {
   const userLocation = useUserLocation();
 
   useEffect(() => {
+    if (authLoading) return; // 等待 auth 狀態
+    if (!id) return;
+    if (!user) {
+      router.push("/auth");
+      return;
+    }
     async function fetchData() {
-      if (!id || !user) return;
-      
       try {
         // 檢查是否有進行中的任務
         let activeMission = await getActiveMission(user.uid);
-        
         if (!activeMission) {
           // 如果沒有進行中的任務，建立新的任務進度
           const userMissionId = await startMission(user.uid, id as string);
           activeMission = await getActiveMission(user.uid);
         }
-        
         if (!activeMission) {
           throw new Error("無法建立任務進度");
         }
-        
         setUserMission(activeMission);
-        
         // 取得任務和檢查點資料
         const missionSnap = await getDoc(doc(db, "missions", id as string));
         if (!missionSnap.exists()) return;
         const missionData = missionSnap.data() as Mission;
         setMission(missionData);
-        
         const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
         const cpSnap = await getDocs(q);
         let checkpointsRaw = cpSnap.docs.map(doc => {
           const data = doc.data() as Omit<Checkpoint, "id">;
           return { ...data, id: doc.id };
         });
-        
         // 用 nextCheckpoint 串連所有 checkpoint
         let ordered: Checkpoint[] = [];
         if (checkpointsRaw.length > 0) {
@@ -84,9 +82,7 @@ export default function ActiveMissionPage() {
             ordered = [...ordered, ...missing];
           }
         }
-        
         setCheckpoints(ordered);
-        
         // 如果有進行中的任務，設定當前檢查點
         if (activeMission.currentCheckpoint) {
           const currentIdx = ordered.findIndex(cp => cp.id === activeMission.currentCheckpoint);
@@ -94,7 +90,6 @@ export default function ActiveMissionPage() {
             setCurrentIdx(currentIdx);
           }
         }
-        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching mission data:", error);
@@ -102,7 +97,7 @@ export default function ActiveMissionPage() {
       }
     }
     fetchData();
-  }, [id, user]);
+  }, [id, user, authLoading, router]);
 
   const handleChallengeComplete = async () => {
     if (!userMission) return;
@@ -130,8 +125,11 @@ export default function ActiveMissionPage() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
+  }
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">請先登入</div>;
   }
   if (!mission || checkpoints.length === 0) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務或檢查點</div>;
