@@ -45,12 +45,11 @@ export default function ActiveMissionPage() {
     }
     async function fetchData() {
       if (!user) return;
-      // 取得用戶所屬團隊
-      const teamSnap = await getDocs(query(collection(db, "teams"), where("members", "array-contains", { userId: user.uid, role: "A", status: "active" }))); // 需根據實際 members 結構調整
+      // 取得所有團隊
+      const teamSnap = await getDocs(collection(db, "teams"));
       const userTeam = teamSnap.docs.find(doc => doc.data().members.some((m: any) => m.userId === user.uid));
       if (!userTeam) {
-        setLoading(false);
-        setTeam(null);
+        router.push("/teams");
         return;
       }
       setTeam({ id: userTeam.id, ...userTeam.data() });

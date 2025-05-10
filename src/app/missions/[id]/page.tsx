@@ -112,7 +112,7 @@ export default function MissionDetailPage() {
       </div>
       <button
         className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-        disabled={!!activeTeamMission && activeTeamMission.missionId}
+        disabled={!team || (!!activeTeamMission && activeTeamMission.missionId)}
         onClick={async () => {
           setButtonLoading(true);
           setError("");
@@ -133,6 +133,7 @@ export default function MissionDetailPage() {
       >
         {buttonLoading ? "啟動中..." : "開始任務"}
       </button>
+      {!team && <div className="text-red-500 text-sm mt-2">請先加入團隊才能開始任務</div>}
       {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
