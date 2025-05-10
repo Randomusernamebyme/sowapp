@@ -17,6 +17,9 @@ export default function MissionCompletePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
+  const [inputPassword, setInputPassword] = useState("");
+  const [showUnlock, setShowUnlock] = useState(true);
+  const [unlockError, setUnlockError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -73,6 +76,41 @@ export default function MissionCompletePage() {
   const completedCheckpoints = lastCompleted?.completedCheckpoints || [];
   const answers = lastCompleted?.answers || {};
   const teamName = team.name || "";
+
+  // 取得正確密碼
+  const correctPassword = mission?.password || "";
+
+  if (showUnlock) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+          <div className="text-2xl font-bold text-black mb-2">請輸入你收集到的密碼</div>
+          <input
+            type="text"
+            value={inputPassword}
+            onChange={e => setInputPassword(e.target.value)}
+            className="w-full border rounded-lg p-2 text-center text-2xl font-mono mb-4"
+            placeholder="請輸入 4 位數字"
+            maxLength={correctPassword.length}
+          />
+          {unlockError && <div className="text-red-500 text-sm mb-2">{unlockError}</div>}
+          <button
+            className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
+            onClick={() => {
+              if (inputPassword === correctPassword) {
+                setShowUnlock(false);
+                setUnlockError("");
+              } else {
+                setUnlockError("密碼錯誤，請重新輸入");
+              }
+            }}
+          >
+            解鎖
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">

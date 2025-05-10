@@ -186,7 +186,8 @@ export default function ActiveMissionPage() {
       !showPasswordModal &&
       !currentCheckpointId &&
       completedCheckpoints.length === checkpoints.length &&
-      checkpoints.length > 0
+      checkpoints.length > 0 &&
+      completedCheckpoints.every(cid => checkpoints.find(cp => cp.id === cid))
     ) {
       // 強制呼叫 completeTeamMission，確保 Firestore 寫入
       if (team && mission) {
@@ -201,7 +202,7 @@ export default function ActiveMissionPage() {
         }, 300);
       }
     }
-  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission]);
+  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission, checkpoints]);
 
   // 密碼彈窗
   const PasswordModal = () => (
