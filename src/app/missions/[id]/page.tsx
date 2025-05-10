@@ -147,16 +147,21 @@ export default function MissionDetailPage() {
       {isLeader && (
         <div className="mb-4">
           <label className="block text-gray-700 mb-1">選擇要啟動任務的團隊：</label>
-          <select
-            className="border border-gray-300 rounded-lg px-3 py-2"
-            value={selectedTeamId}
-            onChange={e => setSelectedTeamId(e.target.value)}
-          >
-            <option value="">請選擇團隊</option>
-            {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).map(team => (
-              <option key={team.id} value={team.id}>{team.name}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              className="border border-gray-300 rounded-xl px-4 py-3 pr-10 shadow focus:ring-2 focus:ring-black focus:border-black transition bg-white text-black appearance-none w-full hover:border-gray-400 focus:outline-none"
+              value={selectedTeamId}
+              onChange={e => setSelectedTeamId(e.target.value)}
+            >
+              <option value="">請選擇團隊</option>
+              {userTeams.filter(team => team.members.find((m: any) => m.userId === user.uid && m.role === "A")).map(team => (
+                <option key={team.id} value={team.id}>{team.name}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
         </div>
       )}
       <div className="w-full max-w-xl flex flex-col items-center justify-center mt-4">
