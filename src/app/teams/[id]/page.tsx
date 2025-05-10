@@ -397,7 +397,7 @@ export default function TeamDetailPage() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">成員列表</h2>
           <div className="space-y-3">
-            {team.members?.map((member) => (
+            {team.members?.slice(0, 4).map((member) => (
               <div
                 key={member.userId}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
