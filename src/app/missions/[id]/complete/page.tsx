@@ -65,7 +65,7 @@ export default function MissionCompletePage() {
   const completedList = Array.isArray(team.completedMissionProgress) ? team.completedMissionProgress.filter((c: any) => c.missionId === mission.id) : [];
   const lastCompleted = completedList.length > 0 ? completedList[completedList.length - 1] : (team.missionProgress || null);
   const completedAt = lastCompleted?.completedAt
-    ? (lastCompleted.completedAt instanceof Timestamp
+    ? (typeof lastCompleted.completedAt.toDate === 'function'
         ? lastCompleted.completedAt.toDate()
         : new Date(lastCompleted.completedAt))
     : null;

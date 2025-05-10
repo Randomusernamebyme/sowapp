@@ -155,6 +155,7 @@ export default function ActiveMissionPage() {
     if (!team || !currentCheckpoint || buttonLoading) return;
     setButtonLoading(true);
     try {
+      console.log('handleChallengeComplete', { currentCheckpoint });
       await updateTeamMissionProgress(
         team.id,
         currentCheckpoint.id,
@@ -162,8 +163,14 @@ export default function ActiveMissionPage() {
         answer
       );
       // 彈窗顯示密碼數字
-      setLastPasswordDigit(currentCheckpoint.passwordDigit?.value || null);
-      setShowPasswordModal(true);
+      if (currentCheckpoint.passwordDigit && currentCheckpoint.passwordDigit.value) {
+        setLastPasswordDigit(currentCheckpoint.passwordDigit.value);
+        setShowPasswordModal(true);
+      } else {
+        // 若無密碼數字也彈窗提示
+        setLastPasswordDigit(null);
+        setShowPasswordModal(true);
+      }
       // 不自動跳轉，等用戶點擊確認
     } catch (error) {
       console.error("Error updating mission progress:", error);
@@ -181,17 +188,24 @@ export default function ActiveMissionPage() {
       completedCheckpoints.length === checkpoints.length &&
       checkpoints.length > 0
     ) {
-      router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+      // 強制刷新團隊資料，確保 activeMission 清空
+      setTimeout(() => {
+        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+      }, 300);
     }
   }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
 
   // 密碼彈窗
   const PasswordModal = () => (
-    showPasswordModal && lastPasswordDigit ? (
+    showPasswordModal ? (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
-          <div className="text-2xl font-bold text-black mb-2">密碼數字</div>
-          <div className="text-5xl font-mono text-black mb-4 tracking-widest">{lastPasswordDigit}</div>
+          <div className="text-2xl font-bold text-black mb-2">{lastPasswordDigit ? '密碼數字' : '完成檢查點'}</div>
+          {lastPasswordDigit ? (
+            <div className="text-5xl font-mono text-black mb-4 tracking-widest">{lastPasswordDigit}</div>
+          ) : (
+            <div className="text-lg text-black mb-4">已完成此檢查點！</div>
+          )}
           <button
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
             onClick={async () => {

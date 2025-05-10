@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { collection, doc, setDoc, updateDoc, getDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc, getDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { UserMission, Mission, CheckpointType } from "@/types/mission";
 
 // 啟動團隊任務
@@ -138,7 +138,7 @@ export async function completeTeamMission(teamId: string, missionId: string) {
   const answers = {}; // 若有答案可補充
 
   // 記錄完成時間
-  const completedAt = new Date();
+  const completedAt = Timestamp.now();
 
   const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
   const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
