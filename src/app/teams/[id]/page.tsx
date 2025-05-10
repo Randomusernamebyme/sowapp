@@ -382,7 +382,7 @@ export default function TeamDetailPage() {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                     <span className="text-black font-medium">
-                      {userDisplayNames[member.userId] || "匿名"}
+                      {(userDisplayNames[member.userId] || "匿名").charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
