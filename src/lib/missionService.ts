@@ -128,20 +128,36 @@ export async function completeTeamMission(teamId: string, missionId: string) {
   // 記錄完成時間
   const completedAt = new Date();
 
+  // 取得當前 missionProgress 並記錄到 completedMissionProgress 陣列
+  const currentProgress = data.missionProgress || {};
+  const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
+  const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
+  const newCompletedMissionProgress = [
+    ...completedMissionProgress,
+    {
+      missionId,
+      playCount,
+      completedAt,
+      ...currentProgress
+    }
+  ];
+
   // log for debug
   console.log('completeTeamMission:即將寫入', {
     teamId,
     missionId,
     newTeamCompletedMissions,
     activeMission: "",
-    missionProgress: { completedAt }
+    missionProgress: { completedAt },
+    completedMissionProgress: newCompletedMissionProgress
   });
 
-  // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確
+  // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確，並記錄 completedMissionProgress
   await updateDoc(teamRef, {
     activeMission: "",
     missionProgress: { completedAt },
     completedMissions: newTeamCompletedMissions,
+    completedMissionProgress: newCompletedMissionProgress
   });
 }
 
