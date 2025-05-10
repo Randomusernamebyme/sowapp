@@ -36,8 +36,14 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
   const teamSnap = await getDoc(teamRef);
   if (!teamSnap.exists()) throw new Error("找不到團隊");
   const progress = teamSnap.data().missionProgress || {};
+  // 查詢目前 checkpoint 的 nextCheckpoint
+  const checkpointSnap = await getDoc(doc(db, "checkpoints", checkpointId));
+  let nextCheckpoint = "";
+  if (checkpointSnap.exists()) {
+    nextCheckpoint = checkpointSnap.data().nextCheckpoint || "";
+  }
   await updateDoc(teamRef, {
-    "missionProgress.currentCheckpoint": checkpointId,
+    "missionProgress.currentCheckpoint": nextCheckpoint,
     "missionProgress.completedCheckpoints": [...(progress.completedCheckpoints || []), checkpointId],
     "missionProgress.collectedDigits": passwordDigit !== undefined ? [...(progress.collectedDigits || []), passwordDigit] : progress.collectedDigits,
   });
