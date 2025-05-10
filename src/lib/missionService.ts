@@ -43,12 +43,38 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
   });
 }
 
-// 完成團隊任務
+// 完成團隊任務並給所有成員加分
 export async function completeTeamMission(teamId: string) {
   const teamRef = doc(db, "teams", teamId);
   const teamSnap = await getDoc(teamRef);
   if (!teamSnap.exists()) throw new Error("找不到團隊");
   const data = teamSnap.data();
+  const missionId = data.activeMission;
+  // 查詢任務難度
+  const missionSnap = await getDoc(doc(db, "missions", missionId));
+  let points = 0;
+  if (missionSnap.exists()) {
+    const difficulty = missionSnap.data().difficulty;
+    if (difficulty === "easy") points = 5;
+    else if (difficulty === "medium") points = 10;
+    else if (difficulty === "hard") points = 20;
+  }
+  // 給所有成員加分並自動升級體能等級
+  for (const member of data.members) {
+    const userRef = doc(db, "users", member.userId);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      const newPoints = (userData.points || 0) + points;
+      let fitnessLevel = "beginner";
+      if (newPoints >= 50) fitnessLevel = "advanced";
+      else if (newPoints >= 25) fitnessLevel = "intermediate";
+      await updateDoc(userRef, {
+        points: newPoints,
+        fitnessLevel
+      });
+    }
+  }
   await updateDoc(teamRef, {
     activeMission: "",
     completedMissions: [...(data.completedMissions || []), data.activeMission],
