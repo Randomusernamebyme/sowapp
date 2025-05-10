@@ -134,12 +134,25 @@ export async function completeTeamMission(teamId: string, missionId: string) {
   const completedAt = new Date();
 
   // 取得當前 missionProgress 並記錄到 completedMissionProgress 陣列
-  const currentProgress = data.missionProgress ? JSON.parse(JSON.stringify(data.missionProgress)) : {};
+  let currentProgress = data.missionProgress ? JSON.parse(JSON.stringify(data.missionProgress)) : {};
+  // Fallback：若 missionProgress 為空，嘗試組合資料
+  if (!currentProgress.completedCheckpoints || !Array.isArray(currentProgress.completedCheckpoints) || currentProgress.completedCheckpoints.length === 0) {
+    // 重新查詢該團隊 activeMission 的所有 checkpoints
+    if (data.activeMission) {
+      const q = query(collection(db, "checkpoints"), where("missionId", "==", data.activeMission));
+      const cpSnap = await getDocs(q);
+      const checkpoints = cpSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
+      currentProgress.completedCheckpoints = checkpoints.map(cp => cp.id);
+      currentProgress.collectedDigits = checkpoints.map(cp => cp.passwordDigit?.value).filter(Boolean);
+      currentProgress.answers = {};
+      // 你可根據需要補充更多欄位
+      console.warn('[completeTeamMission] fallback: 以 checkpoints 組合 completedCheckpoints', { teamId, missionId, currentProgress });
+    } else {
+      console.warn('[completeTeamMission] fallback: 無 activeMission，資料極度不完整', { teamId, missionId });
+    }
+  }
   // 將 completedAt 寫入 currentProgress
   currentProgress.completedAt = completedAt;
-  if (!currentProgress.completedCheckpoints || !Array.isArray(currentProgress.completedCheckpoints) || currentProgress.completedCheckpoints.length === 0) {
-    console.warn('[completeTeamMission] missionProgress 為空或缺少檢查點，資料可能不完整', { teamId, missionId, currentProgress });
-  }
 
   const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
   const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
