@@ -4,6 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import MapView from "@/components/MapView";
+import { useAuth } from "@/contexts/AuthContext";
+import { getActiveTeamMission, startTeamMission } from "@/lib/missionService";
 
 interface CheckpointType {
   id: string;
@@ -20,6 +22,11 @@ export default function MissionDetailPage() {
   const [mission, setMission] = useState<any>(null);
   const [checkpoints, setCheckpoints] = useState<CheckpointType[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [team, setTeam] = useState<any>(null);
+  const [activeTeamMission, setActiveTeamMission] = useState<any>(null);
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -60,6 +67,21 @@ export default function MissionDetailPage() {
     fetchData();
   }, [id]);
 
+  useEffect(() => {
+    async function fetchTeam() {
+      if (!user) return;
+      // 取得用戶所屬團隊
+      const teamSnap = await getDocs(query(collection(db, "teams")));
+      const userTeam = teamSnap.docs.find(doc => doc.data().members.some((m: any) => m.userId === user.uid));
+      if (userTeam) {
+        setTeam({ id: userTeam.id, ...userTeam.data() });
+        const activeMission = await getActiveTeamMission(userTeam.id);
+        setActiveTeamMission(activeMission);
+      }
+    }
+    fetchTeam();
+  }, [user]);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -90,10 +112,28 @@ export default function MissionDetailPage() {
       </div>
       <button
         className="px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
-        onClick={() => router.push(`/missions/${id}/active`)}
+        disabled={!!activeTeamMission && activeTeamMission.missionId}
+        onClick={async () => {
+          setButtonLoading(true);
+          setError("");
+          if (!team) {
+            setError("請先加入團隊");
+            setButtonLoading(false);
+            return;
+          }
+          if (activeTeamMission && activeTeamMission.missionId) {
+            setError("團隊已有進行中任務，請先完成");
+            setButtonLoading(false);
+            return;
+          }
+          await startTeamMission(team.id, id as string);
+          router.push(`/missions/${id}/active`);
+          setButtonLoading(false);
+        }}
       >
-        開始任務
+        {buttonLoading ? "啟動中..." : "開始任務"}
       </button>
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
     </div>
   );
 } 

@@ -9,7 +9,7 @@ import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
 import PhotoChallenge from "@/components/challenges/PhotoChallenge";
 import { Mission, Checkpoint, UserMission } from "@/types/mission";
-import { startMission, updateMissionProgress, completeMission, getActiveMission } from "@/lib/missionService";
+import { startTeamMission, updateTeamMissionProgress, completeTeamMission, getActiveTeamMission } from "@/lib/missionService";
 
 function useUserLocation() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -29,15 +29,15 @@ export default function ActiveMissionPage() {
   const router = useRouter();
   const { id } = useParams();
   const { user, loading: authLoading } = useAuth();
+  const [team, setTeam] = useState<any>(null);
   const [mission, setMission] = useState<Mission | null>(null);
   const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [userMission, setUserMission] = useState<UserMission | null>(null);
   const userLocation = useUserLocation();
 
   useEffect(() => {
-    if (authLoading) return; // 等待 auth 狀態
+    if (authLoading) return;
     if (!id) return;
     if (!user) {
       router.push("/auth");
@@ -45,81 +45,74 @@ export default function ActiveMissionPage() {
     }
     async function fetchData() {
       if (!user) return;
-      try {
-        // 檢查是否有進行中的任務
-        let activeMission = await getActiveMission(user.uid);
-        if (!activeMission) {
-          // 如果沒有進行中的任務，建立新的任務進度
-          const userMissionId = await startMission(user.uid, id as string);
-          activeMission = await getActiveMission(user.uid);
-        }
-        if (!activeMission) {
-          throw new Error("無法建立任務進度");
-        }
-        setUserMission(activeMission);
-        // 取得任務和檢查點資料
-        const missionSnap = await getDoc(doc(db, "missions", id as string));
-        if (!missionSnap.exists()) return;
-        const missionData = missionSnap.data() as Mission;
-        setMission(missionData);
-        const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
-        const cpSnap = await getDocs(q);
-        let checkpointsRaw = cpSnap.docs.map(doc => {
-          const data = doc.data() as Omit<Checkpoint, "id">;
-          return { ...data, id: doc.id };
-        });
-        // 用 nextCheckpoint 串連所有 checkpoint
-        let ordered: Checkpoint[] = [];
-        if (checkpointsRaw.length > 0) {
-          const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
-          let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
-          let current = start;
-          while (current) {
-            ordered.push(current);
-            current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
-          }
-          if (ordered.length < checkpointsRaw.length) {
-            const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
-            ordered = [...ordered, ...missing];
-          }
-        }
-        setCheckpoints(ordered);
-        // 如果有進行中的任務，設定當前檢查點
-        if (activeMission.currentCheckpoint) {
-          const currentIdx = ordered.findIndex(cp => cp.id === activeMission.currentCheckpoint);
-          if (currentIdx !== -1) {
-            setCurrentIdx(currentIdx);
-          }
-        }
+      // 取得用戶所屬團隊
+      const teamSnap = await getDocs(query(collection(db, "teams"), where("members", "array-contains", { userId: user.uid, role: "A", status: "active" }))); // 需根據實際 members 結構調整
+      const userTeam = teamSnap.docs.find(doc => doc.data().members.some((m: any) => m.userId === user.uid));
+      if (!userTeam) {
         setLoading(false);
-      } catch (error) {
-        console.error("Error fetching mission data:", error);
-        setLoading(false);
+        setTeam(null);
+        return;
       }
+      setTeam({ id: userTeam.id, ...userTeam.data() });
+      // 取得團隊 activeMission
+      let activeMission = await getActiveTeamMission(userTeam.id);
+      if (!activeMission || activeMission.missionId !== id) {
+        // 啟動團隊任務
+        await startTeamMission(userTeam.id, id as string);
+        activeMission = await getActiveTeamMission(userTeam.id);
+      }
+      if (!activeMission) {
+        throw new Error("無法建立任務進度");
+      }
+      // 取得任務和檢查點資料
+      const missionSnap = await getDoc(doc(db, "missions", id as string));
+      if (!missionSnap.exists()) return;
+      const missionData = missionSnap.data() as Mission;
+      setMission(missionData);
+      const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
+      const cpSnap = await getDocs(q);
+      let checkpointsRaw = cpSnap.docs.map(doc => {
+        const data = doc.data() as Omit<Checkpoint, "id">;
+        return { ...data, id: doc.id };
+      });
+      // 用 nextCheckpoint 串連所有 checkpoint
+      let ordered: Checkpoint[] = [];
+      if (checkpointsRaw.length > 0) {
+        const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
+        let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
+        let current = start;
+        while (current) {
+          ordered.push(current);
+          current = current.nextCheckpoint ? cpMap[current.nextCheckpoint] : undefined;
+        }
+        if (ordered.length < checkpointsRaw.length) {
+          const missing = checkpointsRaw.filter(cp => !ordered.includes(cp));
+          ordered = [...ordered, ...missing];
+        }
+      }
+      setCheckpoints(ordered);
+      // 如果有進行中的任務，設定當前檢查點
+      if (activeMission.missionProgress && activeMission.missionProgress.currentCheckpoint) {
+        const currentIdx = ordered.findIndex(cp => cp.id === activeMission.missionProgress.currentCheckpoint);
+        if (currentIdx !== -1) {
+          setCurrentIdx(currentIdx);
+        }
+      }
+      setLoading(false);
     }
     fetchData();
   }, [id, user, authLoading, router]);
 
   const handleChallengeComplete = async () => {
-    if (!userMission) return;
-    
+    if (!team) return;
     const currentCheckpoint = checkpoints[currentIdx];
-    
     try {
-      // 更新任務進度
-      await updateMissionProgress(
-        userMission.id,
-        currentCheckpoint.id,
-        currentCheckpoint.passwordDigit?.value
-      );
-      
+      await updateTeamMissionProgress(team.id, currentCheckpoint.id, currentCheckpoint.passwordDigit?.value);
       if (currentIdx < checkpoints.length - 1) {
-        // 進入下一個檢查點
         setCurrentIdx(i => i + 1);
       } else {
-        // 任務完成
-        await completeMission(userMission.id);
-        await new Promise(r => setTimeout(r, 500)); // 等待 firestore 寫入
+        await completeTeamMission(team.id);
+        await new Promise(r => setTimeout(r, 500));
         router.push(`/missions/${id}/complete`);
       }
     } catch (error) {

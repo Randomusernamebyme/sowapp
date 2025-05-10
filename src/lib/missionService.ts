@@ -2,64 +2,58 @@ import { db } from "./firebase";
 import { collection, doc, setDoc, updateDoc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { UserMission, Mission, Checkpoint } from "@/types/mission";
 
-export async function startMission(userId: string, missionId: string): Promise<string> {
-  const userMissionRef = doc(collection(db, "userMissions"));
-  const userMission: Omit<UserMission, "id"> = {
-    userId,
-    missionId,
-    status: "active",
-    currentCheckpoint: "", // 會在取得第一個檢查點後更新
-    completedCheckpoints: [],
-    collectedDigits: [],
-    startedAt: new Date(),
-  };
-  await setDoc(userMissionRef, userMission);
-  return userMissionRef.id;
-}
-
-export async function updateMissionProgress(
-  userMissionId: string,
-  checkpointId: string,
-  passwordDigit?: number
-): Promise<void> {
-  const userMissionRef = doc(db, "userMissions", userMissionId);
-  const userMissionSnap = await getDoc(userMissionRef);
-  
-  if (!userMissionSnap.exists()) {
-    throw new Error("找不到任務進度記錄");
-  }
-
-  const userMission = userMissionSnap.data() as UserMission;
-  const updates: Partial<UserMission> = {
-    currentCheckpoint: checkpointId,
-    completedCheckpoints: [...userMission.completedCheckpoints, checkpointId],
-  };
-
-  if (passwordDigit !== undefined) {
-    updates.collectedDigits = [...userMission.collectedDigits, passwordDigit];
-  }
-
-  await updateDoc(userMissionRef, updates);
-}
-
-export async function completeMission(userMissionId: string): Promise<void> {
-  const userMissionRef = doc(db, "userMissions", userMissionId);
-  await updateDoc(userMissionRef, {
-    status: "completed",
-    completedAt: new Date(),
+// 啟動團隊任務
+export async function startTeamMission(teamId: string, missionId: string) {
+  const teamRef = doc(db, "teams", teamId);
+  await updateDoc(teamRef, {
+    activeMission: missionId,
+    missionProgress: {
+      currentCheckpoint: "",
+      completedCheckpoints: [],
+      collectedDigits: [],
+      startedAt: new Date(),
+      timeRemaining: null,
+    },
   });
 }
 
-export async function getActiveMission(userId: string): Promise<UserMission | null> {
-  const q = query(
-    collection(db, "userMissions"),
-    where("userId", "==", userId),
-    where("status", "==", "active")
-  );
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) return null;
-  const doc = snapshot.docs[0];
-  return { id: doc.id, ...doc.data() } as UserMission;
+// 取得團隊進行中任務
+export async function getActiveTeamMission(teamId: string) {
+  const teamRef = doc(db, "teams", teamId);
+  const teamSnap = await getDoc(teamRef);
+  if (!teamSnap.exists()) return null;
+  const data = teamSnap.data();
+  if (!data.activeMission) return null;
+  return {
+    missionId: data.activeMission,
+    missionProgress: data.missionProgress,
+  };
+}
+
+// 更新團隊任務進度
+export async function updateTeamMissionProgress(teamId: string, checkpointId: string, passwordDigit?: number) {
+  const teamRef = doc(db, "teams", teamId);
+  const teamSnap = await getDoc(teamRef);
+  if (!teamSnap.exists()) throw new Error("找不到團隊");
+  const progress = teamSnap.data().missionProgress || {};
+  await updateDoc(teamRef, {
+    "missionProgress.currentCheckpoint": checkpointId,
+    "missionProgress.completedCheckpoints": [...(progress.completedCheckpoints || []), checkpointId],
+    "missionProgress.collectedDigits": passwordDigit !== undefined ? [...(progress.collectedDigits || []), passwordDigit] : progress.collectedDigits,
+  });
+}
+
+// 完成團隊任務
+export async function completeTeamMission(teamId: string) {
+  const teamRef = doc(db, "teams", teamId);
+  const teamSnap = await getDoc(teamRef);
+  if (!teamSnap.exists()) throw new Error("找不到團隊");
+  const data = teamSnap.data();
+  await updateDoc(teamRef, {
+    activeMission: "",
+    completedMissions: [...(data.completedMissions || []), data.activeMission],
+    missionProgress: {},
+  });
 }
 
 export async function getMissionWithCheckpoints(missionId: string): Promise<{
