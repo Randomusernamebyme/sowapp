@@ -16,6 +16,7 @@ export default function MissionCompletePage() {
   const [team, setTeam] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function fetchData() {
@@ -28,7 +29,20 @@ export default function MissionCompletePage() {
       // 取得團隊資料
       const teamSnap = await getDoc(doc(db, "teams", teamId));
       if (teamSnap.exists()) {
-        setTeam({ id: teamSnap.id, ...teamSnap.data() });
+        const teamData: any = { id: teamSnap.id, ...teamSnap.data() };
+        setTeam(teamData);
+        // 取得所有成員 displayName
+        const userIds: string[] = Array.from(new Set((teamData.members || []).map((m: any) => m.userId)));
+        const displayNames: Record<string, string> = {};
+        for (const uid of userIds) {
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            displayNames[uid as string] = userDoc.data().displayName || "匿名";
+          } else {
+            displayNames[uid as string] = "匿名";
+          }
+        }
+        setUserDisplayNames(displayNames);
       } else {
         setError("找不到團隊資料");
       }
@@ -67,7 +81,7 @@ export default function MissionCompletePage() {
         <div className="text-lg text-gray-700 mb-4">{mission.title}</div>
         <div className="mb-4">
           <div className="text-gray-600">完成時間：</div>
-          <div className="font-semibold text-black">{completedAt ? completedAt.toLocaleString() : "-"}</div>
+          <div className="font-semibold text-black">{completedAt ? completedAt.toLocaleString() : "未知"}</div>
         </div>
         <div className="mb-4">
           <div className="text-gray-600">完成檢查點數量：</div>
@@ -80,10 +94,9 @@ export default function MissionCompletePage() {
         <div className="mb-4">
           <div className="text-gray-600">團隊成員：</div>
           <div className="font-mono text-black">
-            {team.members
-              ?.filter((m: any) => m.nickname || m.displayName)
-              .map((m: any) => m.nickname || m.displayName)
-              .join("、") || "無成員"}
+            {team && team.members && team.members.length > 0
+              ? team.members.map((m: any) => userDisplayNames[m.userId as string] || "匿名").join("、")
+              : "無成員"}
           </div>
         </div>
         <div className="flex flex-col gap-3 mt-6">
