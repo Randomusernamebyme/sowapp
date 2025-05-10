@@ -8,7 +8,7 @@ import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
 import PhotoChallenge from "@/components/challenges/PhotoChallenge";
-import { startMission, updateCheckpointProgress, completeMission, getMissionProgress, MissionProgress } from "@/lib/missionProgress";
+import { startMission, completeCheckpoint, completeMission, getActiveMission, MissionProgress } from "@/lib/missionProgress";
 
 interface CheckpointType {
   id: string;
@@ -79,16 +79,14 @@ export default function ActiveMissionPage() {
       setCheckpoints(ordered);
 
       // 取得或建立任務進度
-      const existingProgress = await getMissionProgress(user.uid, id as string);
+      const existingProgress = await getActiveMission(user.uid);
       if (existingProgress) {
         setProgress(existingProgress);
-        setCurrentIdx(existingProgress.currentCheckpoint);
+        setCurrentIdx(checkpoints.findIndex(cp => cp.id === existingProgress.currentCheckpoint));
       } else {
-        const newProgress = await startMission(
-          user.uid,
-          id as string,
-          ordered.map(cp => cp.id)
-        );
+        const newProgressId = await startMission(user.uid, id as string);
+        // 重新查詢進度
+        const newProgress = await getActiveMission(user.uid);
         setProgress(newProgress);
       }
       setLoading(false);
@@ -101,12 +99,7 @@ export default function ActiveMissionPage() {
     const currentCheckpoint = checkpoints[currentIdx];
     
     try {
-      await updateCheckpointProgress(
-        user.uid,
-        id as string,
-        currentCheckpoint.id,
-        challengeData
-      );
+      await completeCheckpoint(progress.id, currentCheckpoint.id);
 
       if (currentIdx < checkpoints.length - 1) {
         setCurrentIdx(i => i + 1);
