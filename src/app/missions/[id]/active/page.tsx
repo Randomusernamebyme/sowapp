@@ -153,12 +153,17 @@ export default function ActiveMissionPage() {
   }
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
-  const currentCheckpoint = checkpoints.find(cp => cp.id === currentCheckpointId);
+  const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
   if (!currentCheckpointId) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成！</div>;
+    if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
+      return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成！</div>;
+    } else {
+      return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
+    }
   }
+  const currentCheckpoint = checkpoints.find(cp => cp.id === currentCheckpointId);
   if (!currentCheckpoint) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">請稍候同步進度...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
   }
 
   const renderChallenge = () => {
