@@ -28,6 +28,11 @@ export default function CreateTeamPage() {
       setError("請輸入團隊名稱");
       return;
     }
+    if (!user) {
+      setError("請先登入再創建團隊");
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     // 檢查團隊名稱唯一
     const q = query(collection(db, "teams"), where("name", "==", name.trim()));
