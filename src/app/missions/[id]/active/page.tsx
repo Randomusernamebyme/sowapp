@@ -56,6 +56,8 @@ export default function ActiveMissionPage() {
   const teamId = searchParams.get("teamId");
   const [buttonLoading, setButtonLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [lastPasswordDigit, setLastPasswordDigit] = useState<string | null>(null);
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -151,7 +153,6 @@ export default function ActiveMissionPage() {
 
   const handleChallengeComplete = async (answer?: string) => {
     if (!team || !currentCheckpoint || buttonLoading) return;
-    
     setButtonLoading(true);
     try {
       await updateTeamMissionProgress(
@@ -160,15 +161,10 @@ export default function ActiveMissionPage() {
         currentCheckpoint.passwordDigit?.value ? Number(currentCheckpoint.passwordDigit.value) : undefined,
         answer
       );
-      if (currentIdx < checkpoints.length - 1) {
-        setCurrentIdx(i => i + 1);
-      } else {
-        if (mission) {
-          await completeTeamMission(team.id, mission.id);
-        }
-        await new Promise(r => setTimeout(r, 500));
-        router.push(`/missions/${id}/complete?teamId=${team.id}`);
-      }
+      // 彈窗顯示密碼數字
+      setLastPasswordDigit(currentCheckpoint.passwordDigit?.value || null);
+      setShowPasswordModal(true);
+      // 等待用戶關閉彈窗後再進行下一步
     } catch (error) {
       console.error("Error updating mission progress:", error);
       setError("更新任務進度時發生錯誤");
@@ -187,6 +183,36 @@ export default function ActiveMissionPage() {
       router.replace(`/missions/${id}/complete?teamId=${team.id}`);
     }
   }, [currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
+
+  // 密碼彈窗
+  const PasswordModal = () => (
+    showPasswordModal && lastPasswordDigit ? (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+          <div className="text-2xl font-bold text-black mb-2">密碼數字</div>
+          <div className="text-5xl font-mono text-black mb-4 tracking-widest">{lastPasswordDigit}</div>
+          <button
+            className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
+            onClick={() => {
+              setShowPasswordModal(false);
+              // 完成後自動跳到下一個 checkpoint
+              if (currentIdx < checkpoints.length - 1) {
+                setCurrentIdx(i => i + 1);
+              } else {
+                if (mission) {
+                  completeTeamMission(team.id, mission.id);
+                }
+                setTimeout(() => {
+                  router.push(`/missions/${id}/complete?teamId=${team.id}`);
+                }, 500);
+              }
+            }}
+          >
+            確認</button>
+        </div>
+      </div>
+    ) : null
+  );
 
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
@@ -278,41 +304,44 @@ export default function ActiveMissionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-white pt-8">
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-        <MapView
-          checkpoints={checkpoints}
-          startLocation={mission.startLocation}
-          endLocation={mission.endLocation}
-          userLocation={userLocation}
-        />
-        <div className="mt-4">
-          <div className="text-lg font-bold text-black mb-1">目前檢查點：{currentCheckpoint.name}</div>
-          <div className="text-gray-600 mb-2">{currentCheckpoint.description}</div>
-          {renderChallenge()}
+    <>
+      <PasswordModal />
+      <div className="min-h-screen flex flex-col items-center bg-white pt-8">
+        <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+          <MapView
+            checkpoints={checkpoints}
+            startLocation={mission.startLocation}
+            endLocation={mission.endLocation}
+            userLocation={userLocation}
+          />
+          <div className="mt-4">
+            <div className="text-lg font-bold text-black mb-1">目前檢查點：{currentCheckpoint.name}</div>
+            <div className="text-gray-600 mb-2">{currentCheckpoint.description}</div>
+            {renderChallenge()}
+          </div>
         </div>
-      </div>
-      
-      {/* 放棄任務按鈕 */}
-      <button
-        onClick={async () => {
-          if (window.confirm("確定要放棄任務嗎？")) {
-            try {
-              await updateDoc(doc(db, "teams", team.id), {
-                activeMission: "",
-                missionProgress: {}
-              });
-              router.push("/missions");
-            } catch (error) {
-              console.error("Error abandoning mission:", error);
-              setError("放棄任務時發生錯誤");
+        
+        {/* 放棄任務按鈕 */}
+        <button
+          onClick={async () => {
+            if (window.confirm("確定要放棄任務嗎？")) {
+              try {
+                await updateDoc(doc(db, "teams", team.id), {
+                  activeMission: "",
+                  missionProgress: {}
+                });
+                router.push("/missions");
+              } catch (error) {
+                console.error("Error abandoning mission:", error);
+                setError("放棄任務時發生錯誤");
+              }
             }
-          }
-        }}
-        className="px-4 py-2 text-red-500 border border-red-500 rounded-xl hover:bg-red-50 transition"
-      >
-        放棄任務
-      </button>
-    </div>
+          }}
+          className="px-4 py-2 text-red-500 border border-red-500 rounded-xl hover:bg-red-50 transition"
+        >
+          放棄任務
+        </button>
+      </div>
+    </>
   );
 } 
