@@ -86,19 +86,25 @@ export default function TeamsPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {teams.map(team => (
-              <Link
-                key={team.id}
-                href={`/teams/${team.id}`}
-                className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition"
-              >
+              <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
                 <h2 className="text-xl font-semibold text-black mb-2">{team.name}</h2>
-                <p className="text-gray-600">
-                  成員數：{team.members?.length || 0}
-                </p>
-                <p className="text-gray-600">
-                  進行中任務：{team.activeMission ? "是" : "否"}
-                </p>
-              </Link>
+                <p className="text-gray-600">成員數：{team.members?.length || 0}</p>
+                <p className="text-gray-600">進行中任務：{team.activeMission ? "是" : "否"}</p>
+                {team.activeMission && (
+                  <Link
+                    href={`/missions/${team.activeMission}/active?teamId=${team.id}`}
+                    className="mt-3 inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                  >
+                    進行中任務
+                  </Link>
+                )}
+                <Link
+                  href={`/teams/${team.id}`}
+                  className="mt-3 ml-2 inline-block px-4 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
+                >
+                  查看詳情
+                </Link>
+              </div>
             ))}
           </div>
         )}
