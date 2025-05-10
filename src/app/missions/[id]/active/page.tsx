@@ -234,6 +234,8 @@ export default function ActiveMissionPage() {
             <PhysicalChallenge
               description={currentCheckpoint.challengeDescription || ""}
               onComplete={handleChallengeComplete}
+              timeLimit={currentCheckpoint.challengeConfig?.physical?.timeLimit}
+              requiredReps={currentCheckpoint.challengeConfig?.physical?.requiredReps}
             />
           </div>
         );
@@ -244,6 +246,8 @@ export default function ActiveMissionPage() {
               description={currentCheckpoint.challengeDescription || ""}
               clue={currentCheckpoint.clue || ""}
               onComplete={handleChallengeComplete}
+              correctAnswer={currentCheckpoint.challengeConfig?.puzzle?.correctAnswer || ""}
+              maxAttempts={currentCheckpoint.challengeConfig?.puzzle?.maxAttempts}
             />
           </div>
         );
@@ -263,6 +267,9 @@ export default function ActiveMissionPage() {
               description={currentCheckpoint.challengeDescription || ""}
               clue={currentCheckpoint.clue || ""}
               onComplete={handleChallengeComplete}
+              options={currentCheckpoint.challengeConfig?.quiz?.options || []}
+              correctAnswer={currentCheckpoint.challengeConfig?.quiz?.correctAnswer || ""}
+              maxAttempts={currentCheckpoint.challengeConfig?.quiz?.maxAttempts}
             />
           </div>
         );

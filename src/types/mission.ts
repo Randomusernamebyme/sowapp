@@ -42,4 +42,22 @@ export type CheckpointType = {
   missionId: string;
   createdAt: string;
   updatedAt: string;
+  challengeConfig?: {
+    puzzle?: {
+      correctAnswer: string;
+      maxAttempts: number;
+    };
+    physical?: {
+      timeLimit: number;
+      requiredReps: number;
+    };
+    quiz?: {
+      options: Array<{
+        id: string;
+        text: string;
+      }>;
+      correctAnswer: string;
+      maxAttempts: number;
+    };
+  };
 }; 

@@ -5,19 +5,43 @@ interface PuzzleChallengeProps {
   description: string;
   clue: string;
   onComplete: (answer: string) => void;
+  correctAnswer: string;
+  maxAttempts?: number;
 }
 
-export default function PuzzleChallenge({ description, clue, onComplete }: PuzzleChallengeProps) {
+export default function PuzzleChallenge({ 
+  description, 
+  clue, 
+  onComplete, 
+  correctAnswer,
+  maxAttempts = 3 
+}: PuzzleChallengeProps) {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
+  const [attempts, setAttempts] = useState(0);
+  const [showHint, setShowHint] = useState(false);
 
   const checkAnswer = () => {
-    // 這裡可以加入答案驗證邏輯
     if (answer.trim() === "") {
       setError("請輸入答案");
       return;
     }
-    onComplete(answer);
+
+    if (attempts >= maxAttempts) {
+      setError(`已達到最大嘗試次數 (${maxAttempts}次)`);
+      return;
+    }
+
+    setAttempts(prev => prev + 1);
+
+    if (answer.toLowerCase() === correctAnswer.toLowerCase()) {
+      onComplete(answer);
+    } else {
+      setError("答案不正確，請再試一次");
+      if (attempts + 1 >= maxAttempts) {
+        setShowHint(true);
+      }
+    }
   };
 
   return (
@@ -37,12 +61,22 @@ export default function PuzzleChallenge({ description, clue, onComplete }: Puzzl
           className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-black"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          className="w-full px-4 py-2 rounded-xl bg-black text-white font-semibold"
-          onClick={checkAnswer}
-        >
-          提交答案
-        </button>
+        {showHint && (
+          <div className="p-3 bg-yellow-50 rounded-lg text-sm text-yellow-800">
+            提示：答案與 {clue} 有關
+          </div>
+        )}
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-500">
+            剩餘嘗試次數：{maxAttempts - attempts}
+          </span>
+          <button
+            className="px-4 py-2 rounded-xl bg-black text-white font-semibold"
+            onClick={checkAnswer}
+          >
+            提交答案
+          </button>
+        </div>
       </div>
     </div>
   );

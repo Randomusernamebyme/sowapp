@@ -4,25 +4,56 @@ import { useState, useEffect } from "react";
 interface PhysicalChallengeProps {
   description: string;
   onComplete: () => void;
+  timeLimit?: number; // 時間限制（秒）
+  requiredReps?: number; // 需要完成的次數
 }
 
-export default function PhysicalChallenge({ description, onComplete }: PhysicalChallengeProps) {
+export default function PhysicalChallenge({ 
+  description, 
+  onComplete,
+  timeLimit = 60,
+  requiredReps = 10
+}: PhysicalChallengeProps) {
   const [timer, setTimer] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [reps, setReps] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isActive) {
+    if (isActive && !isComplete) {
       interval = setInterval(() => {
-        setTimer((prev) => prev + 1);
+        setTimer((prev) => {
+          if (prev >= timeLimit) {
+            setIsActive(false);
+            return prev;
+          }
+          return prev + 1;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isActive]);
+  }, [isActive, timeLimit, isComplete]);
 
   const startChallenge = () => {
     setIsActive(true);
     setTimer(0);
+    setReps(0);
+    setIsComplete(false);
+  };
+
+  const addRep = () => {
+    if (!isActive || isComplete) return;
+    
+    setReps(prev => {
+      const newReps = prev + 1;
+      if (newReps >= requiredReps) {
+        setIsComplete(true);
+        setIsActive(false);
+        onComplete();
+      }
+      return newReps;
+    });
   };
 
   const formatTime = (seconds: number) => {
@@ -44,13 +75,30 @@ export default function PhysicalChallenge({ description, onComplete }: PhysicalC
         </button>
       ) : (
         <div className="space-y-4">
-          <div className="text-2xl font-mono text-center">{formatTime(timer)}</div>
+          <div className="flex justify-between items-center">
+            <div className="text-2xl font-mono">{formatTime(timer)}</div>
+            <div className="text-lg">
+              完成次數：{reps}/{requiredReps}
+            </div>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-black h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(reps / requiredReps) * 100}%` }}
+            />
+          </div>
           <button
             className="w-full px-4 py-2 rounded-xl bg-black text-white font-semibold"
-            onClick={onComplete}
+            onClick={addRep}
+            disabled={isComplete}
           >
-            完成挑戰
+            {isComplete ? "挑戰完成！" : "完成一次"}
           </button>
+          {timer >= timeLimit && !isComplete && (
+            <p className="text-red-500 text-center">
+              時間到！請重新開始挑戰
+            </p>
+          )}
         </div>
       )}
     </div>

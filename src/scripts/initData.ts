@@ -42,40 +42,52 @@ const initialCheckpoints = [
       lng: 114.1500
     },
     challengeType: 'puzzle',
-    challengeDescription: '解開第一個謎題',
+    challengeDescription: '解開第一個謎題：找出站牌上的特殊標記',
     clue: '尋找站牌上的特殊標記',
     passwordDigit: {
       position: 1,
       value: '1'
     },
-    nextCheckpoint: 'stone_houses'
+    nextCheckpoint: 'stone_houses',
+    challengeConfig: {
+      puzzle: {
+        correctAnswer: "HKU",
+        maxAttempts: 3
+      }
+    }
   },
   {
     name: '石屋',
-    description: '歷史建築物，尋找線索',
+    description: '歷史建築物，完成體能挑戰',
     location: {
       lat: 22.2833,
       lng: 114.1500
     },
     challengeType: 'physical',
-    challengeDescription: '完成團隊平衡挑戰',
-    clue: '注意建築物的特殊結構',
+    challengeDescription: '完成 10 次深蹲',
+    clue: '注意保持正確姿勢',
     passwordDigit: {
       position: 2,
       value: '2'
     },
-    nextCheckpoint: 'public_toilet'
+    nextCheckpoint: 'public_toilet',
+    challengeConfig: {
+      physical: {
+        timeLimit: 60,
+        requiredReps: 10
+      }
+    }
   },
   {
     name: '許願洲街公廁',
-    description: '公共設施，尋找隱藏信息',
+    description: '公共設施，拍攝指定照片',
     location: {
       lat: 22.2833,
       lng: 114.1500
     },
     challengeType: 'photo',
-    challengeDescription: '拍攝特定角度的照片',
-    clue: '觀察周圍環境的細節',
+    challengeDescription: '拍攝公廁外觀照片',
+    clue: '確保照片清晰可見',
     passwordDigit: {
       position: 3,
       value: '3'
@@ -96,7 +108,19 @@ const initialCheckpoints = [
       position: 4,
       value: '4'
     },
-    nextCheckpoint: 'final_checkpoint'
+    nextCheckpoint: 'final_checkpoint',
+    challengeConfig: {
+      quiz: {
+        options: [
+          { id: "A", text: "1841年" },
+          { id: "B", text: "1842年" },
+          { id: "C", text: "1843年" },
+          { id: "D", text: "1844年" }
+        ],
+        correctAnswer: "B",
+        maxAttempts: 2
+      }
+    }
   }
 ];
 
