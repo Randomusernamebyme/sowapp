@@ -154,19 +154,29 @@ export default function MissionDetailPage() {
         onClick={async () => {
           setButtonLoading(true);
           setError("");
-          if (!selectedTeamId) {
-            setError("請先選擇團隊");
+          try {
+            if (!selectedTeamId) {
+              setError("請先選擇團隊");
+              setButtonLoading(false);
+              return;
+            }
+            if (activeTeamMission && activeTeamMission.missionId) {
+              setError("該團隊已有進行中任務，請先完成");
+              setButtonLoading(false);
+              return;
+            }
+            console.log('startTeamMission', selectedTeamId, id);
+            await startTeamMission(selectedTeamId, id as string);
+            // 重新取得最新 activeTeamMission 狀態
+            const newActive = await getActiveTeamMission(selectedTeamId);
+            setActiveTeamMission(newActive);
+            router.push(`/missions/${id}/active?teamId=${selectedTeamId}`);
+          } catch (err: any) {
+            setError(err?.message || "啟動任務失敗");
+            console.error('startTeamMission error', err);
+          } finally {
             setButtonLoading(false);
-            return;
           }
-          if (activeTeamMission && activeTeamMission.missionId) {
-            setError("該團隊已有進行中任務，請先完成");
-            setButtonLoading(false);
-            return;
-          }
-          await startTeamMission(selectedTeamId, id as string);
-          router.push(`/missions/${id}/active?teamId=${selectedTeamId}`);
-          setButtonLoading(false);
         }}
       >
         {buttonLoading ? "啟動中..." : "開始任務"}
