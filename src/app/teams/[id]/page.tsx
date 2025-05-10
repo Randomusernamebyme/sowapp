@@ -27,6 +27,7 @@ export default function TeamDetailPage() {
   const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState("");
   const [updatingRole, setUpdatingRole] = useState(false);
+  const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadTeam() {
@@ -38,7 +39,20 @@ export default function TeamDetailPage() {
           router.push("/teams");
           return;
         }
-        setTeam({ id: teamDoc.id, ...teamDoc.data() } as Team);
+        const teamData = { id: teamDoc.id, ...teamDoc.data() } as Team;
+        setTeam(teamData);
+        // 取得所有成員的 displayName
+        const userIds = Array.from(new Set(teamData.members.map(m => m.userId)));
+        const displayNames: Record<string, string> = {};
+        for (const uid of userIds) {
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            displayNames[uid] = userDoc.data().displayName || "匿名";
+          } else {
+            displayNames[uid] = "匿名";
+          }
+        }
+        setUserDisplayNames(displayNames);
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -220,12 +234,12 @@ export default function TeamDetailPage() {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                     <span className="text-black font-medium">
-                      {member.userId === user?.uid ? "你" : "成"}
+                      {userDisplayNames[member.userId] || "匿名"}
                     </span>
                   </div>
                   <div>
                     <p className="text-black font-medium">
-                      {member.userId === user?.uid ? "你" : "成員"}
+                      {userDisplayNames[member.userId] || "匿名"}（{member.role === "A" ? "Leader" : "Member"}）
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <select
@@ -234,11 +248,10 @@ export default function TeamDetailPage() {
                         disabled={updatingRole || member.userId !== user?.uid}
                         className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
                       >
-                        {ROLES.map(role => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
+                        <option value="A">Leader</option>
+                        <option value="B">Member</option>
+                        <option value="C">Member</option>
+                        <option value="D">Member</option>
                       </select>
                     </div>
                   </div>

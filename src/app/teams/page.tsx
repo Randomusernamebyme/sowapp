@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -19,6 +19,7 @@ export default function TeamsPage() {
   const { user } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadTeams() {
@@ -36,6 +37,18 @@ export default function TeamsPage() {
           .filter(team => team.members?.some(member => member.userId === user.uid));
         
         setTeams(teamsData);
+        // 取得所有成員的 displayName
+        const userIds = Array.from(new Set(teamsData.flatMap(team => team.members.map(m => m.userId))));
+        const displayNames: Record<string, string> = {};
+        for (const uid of userIds) {
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            displayNames[uid] = userDoc.data().displayName || "匿名";
+          } else {
+            displayNames[uid] = "匿名";
+          }
+        }
+        setUserDisplayNames(displayNames);
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -89,6 +102,13 @@ export default function TeamsPage() {
               <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
                 <h2 className="text-xl font-semibold text-black mb-2">{team.name}</h2>
                 <p className="text-gray-600">成員數：{team.members?.length || 0}</p>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {team.members?.map(member => (
+                    <span key={member.userId} className="inline-block px-3 py-1 bg-gray-100 rounded-full text-sm text-black">
+                      {userDisplayNames[member.userId] || "匿名"}（{member.role === "A" ? "Leader" : "Member"}）
+                    </span>
+                  ))}
+                </div>
                 <p className="text-gray-600">進行中任務：{team.activeMission ? "是" : "否"}</p>
                 {team.activeMission && (
                   <Link

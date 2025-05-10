@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
 import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
@@ -49,10 +49,8 @@ export default function ActiveMissionPage() {
       router.push("/teams");
       return;
     }
-    async function fetchData() {
-      if (!user) return;
-      // 取得指定 teamId 的團隊
-      const teamDoc = await getDoc(doc(db, "teams", teamId!));
+    // 監聽團隊文件，進度即時同步
+    const unsub = onSnapshot(doc(db, "teams", teamId!), async (teamDoc) => {
       if (!teamDoc.exists()) {
         router.push("/teams");
         return;
@@ -61,7 +59,6 @@ export default function ActiveMissionPage() {
       // 取得團隊 activeMission
       let activeMission = await getActiveTeamMission(teamId!);
       if (!activeMission || activeMission.missionId !== id) {
-        // 啟動團隊任務（僅隊長可觸發，這裡僅同步）
         setLoading(false);
         return;
       }
@@ -76,7 +73,6 @@ export default function ActiveMissionPage() {
         const data = doc.data() as Omit<Checkpoint, "id">;
         return { ...data, id: doc.id };
       });
-      // 用 nextCheckpoint 串連所有 checkpoint
       let ordered: Checkpoint[] = [];
       if (checkpointsRaw.length > 0) {
         const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
@@ -92,7 +88,6 @@ export default function ActiveMissionPage() {
         }
       }
       setCheckpoints(ordered);
-      // 如果有進行中的任務，設定當前檢查點
       if (activeMission.missionProgress && activeMission.missionProgress.currentCheckpoint) {
         const currentIdx = ordered.findIndex(cp => cp.id === activeMission.missionProgress.currentCheckpoint);
         if (currentIdx !== -1) {
@@ -100,8 +95,8 @@ export default function ActiveMissionPage() {
         }
       }
       setLoading(false);
-    }
-    fetchData();
+    });
+    return () => unsub();
   }, [id, user, authLoading, router, teamId]);
 
   const handleChallengeComplete = async () => {
