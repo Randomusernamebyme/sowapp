@@ -39,11 +39,19 @@ export default function MissionDetailPage() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!id) return;
+      if (!id) {
+        setError("無效的任務 ID");
+        setLoading(false);
+        return;
+      }
       try {
         // 取得任務資料
         const missionSnap = await getDoc(doc(db, "missions", id as string));
-        if (!missionSnap.exists()) throw new Error("找不到任務");
+        if (!missionSnap.exists()) {
+          setError("找不到任務");
+          setLoading(false);
+          return;
+        }
         const missionData = missionSnap.data();
         setMission(missionData);
         // 取得該任務所有 checkpoints
@@ -54,7 +62,9 @@ export default function MissionDetailPage() {
           return { ...data, id: doc.id };
         });
         if (checkpointsRaw.length === 0) {
-          throw new Error("找不到任何檢查點，請聯絡管理員");
+          setError("找不到任何檢查點，請聯絡管理員");
+          setLoading(false);
+          return;
         }
         let ordered: CheckpointType[] = [];
         if (checkpointsRaw.length > 0) {
@@ -74,7 +84,7 @@ export default function MissionDetailPage() {
         setLoading(false);
       } catch (err: any) {
         console.error("[missions/[id]] fetchData error", err);
-        setError(err?.message || "載入任務資料時發生錯誤");
+        setError("載入任務資料時發生錯誤，請稍後再試或聯絡管理員");
         setLoading(false);
       }
     }
