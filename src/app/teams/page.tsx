@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, getDoc, doc } from "firebase/firestore";
+import { collection, getDocs, getDoc, doc, query, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -13,6 +13,13 @@ interface Team {
   completedMissions?: string[];
   inviteCode: string;
   createdAt?: any;
+  missionProgress?: any;
+  completedMissionProgress?: Array<{
+    missionId: string;
+    completedAt: any;
+    collectedDigits: number[];
+    completedCheckpoints: string[];
+  }>;
 }
 
 export default function TeamsPage() {
@@ -20,6 +27,7 @@ export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
+  const [teamStats, setTeamStats] = useState<Record<string, any>>({});
 
   useEffect(() => {
     async function loadTeams() {
@@ -49,6 +57,26 @@ export default function TeamsPage() {
           }
         }
         setUserDisplayNames(displayNames);
+
+        // 計算團隊統計資料
+        const stats: Record<string, any> = {};
+        for (const team of teamsData) {
+          const completedMissions = team.completedMissionProgress || [];
+          const activeMission = team.activeMission;
+          const missionProgress = team.missionProgress || {};
+          
+          stats[team.id] = {
+            totalMissions: completedMissions.length + (activeMission ? 1 : 0),
+            completedMissions: completedMissions.length,
+            activeMission: activeMission ? {
+              id: activeMission,
+              progress: missionProgress.completedCheckpoints?.length || 0,
+              totalCheckpoints: missionProgress.checkpoints?.length || 0
+            } : null,
+            lastCompletedMission: completedMissions.length > 0 ? completedMissions[completedMissions.length - 1] : null
+          };
+        }
+        setTeamStats(stats);
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -100,17 +128,63 @@ export default function TeamsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {teams.map(team => (
               <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
-                <h2 className="text-xl font-semibold text-black mb-2">{team.name}</h2>
-                <p className="text-gray-600">成員數：{team.members?.length || 0}</p>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {team.members?.map(member => (
-                    <span key={member.userId} className="inline-block px-3 py-1 bg-gray-100 rounded-full text-sm text-black">
-                      {userDisplayNames[member.userId] || "匿名"}（{member.role === "A" ? "Leader" : "Member"}）
-                    </span>
-                  ))}
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-semibold text-black">{team.name}</h2>
+                  <span className="text-sm text-gray-500">
+                    完成任務：{teamStats[team.id]?.completedMissions || 0}
+                  </span>
                 </div>
-                <p className="text-gray-600">進行中任務：{team.activeMission ? "是" : "否"}</p>
-                <div className="mt-3 space-x-2">
+
+                {/* 團隊成員 */}
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">團隊成員</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {team.members?.map(member => (
+                      <span 
+                        key={member.userId} 
+                        className={`inline-block px-3 py-1 rounded-full text-sm ${
+                          member.role === "A" 
+                            ? "bg-black text-white" 
+                            : "bg-gray-100 text-black"
+                        }`}
+                      >
+                        {userDisplayNames[member.userId] || "匿名"}
+                        {member.role === "A" && " (隊長)"}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 當前任務進度 */}
+                {teamStats[team.id]?.activeMission && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2">當前任務進度</h3>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div 
+                        className="bg-black h-2 rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${(teamStats[team.id].activeMission.progress / teamStats[team.id].activeMission.totalCheckpoints) * 100}%` 
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {teamStats[team.id].activeMission.progress} / {teamStats[team.id].activeMission.totalCheckpoints} 檢查點
+                    </div>
+                  </div>
+                )}
+
+                {/* 最近完成任務 */}
+                {teamStats[team.id]?.lastCompletedMission && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2">最近完成任務</h3>
+                    <div className="text-sm text-gray-500">
+                      {teamStats[team.id].lastCompletedMission.completedAt?.toDate?.().toLocaleString() || "未知時間"}
+                    </div>
+                  </div>
+                )}
+
+                {/* 操作按鈕 */}
+                <div className="mt-4 space-x-2">
                   {team.activeMission && (
                     <Link
                       href={`/missions/${team.activeMission}/active?teamId=${team.id}`}
