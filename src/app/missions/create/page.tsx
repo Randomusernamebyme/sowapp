@@ -59,6 +59,7 @@ export default function MissionCreatePage() {
   const [missions, setMissions] = useState<any[]>([]);
   const [selectedMission, setSelectedMission] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [passwordLength, setPasswordLength] = useState(6);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -233,123 +234,131 @@ export default function MissionCreatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-white p-4 font-sans">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">建立新任務</h1>
-        {error && <div className="text-red-500 mb-4">{error}</div>}
-        {success && <div className="text-green-600 mb-4">{success}</div>}
+        <h1 className="text-2xl font-bold mb-6 text-black">建立新任務</h1>
+        {error && <div className="text-red-500 mb-4 ios-card">{error}</div>}
+        {success && <div className="text-green-600 mb-4 ios-card">{success}</div>}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block font-medium mb-1">任務標題</label>
-            <input name="title" value={mission.title} onChange={handleMissionChange} className="w-full border rounded p-2" required />
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">任務標題</label>
+            <input name="title" value={mission.title} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
           </div>
-          <div>
-            <label className="block font-medium mb-1">描述</label>
-            <textarea name="description" value={mission.description} onChange={handleMissionChange} className="w-full border rounded p-2" required />
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">描述</label>
+            <textarea name="description" value={mission.description} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
           </div>
-          <div>
-            <label className="block font-medium mb-1">地區</label>
-            <select name="area" value={mission.area} onChange={handleMissionChange} className="w-full border rounded p-2">
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">地區</label>
+            <select name="area" value={mission.area} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black">
               <option value="">請選擇</option>
               {GEOGRAPHICAL_AREAS.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block font-medium mb-1">任務類型</label>
-            <select name="type" value={mission.type} onChange={handleMissionChange} className="w-full border rounded p-2">
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">任務類型</label>
+            <select name="type" value={mission.type} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black">
               <option value="">請選擇</option>
               {MISSION_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block font-medium mb-1">難度</label>
-            <select name="difficulty" value={mission.difficulty} onChange={handleMissionChange} className="w-full border rounded p-2">
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">難度</label>
+            <select name="difficulty" value={mission.difficulty} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black">
               {MISSION_DIFFICULTY.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
             </select>
           </div>
-          <div className="flex gap-4">
-            <div>
-              <label className="block font-medium mb-1">起點緯度</label>
-              <input type="number" step="any" value={mission.startLocation.lat} onChange={e => setMission({ ...mission, startLocation: { ...mission.startLocation, lat: parseFloat(e.target.value) } })} className="w-full border rounded p-2" required />
+          <div className="ios-card flex gap-4">
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-black">起點緯度</label>
+              <input type="number" step="any" value={mission.startLocation.lat} onChange={e => setMission({ ...mission, startLocation: { ...mission.startLocation, lat: parseFloat(e.target.value) } })} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
             </div>
-            <div>
-              <label className="block font-medium mb-1">起點經度</label>
-              <input type="number" step="any" value={mission.startLocation.lng} onChange={e => setMission({ ...mission, startLocation: { ...mission.startLocation, lng: parseFloat(e.target.value) } })} className="w-full border rounded p-2" required />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div>
-              <label className="block font-medium mb-1">終點緯度</label>
-              <input type="number" step="any" value={mission.endLocation.lat} onChange={e => setMission({ ...mission, endLocation: { ...mission.endLocation, lat: parseFloat(e.target.value) } })} className="w-full border rounded p-2" required />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">終點經度</label>
-              <input type="number" step="any" value={mission.endLocation.lng} onChange={e => setMission({ ...mission, endLocation: { ...mission.endLocation, lng: parseFloat(e.target.value) } })} className="w-full border rounded p-2" required />
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-black">起點經度</label>
+              <input type="number" step="any" value={mission.startLocation.lng} onChange={e => setMission({ ...mission, startLocation: { ...mission.startLocation, lng: parseFloat(e.target.value) } })} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
             </div>
           </div>
-          <div>
-            <label className="block font-medium mb-1">預估時長（分鐘）</label>
-            <input name="estimatedDuration" value={mission.estimatedDuration} onChange={handleMissionChange} className="w-full border rounded p-2" required />
+          <div className="ios-card flex gap-4">
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-black">終點緯度</label>
+              <input type="number" step="any" value={mission.endLocation.lat} onChange={e => setMission({ ...mission, endLocation: { ...mission.endLocation, lat: parseFloat(e.target.value) } })} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
+            </div>
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-black">終點經度</label>
+              <input type="number" step="any" value={mission.endLocation.lng} onChange={e => setMission({ ...mission, endLocation: { ...mission.endLocation, lng: parseFloat(e.target.value) } })} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
+            </div>
           </div>
-          <div>
-            <label className="block font-medium mb-1">密碼（6位數）</label>
-            <input name="password" value={mission.password} onChange={handleMissionChange} className="w-full border rounded p-2" required />
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">預估時長（分鐘）</label>
+            <input name="estimatedDuration" value={mission.estimatedDuration} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
           </div>
-          <div>
-            <label className="block font-medium mb-1">啟用狀態</label>
-            <select name="isActive" value={mission.isActive ? "true" : "false"} onChange={e => setMission({ ...mission, isActive: e.target.value === "true" })} className="w-full border rounded p-2">
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">密碼長度</label>
+            <input type="number" min={1} max={20} value={passwordLength} onChange={e => setPasswordLength(Number(e.target.value))} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
+          </div>
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">密碼（請輸入完整密碼，長度不限）</label>
+            <input name="password" value={mission.password} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
+          </div>
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">啟用狀態</label>
+            <select name="isActive" value={mission.isActive ? "true" : "false"} onChange={e => setMission({ ...mission, isActive: e.target.value === "true" })} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black">
               <option value="true">啟用</option>
               <option value="false">停用</option>
             </select>
           </div>
-          <div>
-            <label className="block font-medium mb-1">任務封面（請將圖片放到 public/missions/）</label>
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">任務封面（請將圖片放到 public/missions/）</label>
             <input type="file" accept="image/*" onChange={handleCoverChange} className="w-full" />
-            {mission.cover && <div className="mt-2">圖片路徑：<span className="text-blue-600">{mission.cover}</span></div>}
+            {mission.cover && <div className="mt-2 text-gray-600">圖片路徑：<span className="text-black font-mono">{mission.cover}</span></div>}
           </div>
-          <div>
-            <label className="block font-medium mb-1">檢查點</label>
-            <button type="button" onClick={handleAddCheckpoint} className="ml-2 px-3 py-1 bg-black text-white rounded">新增檢查點</button>
+          <div className="ios-card">
+            <label className="block font-medium mb-1 text-black">檢查點</label>
+            <button type="button" onClick={handleAddCheckpoint} className="ml-2 px-3 py-1 bg-black text-white rounded-lg shadow hover:bg-gray-800 transition">新增檢查點</button>
             <div className="space-y-4 mt-4">
               {checkpoints.map((cp, idx) => (
-                <div key={idx} className="border rounded p-3 bg-gray-50">
+                <div key={idx} className="border rounded-xl p-3 bg-gray-50 ios-card">
                   <div className="flex gap-2 mb-2">
-                    <input placeholder="名稱" value={cp.name} onChange={e => handleCheckpointChange(idx, "name", e.target.value)} className="border rounded p-1 flex-1" />
-                    <input placeholder="描述" value={cp.description} onChange={e => handleCheckpointChange(idx, "description", e.target.value)} className="border rounded p-1 flex-1" />
+                    <input placeholder="名稱" value={cp.name} onChange={e => handleCheckpointChange(idx, "name", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
+                    <input placeholder="描述" value={cp.description} onChange={e => handleCheckpointChange(idx, "description", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
                   </div>
                   <div className="flex gap-2 mb-2">
-                    <input type="number" step="any" placeholder="緯度" value={cp.location.lat} onChange={e => handleCheckpointChange(idx, "location", { ...cp.location, lat: parseFloat(e.target.value) })} className="border rounded p-1 flex-1" />
-                    <input type="number" step="any" placeholder="經度" value={cp.location.lng} onChange={e => handleCheckpointChange(idx, "location", { ...cp.location, lng: parseFloat(e.target.value) })} className="border rounded p-1 flex-1" />
+                    <input type="number" step="any" placeholder="緯度" value={cp.location.lat} onChange={e => handleCheckpointChange(idx, "location", { ...cp.location, lat: parseFloat(e.target.value) })} className="border rounded-lg p-1 flex-1 bg-white text-black" />
+                    <input type="number" step="any" placeholder="經度" value={cp.location.lng} onChange={e => handleCheckpointChange(idx, "location", { ...cp.location, lng: parseFloat(e.target.value) })} className="border rounded-lg p-1 flex-1 bg-white text-black" />
                   </div>
                   <div className="flex gap-2 mb-2">
-                    <select value={cp.challengeType} onChange={e => handleCheckpointChange(idx, "challengeType", e.target.value)} className="border rounded p-1 flex-1">
+                    <select value={cp.challengeType} onChange={e => handleCheckpointChange(idx, "challengeType", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black">
                       {CHECKPOINT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                     </select>
-                    <input placeholder="挑戰描述" value={cp.challengeDescription} onChange={e => handleCheckpointChange(idx, "challengeDescription", e.target.value)} className="border rounded p-1 flex-1" />
+                    <input placeholder="挑戰描述" value={cp.challengeDescription} onChange={e => handleCheckpointChange(idx, "challengeDescription", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
                   </div>
                   <div className="flex gap-2 mb-2">
-                    <input placeholder="提示" value={cp.clue} onChange={e => handleCheckpointChange(idx, "clue", e.target.value)} className="border rounded p-1 flex-1" />
-                    <input placeholder="密碼位數" type="number" value={cp.passwordDigit.position} onChange={e => handleCheckpointChange(idx, "passwordDigit", { ...cp.passwordDigit, position: parseInt(e.target.value) })} className="border rounded p-1 w-24" />
-                    <input placeholder="密碼數字" value={cp.passwordDigit.value} onChange={e => handleCheckpointChange(idx, "passwordDigit", { ...cp.passwordDigit, value: e.target.value })} className="border rounded p-1 w-24" />
+                    <input placeholder="提示" value={cp.clue} onChange={e => handleCheckpointChange(idx, "clue", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
+                    <select value={cp.passwordDigit.position} onChange={e => handleCheckpointChange(idx, "passwordDigit", { ...cp.passwordDigit, position: parseInt(e.target.value) })} className="border rounded-lg p-1 w-24 bg-white text-black">
+                      {Array.from({ length: passwordLength }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1}</option>
+                      ))}
+                    </select>
+                    <input placeholder="密碼數字" value={cp.passwordDigit.value} onChange={e => handleCheckpointChange(idx, "passwordDigit", { ...cp.passwordDigit, value: e.target.value })} className="border rounded-lg p-1 w-24 bg-white text-black" />
                   </div>
                   {/* 根據 challengeType 顯示額外欄位 */}
                   {cp.challengeType === "puzzle" && (
                     <div className="flex gap-2 mb-2">
-                      <input placeholder="正確答案" value={cp.challengeConfig?.puzzle?.correctAnswer || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, puzzle: { ...cp.challengeConfig?.puzzle, correctAnswer: e.target.value } })} className="border rounded p-1 flex-1" />
-                      <input placeholder="最大嘗試次數" type="number" value={cp.challengeConfig?.puzzle?.maxAttempts || 3} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, puzzle: { ...cp.challengeConfig?.puzzle, maxAttempts: parseInt(e.target.value) } })} className="border rounded p-1 w-32" />
+                      <input placeholder="正確答案" value={cp.challengeConfig?.puzzle?.correctAnswer || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, puzzle: { ...cp.challengeConfig?.puzzle, correctAnswer: e.target.value } })} className="border rounded-lg p-1 flex-1 bg-white text-black" />
+                      <input placeholder="最大嘗試次數" type="number" value={cp.challengeConfig?.puzzle?.maxAttempts || 3} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, puzzle: { ...cp.challengeConfig?.puzzle, maxAttempts: parseInt(e.target.value) } })} className="border rounded-lg p-1 w-32 bg-white text-black" />
                     </div>
                   )}
                   {cp.challengeType === "physical" && (
                     <div className="flex gap-2 mb-2">
-                      <input placeholder="時間限制(秒)" type="number" value={cp.challengeConfig?.physical?.timeLimit || 60} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, physical: { ...cp.challengeConfig?.physical, timeLimit: parseInt(e.target.value) } })} className="border rounded p-1 w-32" />
-                      <input placeholder="次數要求" type="number" value={cp.challengeConfig?.physical?.requiredReps || 10} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, physical: { ...cp.challengeConfig?.physical, requiredReps: parseInt(e.target.value) } })} className="border rounded p-1 w-32" />
+                      <input placeholder="時間限制(秒)" type="number" value={cp.challengeConfig?.physical?.timeLimit || 60} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, physical: { ...cp.challengeConfig?.physical, timeLimit: parseInt(e.target.value) } })} className="border rounded-lg p-1 w-32 bg-white text-black" />
+                      <input placeholder="次數要求" type="number" value={cp.challengeConfig?.physical?.requiredReps || 10} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, physical: { ...cp.challengeConfig?.physical, requiredReps: parseInt(e.target.value) } })} className="border rounded-lg p-1 w-32 bg-white text-black" />
                     </div>
                   )}
                   {cp.challengeType === "quiz" && (
                     <div className="flex flex-col gap-2 mb-2">
-                      <input placeholder="正確答案" value={cp.challengeConfig?.quiz?.correctAnswer || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, correctAnswer: e.target.value } })} className="border rounded p-1 flex-1" />
-                      <input placeholder="最大嘗試次數" type="number" value={cp.challengeConfig?.quiz?.maxAttempts || 2} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, maxAttempts: parseInt(e.target.value) } })} className="border rounded p-1 w-32" />
-                      <textarea placeholder="選項（每行一個，格式：A. 內容）" value={cp.challengeConfig?.quiz?.options?.map((o: any) => `${o.id}. ${o.text}`).join("\n") || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, options: e.target.value.split("\n").map((line: string) => { const [id, ...rest] = line.split('.'); return { id: id?.trim(), text: rest.join('.').trim() }; }) } })} className="border rounded p-1 flex-1" />
+                      <input placeholder="正確答案" value={cp.challengeConfig?.quiz?.correctAnswer || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, correctAnswer: e.target.value } })} className="border rounded-lg p-1 flex-1 bg-white text-black" />
+                      <input placeholder="最大嘗試次數" type="number" value={cp.challengeConfig?.quiz?.maxAttempts || 2} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, maxAttempts: parseInt(e.target.value) } })} className="border rounded-lg p-1 w-32 bg-white text-black" />
+                      <textarea placeholder="選項（每行一個，格式：A. 內容）" value={cp.challengeConfig?.quiz?.options?.map((o: any) => `${o.id}. ${o.text}`).join("\n") || ""} onChange={e => handleCheckpointChange(idx, "challengeConfig", { ...cp.challengeConfig, quiz: { ...cp.challengeConfig?.quiz, options: e.target.value.split("\n").map((line: string) => { const [id, ...rest] = line.split('.'); return { id: id?.trim(), text: rest.join('.').trim() }; }) } })} className="border rounded-lg p-1 flex-1 bg-white text-black" />
                     </div>
                   )}
                 </div>
@@ -382,5 +391,7 @@ export default function MissionCreatePage() {
         )}
       </div>
     </div>
+  );
+} 
   );
 } 
