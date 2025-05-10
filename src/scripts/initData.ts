@@ -81,6 +81,22 @@ const initialCheckpoints = [
       value: '3'
     },
     nextCheckpoint: 'education_center'
+  },
+  {
+    name: '教育中心',
+    description: '知識問答站',
+    location: {
+      lat: 22.2833,
+      lng: 114.1500
+    },
+    challengeType: 'quiz',
+    challengeDescription: '回答關於香港歷史的問題',
+    clue: '查看展板上的信息',
+    passwordDigit: {
+      position: 4,
+      value: '4'
+    },
+    nextCheckpoint: 'final_checkpoint'
   }
 ];
 

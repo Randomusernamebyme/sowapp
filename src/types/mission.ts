@@ -23,15 +23,23 @@ export interface Mission {
   isActive: boolean;
 }
 
-export interface Checkpoint {
+export type CheckpointType = {
   id: string;
-  missionId: string;
   name: string;
-  location: { lat: number; lng: number };
-  description?: string;
-  challengeDescription?: string;
-  challengeType?: "physical" | "puzzle" | "photo";
-  clue?: string;
+  description: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  challengeType: "physical" | "puzzle" | "photo" | "quiz";
+  challengeDescription: string;
+  clue: string;
+  passwordDigit: {
+    position: number;
+    value: string;
+  };
   nextCheckpoint?: string;
-  passwordDigit?: { position: number; value: number };
-} 
+  missionId: string;
+  createdAt: string;
+  updatedAt: string;
+}; 

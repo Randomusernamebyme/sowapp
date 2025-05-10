@@ -78,7 +78,7 @@
   - location: {lat, lng}
   - name
   - description
-  - challengeType: "physical"|"puzzle"|"photo"
+  - challengeType: "physical"|"puzzle"|"photo"|"quiz"
   - challengeDescription
   - clue
   - passwordDigit: {position, value}
