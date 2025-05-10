@@ -5,6 +5,7 @@ import { collection, doc, setDoc, getDoc, query, where, getDocs, deleteDoc } fro
 import { useAuth } from "@/contexts/AuthContext";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
 import Link from "next/link";
+import GenerateTestMission from "@/components/GenerateTestMission";
 
 interface CheckpointForm {
   name: string;
@@ -237,6 +238,7 @@ export default function MissionCreatePage() {
 
   return (
     <div className="min-h-screen bg-white p-4 font-sans">
+      <GenerateTestMission />
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-black">建立新任務</h1>
         {error && <div className="text-red-500 mb-4 ios-card">{error}</div>}
