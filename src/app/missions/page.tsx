@@ -4,20 +4,7 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
-const CHECKPOINT_TYPES = [
-  { id: "puzzle", label: "解謎" },
-  { id: "physical", label: "體能" },
-  { id: "photo", label: "拍照" },
-  { id: "quiz", label: "問答" },
-];
-
-const MISSION_AREAS = [
-  { id: "urban", label: "城市探索" },
-  { id: "nature", label: "自然探索" },
-  { id: "historical", label: "歷史文化" },
-  { id: "art", label: "藝術文化" },
-];
+import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<any[]>([]);
@@ -26,6 +13,7 @@ export default function MissionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -61,15 +49,22 @@ export default function MissionsPage() {
       );
     }
     
-    // 任務區域過濾
+    // 地理區域過濾
     if (selectedAreas.length > 0) {
       filtered = filtered.filter(mission =>
-        selectedAreas.includes(mission.area)
+        selectedAreas.includes(mission.geographicalArea)
+      );
+    }
+
+    // 難度過濾
+    if (selectedDifficulty.length > 0) {
+      filtered = filtered.filter(mission =>
+        selectedDifficulty.includes(mission.difficulty)
       );
     }
     
     setFilteredMissions(filtered);
-  }, [missions, searchQuery, selectedTypes, selectedAreas]);
+  }, [missions, searchQuery, selectedTypes, selectedAreas, selectedDifficulty]);
 
   const toggleCheckpointType = (typeId: string) => {
     setSelectedTypes(prev =>
@@ -79,11 +74,19 @@ export default function MissionsPage() {
     );
   };
 
-  const toggleMissionArea = (areaId: string) => {
+  const toggleGeographicalArea = (areaId: string) => {
     setSelectedAreas(prev =>
       prev.includes(areaId)
         ? prev.filter(id => id !== areaId)
         : [...prev, areaId]
+    );
+  };
+
+  const toggleDifficulty = (difficultyId: string) => {
+    setSelectedDifficulty(prev =>
+      prev.includes(difficultyId)
+        ? prev.filter(id => id !== difficultyId)
+        : [...prev, difficultyId]
     );
   };
 
@@ -124,14 +127,14 @@ export default function MissionsPage() {
               </div>
             </div>
 
-            {/* 任務區域過濾 */}
+            {/* 地理區域過濾 */}
             <div>
-              <label className="block text-gray-700 mb-2">任務區域</label>
+              <label className="block text-gray-700 mb-2">地理區域</label>
               <div className="flex flex-wrap gap-2">
-                {MISSION_AREAS.map(area => (
+                {GEOGRAPHICAL_AREAS.map(area => (
                   <button
                     key={area.id}
-                    onClick={() => toggleMissionArea(area.id)}
+                    onClick={() => toggleGeographicalArea(area.id)}
                     className={`px-4 py-2 rounded-full text-sm transition ${
                       selectedAreas.includes(area.id)
                         ? "bg-black text-white"
@@ -139,6 +142,26 @@ export default function MissionsPage() {
                     }`}
                   >
                     {area.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 難度過濾 */}
+            <div>
+              <label className="block text-gray-700 mb-2">難度</label>
+              <div className="flex flex-wrap gap-2">
+                {MISSION_DIFFICULTY.map(difficulty => (
+                  <button
+                    key={difficulty.id}
+                    onClick={() => toggleDifficulty(difficulty.id)}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedDifficulty.includes(difficulty.id)
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {difficulty.label}
                   </button>
                 ))}
               </div>
@@ -180,9 +203,9 @@ export default function MissionsPage() {
                   </div>
                 </div>
                 <div className="flex gap-4 mt-4 text-xs text-gray-500">
-                  <span>難度：{mission.difficulty || "-"}</span>
-                  <span>預估時間：{mission.estimatedDuration || "-"}</span>
-                  <span>區域：{MISSION_AREAS.find(a => a.id === mission.area)?.label || "-"}</span>
+                  <span>難度：{MISSION_DIFFICULTY.find(d => d.id === mission.difficulty)?.label || "-"}</span>
+                  <span>預估時間：{mission.estimatedDuration || "-"} 分鐘</span>
+                  <span>區域：{GEOGRAPHICAL_AREAS.find(a => a.id === mission.geographicalArea)?.label || "-"}</span>
                 </div>
               </button>
             ))}
