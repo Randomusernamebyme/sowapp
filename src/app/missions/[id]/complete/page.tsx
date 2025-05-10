@@ -86,7 +86,10 @@ export default function MissionCompletePage() {
         <div className="mb-4">
           <div className="text-gray-600">團隊成員：</div>
           <div className="font-mono text-black">
-            {team.members?.map((m: any) => m.nickname || m.displayName || "").join("、")}
+            {team.members
+              ?.filter((m: any) => m.nickname || m.displayName)
+              .map((m: any) => m.nickname || m.displayName)
+              .join("、") || "無成員"}
           </div>
         </div>
         <div className="flex flex-col gap-3 mt-6">

@@ -212,7 +212,11 @@ export default function DashboardPage() {
             <h2 className="text-xl font-bold text-black mb-4">最近活動</h2>
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-xl">
+                <div 
+                  key={index} 
+                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  onClick={() => router.push(`/missions/${activity.missionId}/complete?teamId=${activity.teamId}`)}
+                >
                   <div className="text-black font-semibold">{activity.missionTitle}</div>
                   <div className="text-gray-600 text-sm">
                     團隊：{activity.teamName}
