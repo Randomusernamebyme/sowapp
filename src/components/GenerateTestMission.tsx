@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { CheckpointType } from "@/types/mission";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CheckpointData extends Omit<CheckpointType, 'id' | 'nextCheckpoint'> {
   nextCheckpoint?: string;
@@ -11,8 +12,29 @@ interface CheckpointData extends Omit<CheckpointType, 'id' | 'nextCheckpoint'> {
 export default function GenerateTestMission() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data();
+        setIsAdmin(userData?.isAdmin === true);
+      } catch (err) {
+        console.error("檢查管理員狀態時出錯：", err);
+      }
+    };
+    checkAdminStatus();
+  }, [user]);
 
   const generateTestMission = async () => {
+    if (!isAdmin) {
+      setError("只有管理員才能生成測試任務");
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
 
@@ -169,6 +191,10 @@ export default function GenerateTestMission() {
       setIsGenerating(false);
     }
   };
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <div className="w-full max-w-xl mx-auto p-4">
