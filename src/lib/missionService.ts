@@ -4,11 +4,26 @@ import { UserMission, Mission, Checkpoint } from "@/types/mission";
 
 // 啟動團隊任務
 export async function startTeamMission(teamId: string, missionId: string) {
+  // 先取得任務的第一個檢查點
+  const q = query(collection(db, "checkpoints"), where("missionId", "==", missionId));
+  const cpSnap = await getDocs(q);
+  let checkpointsRaw = cpSnap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as { id: string; nextCheckpoint?: string }));
+  
+  // 找到起點（沒有被其他 checkpoint 指向的）
+  let startCheckpoint = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
+  
+  if (!startCheckpoint) {
+    throw new Error("找不到任務起點");
+  }
+
   const teamRef = doc(db, "teams", teamId);
   await updateDoc(teamRef, {
     activeMission: missionId,
     missionProgress: {
-      currentCheckpoint: "",
+      currentCheckpoint: startCheckpoint.id,
       completedCheckpoints: [],
       collectedDigits: [],
       startedAt: new Date(),
