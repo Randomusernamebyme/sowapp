@@ -125,19 +125,22 @@ export async function completeTeamMission(teamId: string, missionId: string) {
     ? teamCompletedMissions
     : [...teamCompletedMissions, missionId].filter((id: any) => typeof id === 'string' && id.trim() !== '');
 
+  // 記錄完成時間
+  const completedAt = new Date();
+
   // log for debug
   console.log('completeTeamMission:即將寫入', {
     teamId,
     missionId,
     newTeamCompletedMissions,
     activeMission: "",
-    missionProgress: {}
+    missionProgress: { completedAt }
   });
 
   // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確
   await updateDoc(teamRef, {
     activeMission: "",
-    missionProgress: {},
+    missionProgress: { completedAt },
     completedMissions: newTeamCompletedMissions,
   });
 }
