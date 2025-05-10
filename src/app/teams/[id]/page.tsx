@@ -403,7 +403,7 @@ export default function TeamDetailPage() {
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
                     <span className="text-black font-medium">
                       {(userDisplayNames[member.userId] || "匿名").charAt(0).toUpperCase()}
                     </span>
