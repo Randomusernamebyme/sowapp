@@ -58,6 +58,7 @@ export default function MissionCompletePage() {
   const collectedDigits = lastCompleted?.collectedDigits || [];
   const completedCheckpoints = lastCompleted?.completedCheckpoints || [];
   const answers = lastCompleted?.answers || {};
+  const teamName = team.name || "";
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
@@ -77,20 +78,15 @@ export default function MissionCompletePage() {
         <div className="mb-4">
           <div className="text-gray-600">完成檢查點數量：</div>
           <div className="font-semibold text-black">{completedCheckpoints.length}</div>
-          {completedCheckpoints.length > 0 && (
-            <div className="text-xs text-gray-500 mt-1">ID: {completedCheckpoints.join(", ")}</div>
-          )}
         </div>
-        {Object.keys(answers).length > 0 && (
-          <div className="mb-4">
-            <div className="text-gray-600">解謎答案紀錄：</div>
-            <div className="text-xs text-black break-all">{Object.entries(answers).map(([cid, ans]) => `#${cid}: ${ans}`).join("； ")}</div>
-          </div>
-        )}
+        <div className="mb-4">
+          <div className="text-gray-600">團隊名稱：</div>
+          <div className="font-mono text-black">{teamName}</div>
+        </div>
         <div className="mb-4">
           <div className="text-gray-600">團隊成員：</div>
           <div className="font-mono text-black">
-            {team.members?.map((m: any) => m.nickname || m.userId).join("、")}
+            {team.members?.map((m: any) => m.nickname || m.displayName || "").join("、")}
           </div>
         </div>
         <div className="flex flex-col gap-3 mt-6">
@@ -100,25 +96,15 @@ export default function MissionCompletePage() {
               if (navigator.share) {
                 navigator.share({
                   title: `我們完成了「${mission.title}」任務！`,
-                  text: `我們在 Seek our Ways 完成了「${mission.title}」，快來挑戰吧！`,
-                  url: window.location.origin + `/missions/${id}`,
+                  text: `我們的團隊「${teamName}」剛完成了「${mission.title}」任務！`,
                 });
-              } else {
-                alert("已複製分享連結！");
-                navigator.clipboard.writeText(window.location.origin + `/missions/${id}`);
               }
             }}
           >
-            分享結果
-          </button>
-          <button
-            className="w-full bg-gray-200 text-black py-3 rounded-xl font-semibold shadow hover:bg-gray-300 transition"
-            onClick={() => router.push("/dashboard")}
-          >
-            返回首頁
+            分享成果
           </button>
         </div>
       </div>
     </div>
   );
-} 
+}
