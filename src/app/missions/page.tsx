@@ -1,48 +1,194 @@
 "use client";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+
+const CHECKPOINT_TYPES = [
+  { id: "puzzle", label: "解謎" },
+  { id: "physical", label: "體能" },
+  { id: "photo", label: "拍照" },
+  { id: "quiz", label: "問答" },
+];
+
+const MISSION_AREAS = [
+  { id: "urban", label: "城市探索" },
+  { id: "nature", label: "自然探索" },
+  { id: "historical", label: "歷史文化" },
+  { id: "art", label: "藝術文化" },
+];
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<any[]>([]);
+  const [filteredMissions, setFilteredMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const router = useRouter();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchMissions() {
       const querySnapshot = await getDocs(collection(db, "missions"));
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMissions(data);
+      setFilteredMissions(data);
       setLoading(false);
     }
     fetchMissions();
   }, []);
 
+  useEffect(() => {
+    // 過濾任務
+    let filtered = [...missions];
+    
+    // 搜索過濾
+    if (searchQuery) {
+      filtered = filtered.filter(mission =>
+        mission.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mission.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // 檢查點類型過濾
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter(mission =>
+        mission.checkpoints?.some((checkpoint: any) =>
+          selectedTypes.includes(checkpoint.type)
+        )
+      );
+    }
+    
+    // 任務區域過濾
+    if (selectedAreas.length > 0) {
+      filtered = filtered.filter(mission =>
+        selectedAreas.includes(mission.area)
+      );
+    }
+    
+    setFilteredMissions(filtered);
+  }, [missions, searchQuery, selectedTypes, selectedAreas]);
+
+  const toggleCheckpointType = (typeId: string) => {
+    setSelectedTypes(prev =>
+      prev.includes(typeId)
+        ? prev.filter(id => id !== typeId)
+        : [...prev, typeId]
+    );
+  };
+
+  const toggleMissionArea = (areaId: string) => {
+    setSelectedAreas(prev =>
+      prev.includes(areaId)
+        ? prev.filter(id => id !== areaId)
+        : [...prev, areaId]
+    );
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center bg-white pt-8">
-      {loading ? (
-        <div className="text-gray-500">載入中...</div>
-      ) : missions.length === 0 ? (
-        <div className="text-gray-400">目前沒有任務</div>
-      ) : (
-        <div className="w-full max-w-xl space-y-4">
-          {missions.map(mission => (
-            <button
-              key={mission.id}
-              className="w-full text-left bg-white border border-gray-200 rounded-2xl shadow p-6 hover:bg-gray-50 transition flex flex-col gap-2"
-              onClick={() => router.push(`/missions/${mission.id}`)}
-            >
-              <div className="text-lg font-semibold text-black">{mission.title}</div>
-              <div className="text-gray-600 text-sm">{mission.description}</div>
-              <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                <span>難度：{mission.difficulty || "-"}</span>
-                <span>預估時間：{mission.estimatedDuration || "-"}</span>
+    <div className="min-h-screen bg-white p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* 搜索和過濾區域 */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 mb-6">
+          <div className="space-y-4">
+            {/* 搜索框 */}
+            <div>
+              <input
+                type="text"
+                placeholder="搜索任務..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+
+            {/* 檢查點類型過濾 */}
+            <div>
+              <label className="block text-gray-700 mb-2">檢查點類型</label>
+              <div className="flex flex-wrap gap-2">
+                {CHECKPOINT_TYPES.map(type => (
+                  <button
+                    key={type.id}
+                    onClick={() => toggleCheckpointType(type.id)}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedTypes.includes(type.id)
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {type.label}
+                  </button>
+                ))}
               </div>
-            </button>
-          ))}
+            </div>
+
+            {/* 任務區域過濾 */}
+            <div>
+              <label className="block text-gray-700 mb-2">任務區域</label>
+              <div className="flex flex-wrap gap-2">
+                {MISSION_AREAS.map(area => (
+                  <button
+                    key={area.id}
+                    onClick={() => toggleMissionArea(area.id)}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedAreas.includes(area.id)
+                        ? "bg-black text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {area.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+
+        {/* 任務列表 */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-500">載入中...</div>
+          </div>
+        ) : filteredMissions.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">沒有找到符合條件的任務</div>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredMissions.map(mission => (
+              <button
+                key={mission.id}
+                onClick={() => router.push(`/missions/${mission.id}`)}
+                className="w-full text-left bg-white border border-gray-200 rounded-2xl shadow p-6 hover:bg-gray-50 transition"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-lg font-semibold text-black">{mission.title}</div>
+                    <div className="text-gray-600 text-sm mt-1">{mission.description}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    {mission.checkpoints?.map((checkpoint: any, index: number) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+                      >
+                        {CHECKPOINT_TYPES.find(t => t.id === checkpoint.type)?.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-4 text-xs text-gray-500">
+                  <span>難度：{mission.difficulty || "-"}</span>
+                  <span>預估時間：{mission.estimatedDuration || "-"}</span>
+                  <span>區域：{MISSION_AREAS.find(a => a.id === mission.area)?.label || "-"}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 } 
