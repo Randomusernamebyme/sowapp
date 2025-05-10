@@ -137,7 +137,12 @@ export default function ActiveMissionPage() {
     if (!team || !currentCheckpoint || buttonLoading) return;
     setButtonLoading(true);
     try {
-      await updateTeamMissionProgress(team.id, currentCheckpoint.id, currentCheckpoint.passwordDigit?.value, answer);
+      await updateTeamMissionProgress(
+        team.id,
+        currentCheckpoint.id,
+        currentCheckpoint.passwordDigit?.value ? Number(currentCheckpoint.passwordDigit.value) : undefined,
+        answer
+      );
       if (currentIdx < checkpoints.length - 1) {
         setCurrentIdx(i => i + 1);
       } else {
