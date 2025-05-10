@@ -8,7 +8,8 @@ import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
 import PhotoChallenge from "@/components/challenges/PhotoChallenge";
-import { Mission, Checkpoint, UserMission } from "@/types/mission";
+import QuizChallenge from "@/components/challenges/QuizChallenge";
+import { Mission, CheckpointType, UserMission } from "@/types/mission";
 import { startTeamMission, updateTeamMissionProgress, completeTeamMission, getActiveTeamMission } from "@/lib/missionService";
 
 function useUserLocation() {
@@ -31,7 +32,7 @@ export default function ActiveMissionPage() {
   const { user, loading: authLoading } = useAuth();
   const [team, setTeam] = useState<any>(null);
   const [mission, setMission] = useState<Mission | null>(null);
-  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
+  const [checkpoints, setCheckpoints] = useState<CheckpointType[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const userLocation = useUserLocation();
@@ -80,11 +81,11 @@ export default function ActiveMissionPage() {
         const q = query(collection(db, "checkpoints"), where("missionId", "==", id));
         const cpSnap = await getDocs(q);
         let checkpointsRaw = cpSnap.docs.map(doc => {
-          const data = doc.data() as Omit<Checkpoint, "id">;
+          const data = doc.data() as Omit<CheckpointType, "id">;
           return { ...data, id: doc.id };
         });
 
-        let ordered: Checkpoint[] = [];
+        let ordered: CheckpointType[] = [];
         if (checkpointsRaw.length > 0) {
           const cpMap = Object.fromEntries(checkpointsRaw.map(cp => [cp.id, cp]));
           let start = checkpointsRaw.find(cp => !checkpointsRaw.some(c => c.nextCheckpoint === cp.id));
@@ -212,6 +213,16 @@ export default function ActiveMissionPage() {
           <div className={buttonLoading ? "pointer-events-none opacity-60" : ""}>
             <PhotoChallenge
               description={currentCheckpoint.challengeDescription || ""}
+              onComplete={handleChallengeComplete}
+            />
+          </div>
+        );
+      case "quiz":
+        return (
+          <div className={buttonLoading ? "pointer-events-none opacity-60" : ""}>
+            <QuizChallenge
+              description={currentCheckpoint.challengeDescription || ""}
+              clue={currentCheckpoint.clue || ""}
               onComplete={handleChallengeComplete}
             />
           </div>
