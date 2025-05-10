@@ -7,13 +7,26 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
+interface Team {
+  id: string;
+  name: string;
+  activeMission?: string;
+  missionProgress?: any;
+  members: any[];
+  completedMissions: string[];
+  completedMissionProgress?: Array<{
+    missionId: string;
+    completedAt: any;
+  }>;
+}
+
 export default function DashboardPage() {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { user } = useAuth();
   const [activeTeamMissions, setActiveTeamMissions] = useState<any[]>([]);
-  const [userTeams, setUserTeams] = useState<any[]>([]);
+  const [userTeams, setUserTeams] = useState<Team[]>([]);
   const [completedMissions, setCompletedMissions] = useState<any[]>([]);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
@@ -48,8 +61,9 @@ export default function DashboardPage() {
           activeMission: doc.data().activeMission,
           missionProgress: doc.data().missionProgress,
           members: doc.data().members,
-          completedMissions: doc.data().completedMissions || []
-        }));
+          completedMissions: doc.data().completedMissions || [],
+          completedMissionProgress: doc.data().completedMissionProgress || []
+        } as Team));
       setUserTeams(teams);
 
       // 取得進行中的任務
