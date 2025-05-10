@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -14,9 +14,23 @@ interface Team {
   completedMissions?: string[];
   inviteCode: string;
   createdAt?: any;
+  missionProgress?: any;
+  completedMissionProgress?: Array<{
+    missionId: string;
+    completedAt: any;
+    collectedDigits: number[];
+    completedCheckpoints: string[];
+  }>;
 }
 
-const ROLES = ["A", "B", "C", "D"];
+interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  estimatedDuration: string;
+  imageUrl?: string;
+}
 
 export default function TeamDetailPage() {
   const { id } = useParams();
@@ -28,6 +42,9 @@ export default function TeamDetailPage() {
   const [error, setError] = useState("");
   const [updatingRole, setUpdatingRole] = useState(false);
   const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
+  const [activeMission, setActiveMission] = useState<Mission | null>(null);
+  const [completedMissions, setCompletedMissions] = useState<Mission[]>([]);
+  const [teamStats, setTeamStats] = useState<any>(null);
 
   useEffect(() => {
     async function loadTeam() {
@@ -41,6 +58,7 @@ export default function TeamDetailPage() {
         }
         const teamData = { id: teamDoc.id, ...teamDoc.data() } as Team;
         setTeam(teamData);
+
         // 取得所有成員的 displayName
         const userIds = Array.from(new Set(teamData.members.map(m => m.userId)));
         const displayNames: Record<string, string> = {};
@@ -53,6 +71,40 @@ export default function TeamDetailPage() {
           }
         }
         setUserDisplayNames(displayNames);
+
+        // 取得當前任務資訊
+        if (teamData.activeMission) {
+          const missionDoc = await getDoc(doc(db, "missions", teamData.activeMission));
+          if (missionDoc.exists()) {
+            setActiveMission({ id: missionDoc.id, ...missionDoc.data() } as Mission);
+          }
+        }
+
+        // 取得已完成任務資訊
+        const completedMissionsData: Mission[] = [];
+        if (teamData.completedMissionProgress) {
+          for (const progress of teamData.completedMissionProgress) {
+            const missionDoc = await getDoc(doc(db, "missions", progress.missionId));
+            if (missionDoc.exists()) {
+              completedMissionsData.push({ id: missionDoc.id, ...missionDoc.data() } as Mission);
+            }
+          }
+        }
+        setCompletedMissions(completedMissionsData);
+
+        // 計算團隊統計資料
+        const stats = {
+          totalMissions: completedMissionsData.length + (teamData.activeMission ? 1 : 0),
+          completedMissions: completedMissionsData.length,
+          activeMission: teamData.activeMission ? {
+            progress: teamData.missionProgress?.completedCheckpoints?.length || 0,
+            totalCheckpoints: teamData.missionProgress?.checkpoints?.length || 0
+          } : null,
+          lastCompletedMission: teamData.completedMissionProgress && teamData.completedMissionProgress.length > 0 
+            ? teamData.completedMissionProgress[teamData.completedMissionProgress.length - 1] 
+            : null
+        };
+        setTeamStats(stats);
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -201,6 +253,103 @@ export default function TeamDetailPage() {
           </Link>
         </div>
 
+        {/* 團隊統計 */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-xl font-semibold text-black mb-4">團隊統計</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <div className="text-gray-600 text-sm">總任務數</div>
+              <div className="text-2xl font-bold text-black">{teamStats?.totalMissions || 0}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <div className="text-gray-600 text-sm">已完成任務</div>
+              <div className="text-2xl font-bold text-black">{teamStats?.completedMissions || 0}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <div className="text-gray-600 text-sm">當前任務</div>
+              <div className="text-2xl font-bold text-black">{team.activeMission ? "進行中" : "無"}</div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <div className="text-gray-600 text-sm">團隊成員</div>
+              <div className="text-2xl font-bold text-black">{team.members?.length || 0}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 當前任務 */}
+        {activeMission && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-black mb-4">當前任務</h2>
+            <div className="flex items-center gap-4">
+              {activeMission.imageUrl && (
+                <img 
+                  src={activeMission.imageUrl} 
+                  alt={activeMission.title} 
+                  className="w-24 h-24 object-cover rounded-xl"
+                />
+              )}
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-black">{activeMission.title}</h3>
+                <p className="text-gray-600 text-sm mb-2">{activeMission.description}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>難度：{activeMission.difficulty}</span>
+                  <span>預估時間：{activeMission.estimatedDuration}</span>
+                </div>
+                {teamStats?.activeMission && (
+                  <div className="mt-2">
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div 
+                        className="bg-black h-2 rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${(teamStats.activeMission.progress / teamStats.activeMission.totalCheckpoints) * 100}%` 
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {teamStats.activeMission.progress} / {teamStats.activeMission.totalCheckpoints} 檢查點
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Link
+                href={`/missions/${activeMission.id}/active?teamId=${team.id}`}
+                className="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+              >
+                繼續任務
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* 已完成任務 */}
+        {completedMissions.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+            <h2 className="text-xl font-semibold text-black mb-4">已完成任務</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {completedMissions.map(mission => (
+                <div key={mission.id} className="bg-gray-50 p-4 rounded-xl">
+                  <div className="flex items-center gap-4">
+                    {mission.imageUrl && (
+                      <img 
+                        src={mission.imageUrl} 
+                        alt={mission.title} 
+                        className="w-16 h-16 object-cover rounded-xl"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-black">{mission.title}</h3>
+                      <div className="text-sm text-gray-500">
+                        難度：{mission.difficulty}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 團隊資訊 */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">團隊資訊</h2>
           <div className="space-y-3">
@@ -213,16 +362,15 @@ export default function TeamDetailPage() {
               <span className="text-black font-mono">{team.inviteCode}</span>
             </div>
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <span className="text-gray-600">成員數</span>
-              <span className="text-black">{team.members?.length || 0}</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <span className="text-gray-600">進行中任務</span>
-              <span className="text-black">{team.activeMission ? "是" : "否"}</span>
+              <span className="text-gray-600">創建時間</span>
+              <span className="text-black">
+                {team.createdAt?.toDate?.().toLocaleString() || "未知"}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* 成員列表 */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-black mb-4">成員列表</h2>
           <div className="space-y-3">
@@ -239,7 +387,8 @@ export default function TeamDetailPage() {
                   </div>
                   <div>
                     <p className="text-black font-medium">
-                      {userDisplayNames[member.userId] || "匿名"}（{member.role === "A" ? "Leader" : "Member"}）
+                      {userDisplayNames[member.userId] || "匿名"}
+                      {member.role === "A" && " (隊長)"}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <select
@@ -248,10 +397,10 @@ export default function TeamDetailPage() {
                         disabled={updatingRole || member.userId !== user?.uid}
                         className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
                       >
-                        <option value="A">Leader</option>
-                        <option value="B">Member</option>
-                        <option value="C">Member</option>
-                        <option value="D">Member</option>
+                        <option value="A">隊長</option>
+                        <option value="B">成員</option>
+                        <option value="C">成員</option>
+                        <option value="D">成員</option>
                       </select>
                     </div>
                   </div>
