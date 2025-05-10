@@ -10,8 +10,6 @@ const blackIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowUrl: "/markers/marker-shadow.png",
-  shadowSize: [41, 41],
   className: "grayscale"
 });
 
@@ -21,8 +19,6 @@ const blueIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowUrl: "/markers/marker-shadow.png",
-  shadowSize: [41, 41],
 });
 
 // 計算兩點之間的距離（米）
