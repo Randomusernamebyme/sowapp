@@ -121,7 +121,11 @@ export default function TeamsPage() {
         }
 
         // 按完成時間排序
-        recentMissionsData.sort((a, b) => b.completedAt.toDate() - a.completedAt.toDate());
+        recentMissionsData.sort((a, b) => {
+          const aDate = typeof a.completedAt?.toDate === 'function' ? a.completedAt.toDate() : new Date(a.completedAt);
+          const bDate = typeof b.completedAt?.toDate === 'function' ? b.completedAt.toDate() : new Date(b.completedAt);
+          return bDate.getTime() - aDate.getTime();
+        });
         // 只取最近5個任務
         setRecentMissions(recentMissionsData.slice(0, 5));
       } catch (err) {

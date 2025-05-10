@@ -129,7 +129,11 @@ export default function TeamDetailPage() {
             }
           }
         }
-        recentMissionsData.sort((a, b) => b.completedAt.toDate() - a.completedAt.toDate());
+        recentMissionsData.sort((a, b) => {
+          const aDate = typeof a.completedAt?.toDate === 'function' ? a.completedAt.toDate() : new Date(a.completedAt);
+          const bDate = typeof b.completedAt?.toDate === 'function' ? b.completedAt.toDate() : new Date(b.completedAt);
+          return bDate.getTime() - aDate.getTime();
+        });
         setRecentMissions(recentMissionsData.slice(0, 5));
       } catch (err) {
         console.error("載入團隊失敗:", err);
@@ -360,7 +364,7 @@ export default function TeamDetailPage() {
                 >
                   <div className="text-black font-semibold">{mission.missionTitle}</div>
                   <div className="text-gray-600 text-sm">
-                    完成時間：{mission.completedAt?.toDate?.().toLocaleString() || "未知"}
+                    完成時間：{typeof mission.completedAt?.toDate === 'function' ? mission.completedAt.toDate().toLocaleString() : (mission.completedAt ? new Date(mission.completedAt).toLocaleString() : "未知")}
                   </div>
                 </div>
               ))}
