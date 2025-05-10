@@ -44,6 +44,7 @@ export default function ActiveMissionPage() {
       return;
     }
     async function fetchData() {
+      if (!user) return;
       try {
         // 檢查是否有進行中的任務
         let activeMission = await getActiveMission(user.uid);
