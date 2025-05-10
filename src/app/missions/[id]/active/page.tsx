@@ -119,6 +119,7 @@ export default function ActiveMissionPage() {
       } else {
         // 任務完成
         await completeMission(userMission.id);
+        await new Promise(r => setTimeout(r, 500)); // 等待 firestore 寫入
         router.push(`/missions/${id}/complete`);
       }
     } catch (error) {

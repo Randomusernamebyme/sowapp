@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { Mission, UserMission } from "@/types/mission";
 
 export default function MissionCompletePage() {
@@ -45,6 +45,12 @@ export default function MissionCompletePage() {
     return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務資料</div>;
   }
 
+  const completedAt = userMission.completedAt
+    ? (userMission.completedAt instanceof Timestamp
+        ? userMission.completedAt.toDate()
+        : new Date(userMission.completedAt))
+    : null;
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 text-center">
@@ -52,7 +58,7 @@ export default function MissionCompletePage() {
         <div className="text-lg text-gray-700 mb-4">{mission.title}</div>
         <div className="mb-4">
           <div className="text-gray-600">完成時間：</div>
-          <div className="font-semibold text-black">{userMission.completedAt ? new Date(userMission.completedAt).toLocaleString() : "-"}</div>
+          <div className="font-semibold text-black">{completedAt ? completedAt.toLocaleString() : "-"}</div>
         </div>
         <div className="mb-4">
           <div className="text-gray-600">收集到的密碼數字：</div>
