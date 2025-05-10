@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
 import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
@@ -11,6 +11,22 @@ import PhotoChallenge from "@/components/challenges/PhotoChallenge";
 import QuizChallenge from "@/components/challenges/QuizChallenge";
 import { Mission, CheckpointType, UserMission } from "@/types/mission";
 import { startTeamMission, updateTeamMissionProgress, completeTeamMission, getActiveTeamMission } from "@/lib/missionService";
+
+// 計算兩點之間的距離（米）
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // 地球半徑（米）
+  const φ1 = lat1 * Math.PI/180;
+  const φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
 
 function useUserLocation() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -135,6 +151,23 @@ export default function ActiveMissionPage() {
 
   const handleChallengeComplete = async (answer?: string) => {
     if (!team || !currentCheckpoint || buttonLoading) return;
+    
+    // 檢查用戶是否在檢查點附近
+    if (userLocation) {
+      const distance = calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        currentCheckpoint.location.lat,
+        currentCheckpoint.location.lng
+      );
+      
+      // 如果距離超過 50 米，顯示錯誤
+      if (distance > 50) {
+        setError("您需要靠近檢查點才能完成挑戰");
+        return;
+      }
+    }
+    
     setButtonLoading(true);
     try {
       await updateTeamMissionProgress(
@@ -154,6 +187,7 @@ export default function ActiveMissionPage() {
       }
     } catch (error) {
       console.error("Error updating mission progress:", error);
+      setError("更新任務進度時發生錯誤");
     } finally {
       setButtonLoading(false);
     }
@@ -267,6 +301,27 @@ export default function ActiveMissionPage() {
           {renderChallenge()}
         </div>
       </div>
+      
+      {/* 放棄任務按鈕 */}
+      <button
+        onClick={async () => {
+          if (window.confirm("確定要放棄任務嗎？")) {
+            try {
+              await updateDoc(doc(db, "teams", team.id), {
+                activeMission: "",
+                missionProgress: {}
+              });
+              router.push("/missions");
+            } catch (error) {
+              console.error("Error abandoning mission:", error);
+              setError("放棄任務時發生錯誤");
+            }
+          }
+        }}
+        className="px-4 py-2 text-red-500 border border-red-500 rounded-xl hover:bg-red-50 transition"
+      >
+        放棄任務
+      </button>
     </div>
   );
 } 
