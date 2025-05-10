@@ -76,12 +76,12 @@ export async function updateTeamMissionProgress(teamId: string, checkpointId: st
 }
 
 // 完成團隊任務並給所有成員加分
-export async function completeTeamMission(teamId: string) {
+export async function completeTeamMission(teamId: string, missionId: string) {
   const teamRef = doc(db, "teams", teamId);
   const teamSnap = await getDoc(teamRef);
   if (!teamSnap.exists()) throw new Error("找不到團隊");
   const data = teamSnap.data();
-  const missionId = data.activeMission;
+
   // 查詢任務難度
   const missionSnap = await getDoc(doc(db, "missions", missionId));
   let points = 0;
@@ -91,6 +91,7 @@ export async function completeTeamMission(teamId: string) {
     else if (difficulty === "medium") points = 10;
     else if (difficulty === "hard") points = 20;
   }
+
   // 給所有成員加分並自動升級體能等級
   for (const member of data.members) {
     const userRef = doc(db, "users", member.userId);
@@ -111,9 +112,17 @@ export async function completeTeamMission(teamId: string) {
       });
     }
   }
+
+  // 團隊 completedMissions
+  const teamCompletedMissions = Array.isArray(data.completedMissions) ? data.completedMissions : [];
+  const newTeamCompletedMissions = teamCompletedMissions.includes(missionId) ? teamCompletedMissions : [...teamCompletedMissions, missionId];
+
+  // log for debug
+  console.log('completeTeamMission:', { teamId, missionId, newTeamCompletedMissions });
+
   await updateDoc(teamRef, {
     activeMission: "",
-    completedMissions: Array.from(new Set([...(data.completedMissions || []), missionId])),
+    completedMissions: newTeamCompletedMissions,
     missionProgress: {},
   });
 }

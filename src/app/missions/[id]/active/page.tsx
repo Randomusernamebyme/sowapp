@@ -131,7 +131,9 @@ export default function ActiveMissionPage() {
       if (currentIdx < checkpoints.length - 1) {
         setCurrentIdx(i => i + 1);
       } else {
-        await completeTeamMission(team.id);
+        if (mission) {
+          await completeTeamMission(team.id, mission.id);
+        }
         await new Promise(r => setTimeout(r, 500));
         router.push(`/missions/${id}/complete?teamId=${team.id}`);
       }
