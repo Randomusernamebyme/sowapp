@@ -189,17 +189,15 @@ export default function DashboardPage() {
             <h2 className="text-xl font-bold text-black mb-4">我的團隊</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {userTeams.map(team => (
-                <div key={team.id} className="bg-gray-50 p-4 rounded-xl">
+                <div 
+                  key={team.id} 
+                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  onClick={() => router.push(`/teams/${team.id}`)}
+                >
                   <div className="text-black font-semibold">{team.name}</div>
-                  <div className="text-gray-600 text-sm mb-2">
+                  <div className="text-gray-600 text-sm">
                     成員數：{team.members?.length || 0}
                   </div>
-                  <button
-                    onClick={() => router.push(`/teams/${team.id}`)}
-                    className="inline-block px-4 py-2 bg-gray-200 text-black rounded-xl hover:bg-gray-300 transition"
-                  >
-                    查看詳情
-                  </button>
                 </div>
               ))}
             </div>
