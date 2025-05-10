@@ -188,6 +188,9 @@ export default function MissionsPage() {
                 onClick={() => router.push(`/missions/${mission.id}`)}
                 className="w-full text-left bg-white border border-gray-200 rounded-2xl shadow p-6 hover:bg-gray-50 transition"
               >
+                {mission.imageUrl && (
+                  <img src={mission.imageUrl} alt="任務封面" className="w-full h-48 object-cover rounded-xl mb-4" />
+                )}
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-lg font-semibold text-black">{mission.title}</div>

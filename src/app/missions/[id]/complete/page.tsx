@@ -70,12 +70,6 @@ export default function MissionCompletePage() {
           <div className="font-semibold text-black">{completedAt ? completedAt.toLocaleString() : "-"}</div>
         </div>
         <div className="mb-4">
-          <div className="text-gray-600">收集到的密碼數字：</div>
-          <div className="font-mono text-xl tracking-widest text-black">
-            {collectedDigits.length > 0 ? collectedDigits.join(" ") : "-"}
-          </div>
-        </div>
-        <div className="mb-4">
           <div className="text-gray-600">完成檢查點數量：</div>
           <div className="font-semibold text-black">{completedCheckpoints.length}</div>
         </div>
