@@ -188,12 +188,20 @@ export default function ActiveMissionPage() {
       completedCheckpoints.length === checkpoints.length &&
       checkpoints.length > 0
     ) {
-      // 強制刷新團隊資料，確保 activeMission 清空
-      setTimeout(() => {
-        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-      }, 300);
+      // 強制呼叫 completeTeamMission，確保 Firestore 寫入
+      if (team && mission) {
+        completeTeamMission(team.id, mission.id).then(() => {
+          setTimeout(() => {
+            router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+          }, 300);
+        });
+      } else {
+        setTimeout(() => {
+          router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+        }, 300);
+      }
     }
-  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
+  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission]);
 
   // 密碼彈窗
   const PasswordModal = () => (
