@@ -180,7 +180,7 @@ export default function ActiveMissionPage() {
   }, [mission, team, id, router]);
 
   const handleChallengeComplete = async (answer?: string) => {
-    if (!team || !currentCheckpoint || buttonLoading || isProcessing) return;
+    if (!team || !currentCheckpoint || buttonLoading || isProcessing || showPasswordModal) return;
     setButtonLoading(true);
     setIsProcessing(true);
     try {
@@ -191,12 +191,10 @@ export default function ActiveMissionPage() {
         currentCheckpoint.passwordDigit?.value ? Number(currentCheckpoint.passwordDigit.value) : undefined,
         answer
       );
-      // 彈窗顯示密碼數字
       if (currentCheckpoint.passwordDigit && currentCheckpoint.passwordDigit.value) {
         setLastPasswordDigit(currentCheckpoint.passwordDigit.value);
         setShowPasswordModal(true);
       } else {
-        // 若無密碼數字也彈窗提示
         setLastPasswordDigit(null);
         setShowPasswordModal(true);
       }
