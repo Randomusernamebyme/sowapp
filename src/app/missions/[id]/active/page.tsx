@@ -255,6 +255,13 @@ export default function ActiveMissionPage() {
     ) : null
   );
 
+  // 自動導向完成頁
+  useEffect(() => {
+    if (!currentCheckpointId && completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
+      router.replace(`/missions/${id}/complete?teamId=${team?.id}`);
+    }
+  }, [currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
+
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -267,10 +274,6 @@ export default function ActiveMissionPage() {
 
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      // 自動導向
-      useEffect(() => {
-        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-      }, [id, team, router]);
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white">
           <div className="text-black mb-4">任務已完成，正在導向...</div>
