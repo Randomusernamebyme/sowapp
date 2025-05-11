@@ -208,7 +208,7 @@ export default function ActiveMissionPage() {
   // 密碼彈窗
   const PasswordModal = () => (
     showPasswordModal ? (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-40">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
           <div className="text-2xl font-bold text-black mb-2">{lastPasswordDigit ? '密碼數字' : '完成檢查點'}</div>
           {lastPasswordDigit ? (
