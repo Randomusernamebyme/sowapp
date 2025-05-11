@@ -208,7 +208,19 @@ export default function ActiveMissionPage() {
 
   // 新增：完成任務時自動導向完成頁（只在最後一個 checkpoint 完成且彈窗關閉時觸發）
   useEffect(() => {
-    // 僅同步資料，不主動導向完成頁
+    if (!showPasswordModal && currentCheckpointId && completedCheckpoints && checkpoints.length > 0) {
+      const lastCpId = checkpoints[checkpoints.length - 1]?.id;
+      if (lastCpId && completedCheckpoints.includes(lastCpId)) {
+        if (mission) {
+          completeTeamMission(team.id, mission.id).then(() => {
+            router.push(`/missions/${id}/complete?teamId=${team.id}`);
+          }).catch(err => {
+            console.error("Error completing mission:", err);
+            setError("完成任務時發生錯誤");
+          });
+        }
+      }
+    }
   }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission, checkpoints]);
 
   // 密碼彈窗
