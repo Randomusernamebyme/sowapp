@@ -197,7 +197,6 @@ export default function ActiveMissionPage() {
         setLastPasswordDigit(null);
         setShowPasswordModal(true);
       }
-      // 不自動跳轉，等用戶點擊確認
     } catch (error) {
       console.error("Error updating mission progress:", error);
       setError("更新任務進度時發生錯誤");
@@ -205,37 +204,6 @@ export default function ActiveMissionPage() {
       setButtonLoading(false);
     }
   };
-
-  // 新增：完成任務時自動導向完成頁（只在最後一個 checkpoint 完成且彈窗關閉時觸發）
-  useEffect(() => {
-    const handleMissionComplete = async () => {
-      if (!showPasswordModal && currentCheckpointId && completedCheckpoints && checkpoints.length > 0) {
-        const lastCpId = checkpoints[checkpoints.length - 1]?.id;
-        console.log('Checking mission completion:', {
-          lastCpId,
-          completedCheckpoints,
-          currentCheckpointId,
-          showPasswordModal
-        });
-        
-        if (lastCpId && completedCheckpoints.includes(lastCpId)) {
-          if (mission) {
-            try {
-              console.log('Attempting to complete mission:', { teamId: team.id, missionId: mission.id });
-              await completeTeamMission(team.id, mission.id);
-              console.log('Mission completed successfully, redirecting...');
-              router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-            } catch (err) {
-              console.error("Error completing mission:", err);
-              setError("完成任務時發生錯誤，請重新整理頁面重試");
-            }
-          }
-        }
-      }
-    };
-
-    handleMissionComplete();
-  }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission, checkpoints]);
 
   // 密碼彈窗
   const PasswordModal = () => (
@@ -255,6 +223,15 @@ export default function ActiveMissionPage() {
               // 完成後自動跳到下一個 checkpoint
               if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
+              } else if (mission) {
+                // 最後一個檢查點完成時，直接完成任務
+                try {
+                  await completeTeamMission(team.id, mission.id);
+                  router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+                } catch (err) {
+                  console.error("Error completing mission:", err);
+                  setError("完成任務時發生錯誤，請重新整理頁面重試");
+                }
               }
             }}
           >
