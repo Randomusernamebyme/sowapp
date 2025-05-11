@@ -21,6 +21,7 @@ export interface Mission {
   estimatedDuration: string;
   password: string;
   isActive: boolean;
+  cover?: string;
 }
 
 export type CheckpointType = {

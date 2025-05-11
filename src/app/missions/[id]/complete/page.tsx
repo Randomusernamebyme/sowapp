@@ -120,6 +120,13 @@ export default function MissionCompletePage() {
   return (
     <div className="min-h-screen flex flex-col items-center bg-white pt-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 text-center">
+        {mission.cover && (
+          <img
+            src={mission.cover}
+            alt="任務封面"
+            className="w-full max-h-60 object-cover rounded-2xl mb-4 shadow"
+          />
+        )}
         <h1 className="text-2xl font-bold text-black mb-2">任務完成！</h1>
         <div className="text-lg text-gray-700 mb-4">{mission.title}</div>
         <div className="mb-4">
