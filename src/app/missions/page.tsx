@@ -14,6 +14,8 @@ export default function MissionsPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
+  const [allCheckpoints, setAllCheckpoints] = useState<any[]>([]);
+  const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const router = useRouter();
   const { user } = useAuth();
 
@@ -23,6 +25,20 @@ export default function MissionsPage() {
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMissions(data);
       setFilteredMissions(data);
+      // 載入所有 checkpoints
+      const cpSnap = await getDocs(collection(db, "checkpoints"));
+      setAllCheckpoints(cpSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      // 載入所有 teams，統計 playCount
+      const teamSnap = await getDocs(collection(db, "teams"));
+      const playCountMap: Record<string, number> = {};
+      teamSnap.docs.forEach(teamDoc => {
+        const team = teamDoc.data();
+        const arr = Array.isArray(team.completedMissionProgress) ? team.completedMissionProgress : [];
+        arr.forEach((p: any) => {
+          if (p.missionId) playCountMap[p.missionId] = (playCountMap[p.missionId] || 0) + 1;
+        });
+      });
+      setPlayCounts(playCountMap);
       setLoading(false);
     }
     fetchMissions();
@@ -42,11 +58,10 @@ export default function MissionsPage() {
     
     // 檢查點類型過濾
     if (selectedTypes.length > 0) {
-      filtered = filtered.filter(mission =>
-        mission.checkpoints?.some((checkpoint: any) =>
-          selectedTypes.includes(checkpoint.challengeType)
-        )
-      );
+      filtered = filtered.filter(mission => {
+        const cps = allCheckpoints.filter(cp => cp.missionId === mission.id);
+        return cps.some((cp: any) => selectedTypes.includes(cp.challengeType));
+      });
     }
     
     // 地理區域過濾
@@ -64,7 +79,7 @@ export default function MissionsPage() {
     }
     
     setFilteredMissions(filtered);
-  }, [missions, searchQuery, selectedTypes, selectedAreas, selectedDifficulty]);
+  }, [missions, searchQuery, selectedTypes, selectedAreas, selectedDifficulty, allCheckpoints]);
 
   const toggleCheckpointType = (typeId: string) => {
     setSelectedTypes(prev =>
@@ -182,38 +197,42 @@ export default function MissionsPage() {
           </div>
         ) : (
           <div className="grid gap-4">
-            {filteredMissions.map(mission => (
-              <button
-                key={mission.id}
-                onClick={() => router.push(`/missions/${mission.id}`)}
-                className="w-full text-left bg-white border border-gray-200 rounded-2xl shadow p-6 hover:bg-gray-50 transition"
-              >
-                {mission.imageUrl && (
-                  <img src={mission.imageUrl} alt="任務封面" className="w-full h-48 object-cover rounded-xl mb-4" />
-                )}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-lg font-semibold text-black">{mission.title}</div>
-                    <div className="text-gray-600 text-sm mt-1">{mission.description}</div>
+            {filteredMissions.map(mission => {
+              const cps = allCheckpoints.filter(cp => cp.missionId === mission.id);
+              return (
+                <button
+                  key={mission.id}
+                  onClick={() => router.push(`/missions/${mission.id}`)}
+                  className="w-full text-left bg-white border border-gray-200 rounded-2xl shadow p-6 hover:bg-gray-50 transition"
+                >
+                  {mission.cover && (
+                    <img src={mission.cover} alt="任務封面" className="w-full h-48 object-cover rounded-xl mb-4" />
+                  )}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-lg font-semibold text-black">{mission.title}</div>
+                      <div className="text-gray-600 text-sm mt-1">{mission.description}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      {cps.map((checkpoint: any, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
+                        >
+                          {CHECKPOINT_TYPES.find(t => t.id === checkpoint.challengeType)?.label}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    {mission.checkpoints?.map((checkpoint: any, index: number) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
-                      >
-                        {CHECKPOINT_TYPES.find(t => t.id === checkpoint.challengeType)?.label}
-                      </span>
-                    ))}
+                  <div className="flex gap-4 mt-4 text-xs text-gray-500">
+                    <span>難度：{MISSION_DIFFICULTY.find(d => d.id === mission.difficulty)?.label || "-"}</span>
+                    <span>預估時間：{mission.estimatedDuration || "-"} 分鐘</span>
+                    <span>區域：{GEOGRAPHICAL_AREAS.find(a => a.id === mission.area)?.label || "-"}</span>
+                    <span>游玩次數：{playCounts[mission.id] || 0}</span>
                   </div>
-                </div>
-                <div className="flex gap-4 mt-4 text-xs text-gray-500">
-                  <span>難度：{MISSION_DIFFICULTY.find(d => d.id === mission.difficulty)?.label || "-"}</span>
-                  <span>預估時間：{mission.estimatedDuration || "-"} 分鐘</span>
-                  <span>區域：{GEOGRAPHICAL_AREAS.find(a => a.id === mission.area)?.label || "-"}</span>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
