@@ -62,7 +62,7 @@ export default function MissionCreatePage() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [passwordLength, setPasswordLength] = useState(6);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -206,7 +206,6 @@ export default function MissionCreatePage() {
   const handleSelectMission = async (mission: any) => {
     setSelectedMission(mission);
     setMission({ ...mission });
-    setIsEditing(true);
     // 載入 checkpoints
     const cpQ = query(collection(db, "checkpoints"), where("missionId", "==", mission.id));
     const cpSnap = await getDocs(cpQ);
@@ -277,7 +276,6 @@ export default function MissionCreatePage() {
         await setDoc(cpRef, cpData, { merge: true });
       }
       setSuccess("任務已更新");
-      setIsEditing(false);
       setSelectedMission(null);
       setCheckpoints([]);
     } catch (err: any) {
@@ -307,10 +305,42 @@ export default function MissionCreatePage() {
     <div className="min-h-screen bg-white p-4 font-sans">
       <GenerateTestMission />
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-black">建立新任務</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-black">建立新任務</h1>
+          <button
+            type="button"
+            className="px-4 py-2 bg-black text-white rounded-xl shadow hover:bg-gray-800 transition"
+            onClick={() => setShowEditModal(true)}
+          >
+            編輯任務
+          </button>
+        </div>
+        {/* 編輯任務 Modal */}
+        {showEditModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+              <div className="text-xl font-bold text-black mb-4">選擇要編輯的任務</div>
+              <div className="space-y-2 mb-4">
+                {missions.map(m => (
+                  <button
+                    key={m.id}
+                    className="w-full py-2 rounded-xl bg-gray-100 text-black font-semibold hover:bg-gray-200 transition mb-1"
+                    onClick={async () => {
+                      await handleSelectMission(m);
+                      setShowEditModal(false);
+                    }}
+                  >
+                    {m.title}
+                  </button>
+                ))}
+              </div>
+              <button className="w-full mt-2 py-2 rounded-xl border text-black" onClick={() => setShowEditModal(false)}>取消</button>
+            </div>
+          </div>
+        )}
         {error && <div className="text-red-500 mb-4 ios-card">{error}</div>}
         {success && <div className="text-green-600 mb-4 ios-card">{success}</div>}
-        <form onSubmit={isEditing ? handleUpdate : handleSubmit} className="space-y-6">
+        <form onSubmit={selectedMission ? handleUpdate : handleSubmit} className="space-y-6">
           <div className="ios-card">
             <label className="block font-medium mb-1 text-black">任務標題</label>
             <input name="title" value={mission.title} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
@@ -443,7 +473,7 @@ export default function MissionCreatePage() {
             </div>
           </div>
           <button type="submit" className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition">
-            {isEditing ? "儲存變更" : "建立任務"}
+            {selectedMission ? "儲存變更" : "建立任務"}
           </button>
         </form>
         <div className="mt-8 text-gray-500 text-sm">請將任務封面圖片放到 <span className="text-blue-600">public/missions/</span> 目錄下，並於上方選擇檔案。</div>
@@ -453,7 +483,6 @@ export default function MissionCreatePage() {
             {missions.map(m => (
               <div key={m.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
                 <span className="flex-1 cursor-pointer" onClick={() => handleSelectMission(m)}>{m.title}</span>
-                <button className="text-blue-600 underline" onClick={() => handleSelectMission(m)}>編輯</button>
                 <button className="text-red-600 underline" onClick={() => { setSelectedMission(m); setShowDeleteModal(true); }}>刪除</button>
               </div>
             ))}
