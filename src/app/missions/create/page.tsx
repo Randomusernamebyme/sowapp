@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, doc, setDoc, getDoc, query, where, getDocs, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, query, where, getDocs, deleteDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
 import Link from "next/link";
@@ -62,6 +62,7 @@ export default function MissionCreatePage() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [passwordLength, setPasswordLength] = useState(6);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -202,11 +203,25 @@ export default function MissionCreatePage() {
     }
   };
 
-  const handleSelectMission = (mission: any) => {
+  const handleSelectMission = async (mission: any) => {
     setSelectedMission(mission);
     setMission({ ...mission });
+    setIsEditing(true);
     // 載入 checkpoints
-    // 可根據需要載入並編輯 checkpoints
+    const cpQ = query(collection(db, "checkpoints"), where("missionId", "==", mission.id));
+    const cpSnap = await getDocs(cpQ);
+    const cps = cpSnap.docs.map(d => ({
+      name: d.data().name || "",
+      description: d.data().description || "",
+      location: d.data().location || { lat: 0, lng: 0 },
+      challengeType: d.data().challengeType || "puzzle",
+      challengeDescription: d.data().challengeDescription || "",
+      clue: d.data().clue || "",
+      passwordDigit: d.data().passwordDigit || { position: 1, value: "" },
+      challengeConfig: d.data().challengeConfig || {},
+      id: d.id
+    } as any));
+    setCheckpoints(cps as any);
   };
 
   const handleDeleteMission = async () => {
@@ -236,6 +251,40 @@ export default function MissionCreatePage() {
     }
   };
 
+  const handleUpdate = async (e: any) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!selectedMission) return;
+    try {
+      const missionRef = doc(db, "missions", selectedMission.id);
+      const now = new Date().toISOString();
+      const missionData = {
+        ...mission,
+        updatedAt: now,
+      };
+      await setDoc(missionRef, missionData, { merge: true });
+      // 更新 checkpoints
+      for (let i = 0; i < checkpoints.length; i++) {
+        const cp: any = checkpoints[i];
+        const cpRef = cp.id ? doc(db, "checkpoints", cp.id) : doc(collection(db, "checkpoints"));
+        const cpData = {
+          ...cp,
+          id: cpRef.id,
+          missionId: selectedMission.id,
+          updatedAt: now,
+        };
+        await setDoc(cpRef, cpData, { merge: true });
+      }
+      setSuccess("任務已更新");
+      setIsEditing(false);
+      setSelectedMission(null);
+      setCheckpoints([]);
+    } catch (err: any) {
+      setError("更新任務失敗：" + err.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white p-4 font-sans">
       <GenerateTestMission />
@@ -243,7 +292,7 @@ export default function MissionCreatePage() {
         <h1 className="text-2xl font-bold mb-6 text-black">建立新任務</h1>
         {error && <div className="text-red-500 mb-4 ios-card">{error}</div>}
         {success && <div className="text-green-600 mb-4 ios-card">{success}</div>}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={isEditing ? handleUpdate : handleSubmit} className="space-y-6">
           <div className="ios-card">
             <label className="block font-medium mb-1 text-black">任務標題</label>
             <input name="title" value={mission.title} onChange={handleMissionChange} className="w-full border rounded-lg p-2 bg-white text-black focus:ring-2 focus:ring-black" required />
@@ -369,7 +418,9 @@ export default function MissionCreatePage() {
               ))}
             </div>
           </div>
-          <button type="submit" className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition">建立任務</button>
+          <button type="submit" className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition">
+            {isEditing ? "儲存變更" : "建立任務"}
+          </button>
         </form>
         <div className="mt-8 text-gray-500 text-sm">請將任務封面圖片放到 <span className="text-blue-600">public/missions/</span> 目錄下，並於上方選擇檔案。</div>
         <div className="mb-8">
