@@ -63,6 +63,7 @@ export default function ActiveMissionPage() {
   const [showTimeReminder, setShowTimeReminder] = useState(false);
   const [reminderImage] = useState("/reminder/reminder.png");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -223,12 +224,9 @@ export default function ActiveMissionPage() {
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
             onClick={async () => {
               setShowPasswordModal(false);
-              // 嚴格判斷：只有所有 checkpoint 都在 completedCheckpoints 才能完成任務
               const allCompleted = checkpoints.length > 0 && completedCheckpoints.length === checkpoints.length && checkpoints.every(cp => completedCheckpoints.includes(cp.id));
               if (allCompleted && currentIdx === checkpoints.length - 1 && mission) {
-                setTimeout(() => {
-                  router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-                }, 300); // 緩衝 300ms 再導向
+                setIsFinalizing(true);
               } else if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
               }
@@ -254,6 +252,15 @@ export default function ActiveMissionPage() {
     ) : null
   );
 
+  useEffect(() => {
+    if (isFinalizing && team && mission) {
+      // 導向完成頁，並可加長緩衝時間
+      setTimeout(() => {
+        router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+      }, 800); // 800ms 緩衝
+    }
+  }, [isFinalizing, team, mission, id, router]);
+
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -266,9 +273,11 @@ export default function ActiveMissionPage() {
 
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
+      // 僅顯示等待用戶確認最後一個 passkey 彈窗
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-          <div className="text-black mb-4">任務已完成，正在導向...</div>
+          <div className="text-black mb-4">請確認最後一個密碼數字後，系統將自動導向...</div>
+          <PasswordModal />
         </div>
       );
     } else {
