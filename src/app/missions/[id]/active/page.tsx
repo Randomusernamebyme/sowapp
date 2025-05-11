@@ -61,12 +61,7 @@ export default function ActiveMissionPage() {
   const [lastPasswordDigit, setLastPasswordDigit] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showTimeReminder, setShowTimeReminder] = useState(false);
-  const [reminderImgIdx, setReminderImgIdx] = useState(0);
-  const reminderImages = [
-    "/reminder/reminder1.png",
-    "/reminder/reminder2.png",
-    "/reminder/reminder3.png"
-  ];
+  const [reminderImage] = useState("/reminder/reminder.png");
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -173,7 +168,6 @@ export default function ActiveMissionPage() {
       // 每 15 分鐘彈窗提醒
       if (left > 0 && left % (15 * 60) === 0) {
         setShowTimeReminder(true);
-        setReminderImgIdx(Math.floor(Math.random() * reminderImages.length));
       }
       if (left === 0) {
         clearInterval(timer);
@@ -276,7 +270,7 @@ export default function ActiveMissionPage() {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
           <div className="text-2xl font-bold text-black mb-2">剩餘時間提醒</div>
-          <Image src={reminderImages[reminderImgIdx]} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
+          <Image src={reminderImage} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
           <div className="text-lg text-black mb-4">剩餘 {timeLeft ? Math.floor(timeLeft/60) : 0} 分鐘</div>
           <button className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition" onClick={() => setShowTimeReminder(false)}>確認</button>
         </div>
