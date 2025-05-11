@@ -208,19 +208,33 @@ export default function ActiveMissionPage() {
 
   // 新增：完成任務時自動導向完成頁（只在最後一個 checkpoint 完成且彈窗關閉時觸發）
   useEffect(() => {
-    if (!showPasswordModal && currentCheckpointId && completedCheckpoints && checkpoints.length > 0) {
-      const lastCpId = checkpoints[checkpoints.length - 1]?.id;
-      if (lastCpId && completedCheckpoints.includes(lastCpId)) {
-        if (mission) {
-          completeTeamMission(team.id, mission.id).then(() => {
-            router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-          }).catch(err => {
-            console.error("Error completing mission:", err);
-            setError("完成任務時發生錯誤");
-          });
+    const handleMissionComplete = async () => {
+      if (!showPasswordModal && currentCheckpointId && completedCheckpoints && checkpoints.length > 0) {
+        const lastCpId = checkpoints[checkpoints.length - 1]?.id;
+        console.log('Checking mission completion:', {
+          lastCpId,
+          completedCheckpoints,
+          currentCheckpointId,
+          showPasswordModal
+        });
+        
+        if (lastCpId && completedCheckpoints.includes(lastCpId)) {
+          if (mission) {
+            try {
+              console.log('Attempting to complete mission:', { teamId: team.id, missionId: mission.id });
+              await completeTeamMission(team.id, mission.id);
+              console.log('Mission completed successfully, redirecting...');
+              router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+            } catch (err) {
+              console.error("Error completing mission:", err);
+              setError("完成任務時發生錯誤，請重新整理頁面重試");
+            }
+          }
         }
       }
-    }
+    };
+
+    handleMissionComplete();
   }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission, checkpoints]);
 
   // 密碼彈窗
@@ -276,7 +290,17 @@ export default function ActiveMissionPage() {
 
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      return <div className="min-h-screen flex items-center justify-center bg-white text-black">任務已完成，正在導向...</div>;
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+          <div className="text-black mb-4">任務已完成，正在導向...</div>
+          <button
+            onClick={() => router.replace(`/missions/${id}/complete?teamId=${team.id}`)}
+            className="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+          >
+            手動前往完成頁面
+          </button>
+        </div>
+      );
     } else {
       return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
     }
