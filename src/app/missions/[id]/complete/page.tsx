@@ -46,6 +46,11 @@ export default function MissionCompletePage() {
           }
         }
         setUserDisplayNames(displayNames);
+        // 新增：如果 completedMissionProgress 有該任務紀錄，直接跳過密碼輸入
+        const completedList = Array.isArray(teamData.completedMissionProgress) ? teamData.completedMissionProgress.filter((c: any) => c.missionId === id) : [];
+        if (completedList.length > 0) {
+          setShowUnlock(false);
+        }
       } else {
         setError("找不到團隊資料");
       }
