@@ -155,7 +155,7 @@ export async function completeTeamMission(teamId: string, missionId: string) {
     completedMissionProgress: newCompletedMissionProgress
   });
 
-  // 先確保 missionProgress 清空、activeMission 清空、completedMissions 正確，並記錄 completedMissionProgress
+  // 嚴格同步
   await updateDoc(teamRef, {
     activeMission: "",
     missionProgress: {},
