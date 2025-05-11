@@ -181,7 +181,9 @@ export default function ActiveMissionPage() {
     if (!team || !currentCheckpoint || buttonLoading) return;
     setButtonLoading(true);
     try {
-      console.log('handleChallengeComplete', { currentCheckpoint });
+      // 是否為最後一個 checkpoint
+      const isLast = currentIdx === checkpoints.length - 1;
+      // 先更新 missionProgress
       await updateTeamMissionProgress(
         team.id,
         currentCheckpoint.id,
@@ -193,9 +195,29 @@ export default function ActiveMissionPage() {
         setLastPasswordDigit(currentCheckpoint.passwordDigit.value);
         setShowPasswordModal(true);
       } else {
-        // 若無密碼數字也彈窗提示
         setLastPasswordDigit(null);
         setShowPasswordModal(true);
+      }
+      // 如果是最後一個 checkpoint，等用戶關閉彈窗後自動完成任務
+      if (isLast) {
+        setTimeout(async () => {
+          setShowPasswordModal(false);
+          try {
+            if (mission) {
+              await completeTeamMission(team.id, mission.id);
+              router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+            }
+          } catch (err) {
+            console.error("Error completing mission:", err);
+            setError("完成任務時發生錯誤，請重新整理頁面重試");
+          }
+        }, 800); // 彈窗顯示 0.8 秒後自動導向
+      } else {
+        // 不是最後一個 checkpoint，關閉彈窗後跳到下一個
+        setTimeout(() => {
+          setShowPasswordModal(false);
+          setCurrentIdx(i => i + 1);
+        }, 800);
       }
     } catch (error) {
       console.error("Error updating mission progress:", error);
@@ -218,22 +240,8 @@ export default function ActiveMissionPage() {
           )}
           <button
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
-            onClick={async () => {
-              setShowPasswordModal(false);
-              // 嚴格判斷：只有所有 checkpoint 都在 completedCheckpoints 才能完成任務
-              const allCompleted = checkpoints.length > 0 && completedCheckpoints.length === checkpoints.length && checkpoints.every(cp => completedCheckpoints.includes(cp.id));
-              if (allCompleted && currentIdx === checkpoints.length - 1 && mission) {
-                try {
-                  await completeTeamMission(team.id, mission.id);
-                  router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-                } catch (err) {
-                  console.error("Error completing mission:", err);
-                  setError("完成任務時發生錯誤，請重新整理頁面重試");
-                }
-              } else if (currentIdx < checkpoints.length - 1) {
-                setCurrentIdx(i => i + 1);
-              }
-            }}
+            onClick={() => setShowPasswordModal(false)}
+            disabled={buttonLoading}
           >
             確認</button>
         </div>
@@ -266,21 +274,7 @@ export default function ActiveMissionPage() {
   }
 
   if (!currentCheckpointId) {
-    if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-          <div className="text-black mb-4">任務已完成，正在導向...</div>
-          <button
-            onClick={() => router.replace(`/missions/${id}/complete?teamId=${team.id}`)}
-            className="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
-          >
-            手動前往完成頁面
-          </button>
-        </div>
-      );
-    } else {
-      return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
-    }
+    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
   }
   const currentCheckpoint = checkpoints.find(cp => cp.id === currentCheckpointId);
   if (!currentCheckpoint) {
