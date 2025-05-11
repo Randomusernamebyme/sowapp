@@ -475,17 +475,6 @@ export default function MissionCreatePage() {
           </button>
         </form>
         <div className="mt-8 text-gray-500 text-sm">請將任務封面圖片放到 <span className="text-blue-600">public/missions/</span> 目錄下，並於上方選擇檔案。</div>
-        <div className="mb-8">
-          <h2 className="text-lg font-bold mb-2">現有任務</h2>
-          <div className="space-y-2">
-            {missions.map(m => (
-              <div key={m.id} className="flex items-center gap-2 border rounded p-2 bg-gray-50">
-                <span className="flex-1 cursor-pointer" onClick={() => handleSelectMission(m)}>{m.title}</span>
-                <button className="text-red-600 underline" onClick={() => { setSelectedMission(m); setShowDeleteModal(true); }}>刪除</button>
-              </div>
-            ))}
-          </div>
-        </div>
         {/* 刪除任務彈窗 */}
         {showDeleteModal && selectedMission && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
