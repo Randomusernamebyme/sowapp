@@ -220,12 +220,15 @@ export default function ActiveMissionPage() {
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
             onClick={async () => {
               setShowPasswordModal(false);
-              // 完成後自動跳到下一個 checkpoint
               if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
               } else if (mission) {
-                // 最後一個檢查點完成時，直接完成任務
+                // 最後一個檢查點，先 fetch 最新 team/missonProgress 再完成
                 try {
+                  // 重新取得最新 team 資料
+                  const teamSnap = await getDoc(doc(db, "teams", team.id));
+                  const latestTeam = teamSnap.exists() ? { id: teamSnap.id, ...teamSnap.data() } : team;
+                  // 確保 missionProgress 已經包含所有檢查點
                   await completeTeamMission(team.id, mission.id);
                   router.replace(`/missions/${id}/complete?teamId=${team.id}`);
                 } catch (err) {
