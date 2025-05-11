@@ -213,7 +213,7 @@ export default function ActiveMissionPage() {
       if (lastCpId && completedCheckpoints.includes(lastCpId)) {
         if (mission) {
           completeTeamMission(team.id, mission.id).then(() => {
-            router.push(`/missions/${id}/complete?teamId=${team.id}`);
+            router.replace(`/missions/${id}/complete?teamId=${team.id}`);
           }).catch(err => {
             console.error("Error completing mission:", err);
             setError("完成任務時發生錯誤");
@@ -241,17 +241,6 @@ export default function ActiveMissionPage() {
               // 完成後自動跳到下一個 checkpoint
               if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
-              } else {
-                // 僅當最後一個 checkpoint id 已在 completedCheckpoints 時才導向完成頁
-                const lastCpId = checkpoints[checkpoints.length - 1]?.id;
-                if (lastCpId && completedCheckpoints.includes(lastCpId)) {
-                  if (mission) {
-                    await completeTeamMission(team.id, mission.id);
-                  }
-                  setTimeout(() => {
-                    router.push(`/missions/${id}/complete?teamId=${team.id}`);
-                  }, 500);
-                }
               }
             }}
           >
