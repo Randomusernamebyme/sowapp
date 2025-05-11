@@ -70,11 +70,12 @@ function MapController({ userLocation, nextCheckpoint }: {
   return null;
 }
 
-export default function MapView({ checkpoints, startLocation, endLocation, userLocation }: {
+export default function MapView({ checkpoints, startLocation, endLocation, userLocation, members }: {
   checkpoints: { location: { lat: number, lng: number }, name: string, id: string }[],
   startLocation?: { lat: number, lng: number },
   endLocation?: { lat: number, lng: number },
-  userLocation?: { lat: number, lng: number } | null
+  userLocation?: { lat: number, lng: number } | null,
+  members?: Record<string, { lat: number, lng: number, displayName: string, avatarUrl?: string, updatedAt?: any }>
 }) {
   const [distance, setDistance] = useState<number | null>(null);
   const [bearing, setBearing] = useState<number | null>(null);
@@ -147,6 +148,31 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
               <Popup>你的位置</Popup>
             </CircleMarker>
           )}
+          {/* 成員 marker */}
+          {members && Object.entries(members).map(([uid, m]) => (
+            m.lat && m.lng ? (
+              <Marker
+                key={uid}
+                position={{ lat: m.lat, lng: m.lng }}
+                icon={L.divIcon({
+                  className: 'member-marker',
+                  html: m.avatarUrl
+                    ? `<img src='${m.avatarUrl}' style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px #0002;object-fit:cover;" />`
+                    : `<div style="width:32px;height:32px;border-radius:50%;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:18px;border:2px solid #fff;box-shadow:0 2px 6px #0002;">${m.displayName?.[0] || '?'}</div>`
+                })}
+              >
+                <Popup>
+                  <div className="text-black">
+                    <div className="font-bold">{m.displayName || uid}</div>
+                    <div className="text-xs text-gray-500">({m.lat.toFixed(5)}, {m.lng.toFixed(5)})</div>
+                    {userLocation && (uid !== '你') && (
+                      <div className="text-xs mt-1">距離你：{Math.round(calculateDistance(userLocation.lat, userLocation.lng, m.lat, m.lng))} 米</div>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            ) : null
+          ))}
           <MapController userLocation={userLocation} nextCheckpoint={nextCheckpoint} />
         </MapContainer>
       </div>

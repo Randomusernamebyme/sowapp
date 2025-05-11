@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import MapView from "@/components/MapView";
 import PhysicalChallenge from "@/components/challenges/PhysicalChallenge";
 import PuzzleChallenge from "@/components/challenges/PuzzleChallenge";
@@ -64,6 +64,10 @@ export default function ActiveMissionPage() {
   const [reminderImage] = useState("/reminder/reminder.png");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [memberLocations, setMemberLocations] = useState<Record<string, { lat: number, lng: number, displayName: string, avatarUrl?: string, updatedAt?: any }>>({});
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [latestNotification, setLatestNotification] = useState<string>("");
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -259,6 +263,45 @@ export default function ActiveMissionPage() {
     }
   }, [isFinalizing, team, mission, id, router]);
 
+  // 定時上傳自己位置到 Firestore
+  useEffect(() => {
+    if (!user || !teamId || !userLocation) return;
+    const locationRef = doc(db, `teams/${teamId}/members/${user.uid}`);
+    setDoc(locationRef, {
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+      displayName: user.displayName || "",
+      avatarUrl: user.photoURL || "",
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  }, [user, teamId, userLocation]);
+
+  // 監聽所有團隊成員位置
+  useEffect(() => {
+    if (!teamId) return;
+    const unsub = onSnapshot(collection(db, `teams/${teamId}/members`), (snap) => {
+      const locs: Record<string, any> = {};
+      snap.forEach(doc => {
+        locs[doc.id] = doc.data();
+      });
+      setMemberLocations(locs);
+    });
+    return () => unsub();
+  }, [teamId]);
+
+  // 監聽通知
+  useEffect(() => {
+    if (!teamId) return;
+    const unsub = onSnapshot(collection(db, `teams/${teamId}/notifications`), (snap) => {
+      const notis: any[] = [];
+      snap.forEach(doc => notis.push({ id: doc.id, ...doc.data() }));
+      notis.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+      setNotifications(notis);
+      setLatestNotification(notis[0]?.message || "");
+    });
+    return () => unsub();
+  }, [teamId]);
+
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -365,6 +408,7 @@ export default function ActiveMissionPage() {
             startLocation={mission.startLocation}
             endLocation={mission.endLocation}
             userLocation={userLocation}
+            members={memberLocations}
           />
           <div className="mt-4">
             <div className="text-lg font-bold text-black mb-1">目前檢查點：{currentCheckpoint.name}</div>
@@ -394,6 +438,38 @@ export default function ActiveMissionPage() {
           放棄任務
         </button>
       </div>
+      {/* 通知 bar */}
+      {latestNotification && (
+        <div
+          className="fixed top-0 left-0 w-full h-10 bg-black text-white flex items-center justify-center z-[1100] cursor-pointer shadow"
+          onClick={() => setShowNotificationModal(true)}
+          style={{ fontSize: '16px', fontWeight: 500 }}
+        >
+          {latestNotification}
+        </div>
+      )}
+      {/* 歷史通知 modal */}
+      {showNotificationModal && (
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl"
+              onClick={() => setShowNotificationModal(false)}
+            >×</button>
+            <h2 className="text-xl font-bold mb-4 text-black">任務通知紀錄</h2>
+            <div className="max-h-80 overflow-y-auto text-left space-y-2">
+              {notifications.length === 0 ? (
+                <div className="text-gray-500 text-center">暫無通知</div>
+              ) : notifications.map((n) => (
+                <div key={n.id} className="p-2 rounded bg-gray-50 border border-gray-200">
+                  <div className="text-black">{n.message}</div>
+                  <div className="text-xs text-gray-400 mt-1">{n.createdAt?.toDate?.().toLocaleString?.() || ''}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 } 
