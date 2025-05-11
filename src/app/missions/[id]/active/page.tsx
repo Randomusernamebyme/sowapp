@@ -220,21 +220,18 @@ export default function ActiveMissionPage() {
             className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
             onClick={async () => {
               setShowPasswordModal(false);
-              if (currentIdx < checkpoints.length - 1) {
-                setCurrentIdx(i => i + 1);
-              } else if (mission) {
-                // 最後一個檢查點，先 fetch 最新 team/missonProgress 再完成
+              // 嚴格判斷：只有所有 checkpoint 都在 completedCheckpoints 才能完成任務
+              const allCompleted = checkpoints.length > 0 && completedCheckpoints.length === checkpoints.length && checkpoints.every(cp => completedCheckpoints.includes(cp.id));
+              if (allCompleted && currentIdx === checkpoints.length - 1 && mission) {
                 try {
-                  // 重新取得最新 team 資料
-                  const teamSnap = await getDoc(doc(db, "teams", team.id));
-                  const latestTeam = teamSnap.exists() ? { id: teamSnap.id, ...teamSnap.data() } : team;
-                  // 確保 missionProgress 已經包含所有檢查點
                   await completeTeamMission(team.id, mission.id);
                   router.replace(`/missions/${id}/complete?teamId=${team.id}`);
                 } catch (err) {
                   console.error("Error completing mission:", err);
                   setError("完成任務時發生錯誤，請重新整理頁面重試");
                 }
+              } else if (currentIdx < checkpoints.length - 1) {
+                setCurrentIdx(i => i + 1);
               }
             }}
           >
