@@ -225,7 +225,9 @@ export default function ActiveMissionPage() {
               if (allCompleted && currentIdx === checkpoints.length - 1 && mission) {
                 try {
                   await completeTeamMission(team.id, mission.id);
-                  router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+                  setTimeout(() => {
+                    router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+                  }, 300); // 緩衝 300ms 再導向
                 } catch (err) {
                   console.error("Error completing mission:", err);
                   setError("完成任務時發生錯誤，請重新整理頁面重試");
