@@ -62,6 +62,7 @@ export default function ActiveMissionPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showTimeReminder, setShowTimeReminder] = useState(false);
   const [reminderImage] = useState("/reminder/reminder.png");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const currentCheckpointId = team?.missionProgress?.currentCheckpoint;
   const completedCheckpoints = team?.missionProgress?.completedCheckpoints || [];
@@ -178,8 +179,9 @@ export default function ActiveMissionPage() {
   }, [mission, team, id, router]);
 
   const handleChallengeComplete = async (answer?: string) => {
-    if (!team || !currentCheckpoint || buttonLoading) return;
+    if (!team || !currentCheckpoint || buttonLoading || isProcessing) return;
     setButtonLoading(true);
+    setIsProcessing(true);
     try {
       console.log('handleChallengeComplete', { currentCheckpoint });
       await updateTeamMissionProgress(
@@ -197,11 +199,12 @@ export default function ActiveMissionPage() {
         setLastPasswordDigit(null);
         setShowPasswordModal(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating mission progress:", error);
-      setError("更新任務進度時發生錯誤");
+      setError("更新任務進度時發生錯誤: " + (error?.message || JSON.stringify(error)));
     } finally {
       setButtonLoading(false);
+      setIsProcessing(false);
     }
   };
 
@@ -250,13 +253,6 @@ export default function ActiveMissionPage() {
       </div>
     ) : null
   );
-
-  // 自動導向完成頁
-  useEffect(() => {
-    if (!currentCheckpointId && completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
-      router.replace(`/missions/${id}/complete?teamId=${team?.id}`);
-    }
-  }, [currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router]);
 
   if (authLoading || loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
