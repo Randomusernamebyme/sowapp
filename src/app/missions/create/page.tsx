@@ -285,6 +285,24 @@ export default function MissionCreatePage() {
     }
   };
 
+  // 檢查點順序調整
+  const moveCheckpointUp = (idx: number) => {
+    if (idx === 0) return;
+    const newCheckpoints = [...checkpoints];
+    [newCheckpoints[idx - 1], newCheckpoints[idx]] = [newCheckpoints[idx], newCheckpoints[idx - 1]];
+    setCheckpoints(newCheckpoints);
+  };
+  const moveCheckpointDown = (idx: number) => {
+    if (idx === checkpoints.length - 1) return;
+    const newCheckpoints = [...checkpoints];
+    [newCheckpoints[idx], newCheckpoints[idx + 1]] = [newCheckpoints[idx + 1], newCheckpoints[idx]];
+    setCheckpoints(newCheckpoints);
+  };
+  const deleteCheckpoint = (idx: number) => {
+    const newCheckpoints = checkpoints.filter((_, i) => i !== idx);
+    setCheckpoints(newCheckpoints);
+  };
+
   return (
     <div className="min-h-screen bg-white p-4 font-sans">
       <GenerateTestMission />
@@ -371,6 +389,12 @@ export default function MissionCreatePage() {
             <div className="space-y-4 mt-4">
               {checkpoints.map((cp, idx) => (
                 <div key={idx} className="border rounded-xl p-3 bg-gray-50 ios-card">
+                  <div className="flex items-center mb-2">
+                    <span className="font-bold text-black mr-2">檢查點 {idx + 1}</span>
+                    <button type="button" onClick={() => moveCheckpointUp(idx)} disabled={idx === 0} className="px-2 py-1 text-xs rounded bg-gray-200 text-black mr-1 disabled:opacity-40">↑</button>
+                    <button type="button" onClick={() => moveCheckpointDown(idx)} disabled={idx === checkpoints.length - 1} className="px-2 py-1 text-xs rounded bg-gray-200 text-black mr-1 disabled:opacity-40">↓</button>
+                    <button type="button" onClick={() => deleteCheckpoint(idx)} className="px-2 py-1 text-xs rounded bg-red-200 text-red-700">刪除</button>
+                  </div>
                   <div className="flex gap-2 mb-2">
                     <input placeholder="名稱" value={cp.name} onChange={e => handleCheckpointChange(idx, "name", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
                     <input placeholder="描述" value={cp.description} onChange={e => handleCheckpointChange(idx, "description", e.target.value)} className="border rounded-lg p-1 flex-1 bg-white text-black" />
