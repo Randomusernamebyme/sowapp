@@ -130,26 +130,17 @@ export async function completeTeamMission(teamId: string, missionId: string) {
     ? teamCompletedMissions
     : [...teamCompletedMissions, missionId].filter((id: any) => typeof id === 'string' && id.trim() !== '');
 
-  // 查詢所有 checkpoints，組合完整資料
-  const checkpointsSnap = await getDocs(query(collection(db, "checkpoints"), where("missionId", "==", missionId)));
-  const checkpoints = checkpointsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-  const completedCheckpoints = checkpoints.map(cp => cp.id);
-  const collectedDigits = checkpoints.map(cp => cp.passwordDigit?.value).filter(Boolean);
-  const answers = {}; // 若有答案可補充
-
-  // 記錄完成時間
-  const completedAt = Timestamp.now();
-
+  // 直接複製 missionProgress
+  const missionProgress = data.missionProgress || {};
   const completedMissionProgress = Array.isArray(data.completedMissionProgress) ? data.completedMissionProgress : [];
   const playCount = completedMissionProgress.filter((p: any) => p.missionId === missionId).length + 1;
+  const completedAt = Timestamp.now();
   const newCompletedMissionProgress = [
     ...completedMissionProgress,
     {
+      ...missionProgress,
       missionId,
       playCount,
-      completedCheckpoints,
-      collectedDigits,
-      answers,
       completedAt,
     }
   ];
