@@ -360,7 +360,7 @@ export default function ActiveMissionPage() {
       <PasswordModal />
       <TimeReminderModal />
       <div className="min-h-screen flex flex-col items-center bg-white pt-8">
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        <div className={`w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 ${showPasswordModal ? 'z-0 pointer-events-none' : ''}`}>
           <MapView
             checkpoints={checkpoints}
             startLocation={mission.startLocation}
