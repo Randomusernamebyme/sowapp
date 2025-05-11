@@ -223,15 +223,9 @@ export default function ActiveMissionPage() {
               // 嚴格判斷：只有所有 checkpoint 都在 completedCheckpoints 才能完成任務
               const allCompleted = checkpoints.length > 0 && completedCheckpoints.length === checkpoints.length && checkpoints.every(cp => completedCheckpoints.includes(cp.id));
               if (allCompleted && currentIdx === checkpoints.length - 1 && mission) {
-                try {
-                  await completeTeamMission(team.id, mission.id);
-                  setTimeout(() => {
-                    router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-                  }, 300); // 緩衝 300ms 再導向
-                } catch (err) {
-                  console.error("Error completing mission:", err);
-                  setError("完成任務時發生錯誤，請重新整理頁面重試");
-                }
+                setTimeout(() => {
+                  router.replace(`/missions/${id}/complete?teamId=${team.id}`);
+                }, 300); // 緩衝 300ms 再導向
               } else if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
               }

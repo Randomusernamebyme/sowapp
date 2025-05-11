@@ -42,10 +42,11 @@ export default function TeamDetailPage() {
   const [error, setError] = useState("");
   const [updatingRole, setUpdatingRole] = useState(false);
   const [userDisplayNames, setUserDisplayNames] = useState<Record<string, string>>({});
-  const [activeMission, setActiveMission] = useState<Mission | null>(null);
+  const [activeMission, setActiveMission] = useState<any>(null);
   const [completedMissions, setCompletedMissions] = useState<Mission[]>([]);
   const [teamStats, setTeamStats] = useState<any>(null);
   const [recentMissions, setRecentMissions] = useState<any[]>([]);
+  const [checkpoints, setCheckpoints] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadTeam() {
@@ -135,6 +136,13 @@ export default function TeamDetailPage() {
           return bDate.getTime() - aDate.getTime();
         });
         setRecentMissions(recentMissionsData.slice(0, 5));
+
+        // 取得檢查點資料
+        if (teamData.activeMission) {
+          const q = query(collection(db, "checkpoints"), where("missionId", "==", teamData.activeMission));
+          const cpSnap = await getDocs(q);
+          setCheckpoints(cpSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        }
       } catch (err) {
         console.error("載入團隊失敗:", err);
       } finally {
@@ -331,12 +339,12 @@ export default function TeamDetailPage() {
                       <div 
                         className="bg-black h-2 rounded-full transition-all duration-300"
                         style={{ 
-                          width: `${(teamStats.activeMission.progress / teamStats.activeMission.totalCheckpoints) * 100}%` 
+                          width: `${(team?.missionProgress?.completedCheckpoints?.length || 0) / (checkpoints?.length || 1) * 100}%` 
                         }}
                       />
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
-                      {teamStats.activeMission.progress} / {teamStats.activeMission.totalCheckpoints} 檢查點
+                      {team?.missionProgress?.completedCheckpoints?.length || 0} / {checkpoints?.length || 0} 檢查點
                     </div>
                   </div>
                 )}

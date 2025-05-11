@@ -22,6 +22,11 @@ export interface Mission {
   password: string;
   isActive: boolean;
   cover?: string;
+  checkpoints?: string[];
+  area?: string;
+  type?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type CheckpointType = {
