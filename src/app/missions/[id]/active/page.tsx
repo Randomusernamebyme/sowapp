@@ -206,28 +206,9 @@ export default function ActiveMissionPage() {
     }
   };
 
-  // 新增：完成任務時自動導向完成頁（只在未顯示密碼彈窗時觸發）
+  // 新增：完成任務時自動導向完成頁（只在最後一個 checkpoint 完成且彈窗關閉時觸發）
   useEffect(() => {
-    if (
-      !showPasswordModal &&
-      !currentCheckpointId &&
-      completedCheckpoints.length === checkpoints.length &&
-      checkpoints.length > 0 &&
-      completedCheckpoints.every((cid: string) => checkpoints.find(cp => cp.id === cid))
-    ) {
-      // 強制呼叫 completeTeamMission，確保 Firestore 寫入
-      if (team && mission) {
-        completeTeamMission(team.id, mission.id).then(() => {
-          setTimeout(() => {
-            router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-          }, 300);
-        });
-      } else {
-        setTimeout(() => {
-          router.replace(`/missions/${id}/complete?teamId=${team.id}`);
-        }, 300);
-      }
-    }
+    // 僅同步資料，不主動導向完成頁
   }, [showPasswordModal, currentCheckpointId, completedCheckpoints, checkpoints.length, id, team, router, mission, checkpoints]);
 
   // 密碼彈窗
@@ -249,12 +230,16 @@ export default function ActiveMissionPage() {
               if (currentIdx < checkpoints.length - 1) {
                 setCurrentIdx(i => i + 1);
               } else {
-                if (mission) {
-                  await completeTeamMission(team.id, mission.id);
+                // 僅當最後一個 checkpoint id 已在 completedCheckpoints 時才導向完成頁
+                const lastCpId = checkpoints[checkpoints.length - 1]?.id;
+                if (lastCpId && completedCheckpoints.includes(lastCpId)) {
+                  if (mission) {
+                    await completeTeamMission(team.id, mission.id);
+                  }
+                  setTimeout(() => {
+                    router.push(`/missions/${id}/complete?teamId=${team.id}`);
+                  }, 500);
                 }
-                setTimeout(() => {
-                  router.push(`/missions/${id}/complete?teamId=${team.id}`);
-                }, 500);
               }
             }}
           >
