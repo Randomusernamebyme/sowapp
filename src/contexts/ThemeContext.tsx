@@ -20,9 +20,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (userSnap.exists() && userSnap.data().theme) {
         setThemeState(userSnap.data().theme);
         document.documentElement.className = `theme-${userSnap.data().theme}`;
+        console.log("[ThemeContext] 讀取 user theme:", userSnap.data().theme);
       } else {
         setThemeState("bw");
         document.documentElement.className = "theme-bw";
+        console.log("[ThemeContext] 預設 theme-bw");
       }
     }
     fetchTheme();
@@ -31,9 +33,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = async (t: "bw" | "pastel") => {
     setThemeState(t);
     document.documentElement.className = `theme-${t}`;
+    console.log("[ThemeContext] setTheme called:", t);
     if (user) {
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, { theme: t });
+      console.log("[ThemeContext] theme 寫入 Firestore:", t);
     }
   };
 
