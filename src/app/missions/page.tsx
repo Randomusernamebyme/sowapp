@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES, MISSION_DIFFICULTY } from "@/lib/constants";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function MissionsPage() {
   const [missions, setMissions] = useState<any[]>([]);
@@ -15,7 +14,7 @@ export default function MissionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
   const [allCheckpoints, setAllCheckpoints] = useState<any[]>([]);
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({});
   const router = useRouter();
@@ -74,9 +73,9 @@ export default function MissionsPage() {
     }
 
     // 難度過濾
-    if (selectedDifficulty) {
+    if (selectedDifficulty.length > 0) {
       filtered = filtered.filter(mission =>
-        mission.difficulty === selectedDifficulty
+        selectedDifficulty.includes(mission.difficulty)
       );
     }
     
@@ -101,60 +100,113 @@ export default function MissionsPage() {
 
   const toggleDifficulty = (difficultyId: string) => {
     setSelectedDifficulty(prev =>
-      prev === difficultyId
-        ? null
-        : difficultyId
+      prev.includes(difficultyId)
+        ? prev.filter(id => id !== difficultyId)
+        : [...prev, difficultyId]
     );
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">
-        載入中...
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] p-4">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-[var(--color-text)] mb-6">任務列表</h1>
 
-        {/* 篩選器 */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedDifficulty(null)}
-              className={`px-4 py-2 rounded-full text-sm transition ${
-                !selectedDifficulty
-                  ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
-                  : "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-gray-200"
-              }`}
-            >
-              全部
-            </button>
-            {["簡單", "中等", "困難"].map(difficulty => (
-              <button
-                key={difficulty}
-                onClick={() => setSelectedDifficulty(difficulty)}
-                className={`px-4 py-2 rounded-full text-sm transition ${
-                  selectedDifficulty === difficulty
-                    ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
-                    : "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-gray-200"
-                }`}
-              >
-                {difficulty}
-              </button>
-            ))}
+        {/* 搜尋與篩選 */}
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200 mb-6">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="搜尋任務..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-[var(--color-secondary)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">任務類型</h3>
+              <div className="flex flex-wrap gap-2">
+                {MISSION_TYPES.map(type => (
+                  <button
+                    key={type.id}
+                    onClick={() => {
+                      setSelectedTypes(prev =>
+                        prev.includes(type.id)
+                          ? prev.filter(id => id !== type.id)
+                          : [...prev, type.id]
+                      );
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedTypes.includes(type.id)
+                        ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
+                        : "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-gray-200"
+                    }`}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">地理區域</h3>
+              <div className="flex flex-wrap gap-2">
+                {GEOGRAPHICAL_AREAS.map(area => (
+                  <button
+                    key={area.id}
+                    onClick={() => {
+                      setSelectedAreas(prev =>
+                        prev.includes(area.id)
+                          ? prev.filter(id => id !== area.id)
+                          : [...prev, area.id]
+                      );
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedAreas.includes(area.id)
+                        ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
+                        : "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-gray-200"
+                    }`}
+                  >
+                    {area.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">難度等級</h3>
+              <div className="flex flex-wrap gap-2">
+                {MISSION_DIFFICULTY.map(difficulty => (
+                  <button
+                    key={difficulty.id}
+                    onClick={() => {
+                      setSelectedDifficulty(prev =>
+                        prev.includes(difficulty.id)
+                          ? prev.filter(id => id !== difficulty.id)
+                          : [...prev, difficulty.id]
+                      );
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm transition ${
+                      selectedDifficulty.includes(difficulty.id)
+                        ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
+                        : "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-gray-200"
+                    }`}
+                  >
+                    {difficulty.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* 任務列表 */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {filteredMissions.map(mission => (
             <div
               key={mission.id}
-              className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
+              className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition"
             >
               {mission.imageUrl && (
                 <div className="relative h-48">
@@ -167,27 +219,27 @@ export default function MissionsPage() {
                 </div>
               )}
               <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-2">
                   <h2 className="text-xl font-semibold text-[var(--color-text)]">{mission.title}</h2>
                   <span className="text-sm text-[var(--color-text)]">
-                    遊玩次數：{playCounts[mission.id] || 0}
+                    已玩 {playCounts[mission.id] || 0} 次
                   </span>
                 </div>
                 <p className="text-[var(--color-text)] mb-4">{mission.description}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className="px-3 py-1 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-full text-sm">
-                    難度：{mission.difficulty}
+                    {MISSION_DIFFICULTY.find(d => d.id === mission.difficulty)?.label}
                   </span>
                   <span className="px-3 py-1 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-full text-sm">
-                    預計時間：{mission.estimatedDuration}
+                    預計 {mission.estimatedDuration}
                   </span>
                 </div>
-                <Link
-                  href={`/missions/${mission.id}`}
-                  className="block w-full text-center px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
+                <button
+                  onClick={() => router.push(`/missions/${mission.id}`)}
+                  className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-3 rounded-xl font-semibold shadow hover:bg-[var(--color-accent)] transition"
                 >
                   查看詳情
-                </Link>
+                </button>
               </div>
             </div>
           ))}

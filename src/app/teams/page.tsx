@@ -4,6 +4,7 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, getDoc, doc, query, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Team {
   id: string;
@@ -45,6 +46,7 @@ export default function TeamsPage() {
     completedAt: any;
   }>>([]);
   const [missionCheckpoints, setMissionCheckpoints] = useState<Record<string, number>>({});
+  const router = useRouter();
 
   useEffect(() => {
     async function loadTeams() {
@@ -156,16 +158,8 @@ export default function TeamsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg)] p-4">
-        <p className="text-[var(--color-text)]">請先登入以查看團隊</p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">
-        載入中...
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <p className="text-gray-600">請先登入以查看團隊</p>
       </div>
     );
   }
@@ -175,62 +169,59 @@ export default function TeamsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[var(--color-text)]">我的團隊</h1>
-          <Link
-            href="/teams/create"
-            className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
-          >
-            創建新團隊
-          </Link>
-        </div>
-
-        {teams.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-[var(--color-text)] mb-4">你還沒有加入任何團隊</p>
+          <div className="space-x-4">
             <Link
               href="/teams/create"
               className="inline-block px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
             >
-              創建第一個團隊
+              創建團隊
             </Link>
+            <Link
+              href="/teams/join"
+              className="inline-block px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-xl hover:bg-gray-300 transition"
+            >
+              加入團隊
+            </Link>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">載入中...</p>
+          </div>
+        ) : teams.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">你還沒有加入任何團隊</p>
           </div>
         ) : (
           <>
-            {/* 最近完成任務 */}
-            {recentMissions.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">最近完成任務</h2>
-                <div className="space-y-4">
-                  {recentMissions.map((mission, index) => (
-                    <div
-                      key={index}
-                      className="bg-[var(--color-card)] p-4 rounded-xl shadow-lg border border-gray-200"
-                    >
-                      <div className="text-[var(--color-text)] font-semibold">{mission.missionTitle}</div>
-                      <div className="text-[var(--color-text)] text-sm">
-                        團隊：{mission.teamName}
-                      </div>
-                      <div className="text-[var(--color-text)] text-sm">
-                        完成時間：{typeof mission.completedAt?.toDate === 'function' ? mission.completedAt.toDate().toLocaleString() : (mission.completedAt ? new Date(mission.completedAt).toLocaleString() : "未知")}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 團隊列表 */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 mb-6">
               {teams.map(team => (
                 <div key={team.id} className="block p-6 bg-[var(--color-card)] rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
                   <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-[var(--color-text)]">{team.name}</h3>
-                      <p className="text-[var(--color-text)] text-sm">
-                        成員數：{team.members?.length || 0}
-                      </p>
-                    </div>
-                    <div className="text-[var(--color-text)] text-sm">
-                      創建於：{team.createdAt?.toDate?.().toLocaleDateString() || "未知"}
+                    <h2 className="text-xl font-semibold text-[var(--color-text)]">{team.name}</h2>
+                    <span className="text-sm text-[var(--color-text)]">
+                      完成任務：{teamStats[team.id]?.completedMissions || 0}
+                    </span>
+                  </div>
+
+                  {/* 團隊成員 */}
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">團隊成員</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {team.members?.map(member => (
+                        <span 
+                          key={member.userId} 
+                          className={`inline-block px-3 py-1 rounded-full text-sm ${
+                            member.role === "A" 
+                              ? "bg-[var(--color-primary)] text-[var(--color-bg)]" 
+                              : "bg-[var(--color-secondary)] text-[var(--color-text)]"
+                          }`}
+                        >
+                          {userDisplayNames[member.userId] || "匿名"}
+                          {member.role === "A" && " (隊長)"}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
@@ -264,7 +255,7 @@ export default function TeamsPage() {
                     )}
                     <Link
                       href={`/teams/${team.id}`}
-                      className="inline-block px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-xl hover:bg-gray-200 transition"
+                      className="inline-block px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-xl hover:bg-gray-300 transition"
                     >
                       查看詳情
                     </Link>
@@ -272,6 +263,30 @@ export default function TeamsPage() {
                 </div>
               ))}
             </div>
+
+            {/* 最近完成任務 */}
+            {recentMissions.length > 0 && (
+              <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+                <h2 className="text-xl font-bold text-[var(--color-text)] mb-4">最近完成任務</h2>
+                <div className="space-y-4">
+                  {recentMissions.map((mission, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-[var(--color-secondary)] p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                      onClick={() => router.push(`/missions/${mission.missionId}/complete?teamId=${mission.teamId}`)}
+                    >
+                      <div className="text-[var(--color-text)] font-semibold">{mission.missionTitle}</div>
+                      <div className="text-[var(--color-text)] text-sm">
+                        團隊：{mission.teamName}
+                      </div>
+                      <div className="text-[var(--color-text)] text-sm">
+                        完成時間：{mission.completedAt?.toDate?.().toLocaleString() || "未知"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

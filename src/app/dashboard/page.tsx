@@ -130,7 +130,7 @@ export default function DashboardPage() {
   }, [activeTeamMissions]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">載入中...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
 
   return (
@@ -210,17 +210,17 @@ export default function DashboardPage() {
 
         {/* 我的團隊 */}
         {userTeams.length > 0 && (
-          <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-[var(--color-text)] mb-4">我的團隊</h2>
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-xl font-bold text-black mb-4">我的團隊</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {userTeams.map(team => (
                 <div 
                   key={team.id} 
-                  className="bg-[var(--color-secondary)] p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
                   onClick={() => router.push(`/teams/${team.id}`)}
                 >
-                  <div className="text-[var(--color-text)] font-semibold">{team.name}</div>
-                  <div className="text-[var(--color-text)] text-sm">
+                  <div className="text-black font-semibold">{team.name}</div>
+                  <div className="text-gray-600 text-sm">
                     成員數：{team.members?.length || 0}
                   </div>
                 </div>
