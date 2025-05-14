@@ -44,6 +44,7 @@ export default function TeamsPage() {
     missionTitle: string;
     completedAt: any;
   }>>([]);
+  const [missionCheckpoints, setMissionCheckpoints] = useState<Record<string, number>>({});
 
   useEffect(() => {
     async function loadTeams() {
@@ -138,6 +139,21 @@ export default function TeamsPage() {
     loadTeams();
   }, [user]);
 
+  useEffect(() => {
+    async function fetchCheckpoints() {
+      const result: Record<string, number> = {};
+      for (const team of teams) {
+        if (team.activeMission) {
+          const q = query(collection(db, "checkpoints"), where("missionId", "==", team.activeMission));
+          const cpSnap = await getDocs(q);
+          result[team.activeMission] = cpSnap.size;
+        }
+      }
+      setMissionCheckpoints(result);
+    }
+    if (teams.length > 0) fetchCheckpoints();
+  }, [teams]);
+
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
@@ -208,19 +224,19 @@ export default function TeamsPage() {
                   </div>
 
                   {/* 當前任務進度 */}
-                  {teamStats[team.id]?.activeMission && (
+                  {teamStats[team.id]?.activeMission && team.activeMission && (
                     <div className="mb-4">
                       <h3 className="text-sm font-medium text-gray-600 mb-2">當前任務進度</h3>
                       <div className="w-full bg-gray-100 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-black h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${(teamStats[team.id].activeMission.progress / teamStats[team.id].activeMission.totalCheckpoints) * 100}%` 
+                          style={{
+                            width: `${missionCheckpoints[team.activeMission] ? (teamStats[team.id].activeMission.progress / missionCheckpoints[team.activeMission]) * 100 : 0}%`
                           }}
                         />
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        {teamStats[team.id].activeMission.progress} / {teamStats[team.id].activeMission.totalCheckpoints} 檢查點
+                        {teamStats[team.id].activeMission.progress} / {missionCheckpoints[team.activeMission] || 0} 檢查點
                       </div>
                     </div>
                   )}
