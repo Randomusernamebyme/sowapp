@@ -6,6 +6,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import Image from "next/image";
 import { CHECKPOINT_TYPES, GEOGRAPHICAL_AREAS, MISSION_TYPES } from "@/lib/constants";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const AVATAR_OPTIONS = [
   "/avatars/avatar1.png",
@@ -24,6 +25,7 @@ export default function ProfileSetupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -218,6 +220,27 @@ export default function ProfileSetupPage() {
                     {type.label}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* 主題切換 */}
+            <div>
+              <label className="block text-gray-700 mb-2">主題顏色</label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  className={`px-4 py-2 rounded-full border transition font-semibold ${theme === 'bw' ? 'bg-black text-white border-black' : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'}`}
+                  onClick={() => setTheme('bw')}
+                >
+                  黑白灰
+                </button>
+                <button
+                  type="button"
+                  className={`px-4 py-2 rounded-full border transition font-semibold ${theme === 'pastel' ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'}`}
+                  onClick={() => setTheme('pastel')}
+                >
+                  彩色
+                </button>
               </div>
             </div>
 
