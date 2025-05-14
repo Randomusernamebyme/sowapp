@@ -175,13 +175,18 @@ export default function ActiveMissionPage() {
     const durationMs = durationMinutes * 60 * 1000;
     const endAt = new Date(startedAt.getTime() + durationMs);
     
+    // 追蹤上次提醒時間
+    let lastReminderTime = 0;
+    
     const timer = setInterval(() => {
       const now = new Date();
       const left = Math.max(0, Math.floor((endAt.getTime() - now.getTime()) / 1000));
       setTimeLeft(left);
       
       // 每 15 分鐘彈窗提醒
-      if (left > 0 && left % (15 * 60) === 0) {
+      const minutesLeft = Math.floor(left / 60);
+      if (minutesLeft > 0 && minutesLeft % 15 === 0 && minutesLeft !== lastReminderTime) {
+        lastReminderTime = minutesLeft;
         setShowTimeReminder(true);
       }
       
@@ -258,8 +263,16 @@ export default function ActiveMissionPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
           <div className="text-2xl font-bold text-black mb-2">剩餘時間提醒</div>
           <Image src={reminderImage} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
-          <div className="text-lg text-black mb-4">剩餘 {timeLeft ? Math.floor(timeLeft/60) : 0} 分鐘</div>
-          <button className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition" onClick={() => setShowTimeReminder(false)}>確認</button>
+          <div className="text-lg text-black mb-4">
+            剩餘 {timeLeft ? Math.floor(timeLeft/60) : 0} 分鐘
+            {timeLeft && timeLeft % 60 > 0 ? ` ${timeLeft % 60} 秒` : ''}
+          </div>
+          <button 
+            className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition" 
+            onClick={() => setShowTimeReminder(false)}
+          >
+            確認
+          </button>
         </div>
       </div>
     ) : null
