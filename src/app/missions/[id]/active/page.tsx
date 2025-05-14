@@ -164,22 +164,33 @@ export default function ActiveMissionPage() {
   // 倒數計時
   useEffect(() => {
     if (!mission || !team) return;
-    const startedAt = team.missionProgress?.startedAt ? new Date(team.missionProgress.startedAt) : new Date();
-    const durationMs = (parseInt(mission.estimatedDuration) || 60) * 60 * 1000;
+    
+    // 確保 startedAt 是有效的日期
+    const startedAt = team.missionProgress?.startedAt 
+      ? new Date(team.missionProgress.startedAt.seconds * 1000) 
+      : new Date();
+    
+    // 確保 estimatedDuration 是有效的數字
+    const durationMinutes = parseInt(mission.estimatedDuration) || 60;
+    const durationMs = durationMinutes * 60 * 1000;
     const endAt = new Date(startedAt.getTime() + durationMs);
+    
     const timer = setInterval(() => {
       const now = new Date();
       const left = Math.max(0, Math.floor((endAt.getTime() - now.getTime()) / 1000));
       setTimeLeft(left);
+      
       // 每 15 分鐘彈窗提醒
       if (left > 0 && left % (15 * 60) === 0) {
         setShowTimeReminder(true);
       }
+      
       if (left === 0) {
         clearInterval(timer);
         router.replace(`/missions/${id}/fail?teamId=${team.id}`);
       }
     }, 1000);
+    
     return () => clearInterval(timer);
   }, [mission, team, id, router]);
 
@@ -403,7 +414,7 @@ export default function ActiveMissionPage() {
       <TimeReminderModal />
       <div className="min-h-screen flex flex-col items-center bg-white pt-8">
         {/* 倒數計時器 */}
-        {timeLeft !== null && (
+        {timeLeft !== null && mission && (
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mb-4">
             <div className="flex justify-between items-center">
               <div className="text-gray-600">剩餘時間</div>
@@ -415,7 +426,7 @@ export default function ActiveMissionPage() {
               <div 
                 className="bg-black h-2 rounded-full transition-all duration-300"
                 style={{ 
-                  width: `${(timeLeft / (parseInt(mission?.estimatedDuration || "60") * 60)) * 100}%` 
+                  width: `${Math.max(0, Math.min(100, (timeLeft / (parseInt(mission.estimatedDuration) * 60)) * 100))}%` 
                 }}
               />
             </div>
