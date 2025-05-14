@@ -153,7 +153,7 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
             m.lat && m.lng ? (
               <Marker
                 key={uid}
-                position={{ lat: m.lat, lng: m.lng }}
+                position={{ lat: Number(m.lat), lng: Number(m.lng) }}
                 icon={L.divIcon({
                   className: 'member-marker',
                   html: m.avatarUrl
@@ -164,9 +164,9 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
                 <Popup>
                   <div className="text-black">
                     <div className="font-bold">{m.displayName || uid}</div>
-                    <div className="text-xs text-gray-500">({m.lat.toFixed(5)}, {m.lng.toFixed(5)})</div>
+                    <div className="text-xs text-gray-500">({Number(m.lat).toFixed(5)}, {Number(m.lng).toFixed(5)})</div>
                     {userLocation && (uid !== '你') && (
-                      <div className="text-xs mt-1">距離你：{Math.round(calculateDistance(userLocation.lat, userLocation.lng, m.lat, m.lng))} 米</div>
+                      <div className="text-xs mt-1">距離你：{Math.round(calculateDistance(userLocation.lat, userLocation.lng, Number(m.lat), Number(m.lng)))} 米</div>
                     )}
                   </div>
                 </Popup>
