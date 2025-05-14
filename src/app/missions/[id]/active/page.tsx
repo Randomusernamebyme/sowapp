@@ -402,6 +402,25 @@ export default function ActiveMissionPage() {
       <PasswordModal />
       <TimeReminderModal />
       <div className="min-h-screen flex flex-col items-center bg-white pt-8">
+        {/* 倒數計時器 */}
+        {timeLeft !== null && (
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mb-4">
+            <div className="flex justify-between items-center">
+              <div className="text-gray-600">剩餘時間</div>
+              <div className="text-2xl font-bold text-black">
+                {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+              </div>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
+              <div 
+                className="bg-black h-2 rounded-full transition-all duration-300"
+                style={{ 
+                  width: `${(timeLeft / (parseInt(mission?.estimatedDuration || "60") * 60)) * 100}%` 
+                }}
+              />
+            </div>
+          </div>
+        )}
         <div className={`w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 ${showPasswordModal ? 'z-0 pointer-events-none' : ''}`}>
           <MapView
             checkpoints={checkpoints}
