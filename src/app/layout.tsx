@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased bg-white text-black`}>
+      <body className={`${inter.variable} font-sans antialiased bg-[var(--color-bg)] text-[var(--color-text)]`}>
         <ThemeProvider>
           <AuthProvider>
             <Navbar />

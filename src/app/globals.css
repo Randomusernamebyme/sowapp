@@ -5,6 +5,12 @@
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  --color-bg: #fff;
+  --color-card: #fff;
+  --color-text: #111;
+  --color-primary: #111;
+  --color-secondary: #f7f7f7;
+  --color-accent: #000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,4 +23,22 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+}
+
+.theme-bw {
+  --color-bg: #fff;
+  --color-card: #fff;
+  --color-text: #111;
+  --color-primary: #111;
+  --color-secondary: #f7f7f7;
+  --color-accent: #000;
+}
+
+.theme-pastel {
+  --color-bg: #fdf6f0;
+  --color-card: #fff7fa;
+  --color-text: #4b3f2f;
+  --color-primary: #f7b2ad;
+  --color-secondary: #b2e0e6;
+  --color-accent: #a3c9a8;
 }

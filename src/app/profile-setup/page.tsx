@@ -102,10 +102,10 @@ export default function ProfileSetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-[var(--color-bg)] p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-          <h1 className="text-2xl font-bold mb-6 text-center text-black tracking-tight">個人檔案設定</h1>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h1 className="text-2xl font-bold mb-6 text-center text-[var(--color-text)] tracking-tight">個人檔案設定</h1>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 頭像選擇 */}
@@ -258,7 +258,7 @@ export default function ProfileSetupPage() {
             
             <button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition"
+              className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-3 rounded-xl font-semibold shadow hover:bg-[var(--color-accent)] transition"
               disabled={loading}
             >
               {loading ? "儲存中..." : "儲存並繼續"}
