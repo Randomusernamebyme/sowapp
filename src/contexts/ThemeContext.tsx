@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 
 const ThemeContext = createContext({
   theme: "bw",
@@ -15,21 +15,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<"bw" | "pastel">("bw");
 
   useEffect(() => {
-    async function fetchTheme() {
-      if (!user) return;
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    // 監聽 Firestore user 資料
+    const unsub = onSnapshot(userRef, (userSnap) => {
       if (userSnap.exists() && userSnap.data().theme) {
         setThemeState(userSnap.data().theme);
         document.documentElement.className = `theme-${userSnap.data().theme}`;
-        console.log("[ThemeContext] 讀取 user theme:", userSnap.data().theme);
+        console.log("[ThemeContext] onSnapshot user theme:", userSnap.data().theme);
       } else {
         setThemeState("bw");
         document.documentElement.className = "theme-bw";
         console.log("[ThemeContext] 預設 theme-bw");
       }
-    }
-    fetchTheme();
+    });
+    return () => unsub();
   }, [user]);
 
   const setTheme = async (t: "bw" | "pastel") => {

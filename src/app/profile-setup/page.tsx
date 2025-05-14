@@ -234,14 +234,14 @@ export default function ProfileSetupPage() {
                 <button
                   type="button"
                   className={`px-4 py-2 rounded-full border transition font-semibold ${theme === 'bw' ? 'bg-black text-white border-black' : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'}`}
-                  onClick={() => setTheme('bw')}
+                  onClick={async () => await setTheme('bw')}
                 >
                   黑白灰
                 </button>
                 <button
                   type="button"
                   className={`px-4 py-2 rounded-full border transition font-semibold ${theme === 'pastel' ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'}`}
-                  onClick={() => setTheme('pastel')}
+                  onClick={async () => await setTheme('pastel')}
                 >
                   彩色
                 </button>
