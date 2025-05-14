@@ -279,45 +279,45 @@ export default function TeamDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-[var(--color-bg)] p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">{team.name}</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">{team.name}</h1>
           <Link
             href="/teams"
-            className="text-gray-600 hover:text-black transition"
+            className="text-[var(--color-text)]/70 hover:text-[var(--color-primary)] transition"
           >
             返回團隊列表
           </Link>
         </div>
 
         {/* 團隊統計 */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-black mb-4">團隊統計</h2>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-6 mb-6">
+          <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">團隊統計</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">總任務數</div>
-              <div className="text-2xl font-bold text-black">{teamStats?.totalMissions || 0}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)]/70 text-sm">總任務數</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{teamStats?.totalMissions || 0}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">已完成任務</div>
-              <div className="text-2xl font-bold text-black">{teamStats?.completedMissions || 0}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)]/70 text-sm">已完成任務</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{teamStats?.completedMissions || 0}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">當前任務</div>
-              <div className="text-2xl font-bold text-black">{team.activeMission ? "進行中" : "無"}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)]/70 text-sm">當前任務</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{team.activeMission ? "進行中" : "無"}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">團隊成員</div>
-              <div className="text-2xl font-bold text-black">{team.members?.length || 0}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)]/70 text-sm">團隊成員</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{team.members?.length || 0}</div>
             </div>
           </div>
         </div>
 
         {/* 當前任務 */}
         {activeMission && team?.missionProgress?.currentCheckpoint && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-black mb-4">當前任務</h2>
+          <div className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-6 mb-6">
+            <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">當前任務</h2>
             <div className="flex items-center gap-4">
               {activeMission.imageUrl && (
                 <img 
@@ -327,23 +327,23 @@ export default function TeamDetailPage() {
                 />
               )}
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-black">{activeMission.title}</h3>
-                <p className="text-gray-600 text-sm mb-2">{activeMission.description}</p>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <h3 className="text-lg font-semibold text-[var(--color-text)]">{activeMission.title}</h3>
+                <p className="text-[var(--color-text)]/70 text-sm mb-2">{activeMission.description}</p>
+                <div className="flex items-center gap-4 text-sm text-[var(--color-text)]/60">
                   <span>難度：{activeMission.difficulty}</span>
                   <span>預估時間：{activeMission.estimatedDuration}</span>
                 </div>
                 {teamStats?.activeMission && (
                   <div className="mt-2">
-                    <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="w-full bg-[var(--color-secondary)] rounded-full h-2">
                       <div 
-                        className="bg-black h-2 rounded-full transition-all duration-300"
+                        className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
                         style={{ 
                           width: `${(team?.missionProgress?.completedCheckpoints?.length || 0) / (checkpoints?.length || 1) * 100}%` 
                         }}
                       />
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
+                    <div className="text-sm text-[var(--color-text)]/60 mt-1">
                       {team?.missionProgress?.completedCheckpoints?.length || 0} / {checkpoints?.length || 0} 檢查點
                     </div>
                   </div>
@@ -351,7 +351,7 @@ export default function TeamDetailPage() {
               </div>
               <Link
                 href={`/missions/${activeMission.id}/active?teamId=${team.id}`}
-                className="px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
               >
                 繼續任務
               </Link>
@@ -359,42 +359,21 @@ export default function TeamDetailPage() {
           </div>
         )}
 
-        {/* 已完成任務（改為最近完成任務） */}
-        {recentMissions.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-black mb-4">最近完成任務</h2>
-            <div className="space-y-4">
-              {recentMissions.map((mission, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
-                  onClick={() => window.location.href = `/missions/${mission.missionId}/complete?teamId=${mission.teamId}`}
-                >
-                  <div className="text-black font-semibold">{mission.missionTitle}</div>
-                  <div className="text-gray-600 text-sm">
-                    完成時間：{typeof mission.completedAt?.toDate === 'function' ? mission.completedAt.toDate().toLocaleString() : (mission.completedAt ? new Date(mission.completedAt).toLocaleString() : "未知")}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* 團隊資訊 */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-black mb-4">團隊資訊</h2>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-6 mb-6">
+          <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">團隊資訊</h2>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <span className="text-gray-600">團隊 ID</span>
-              <span className="text-black font-mono">{team.id}</span>
+            <div className="flex items-center justify-between p-4 bg-[var(--color-secondary)] rounded-xl">
+              <span className="text-[var(--color-text)]/70">團隊 ID</span>
+              <span className="text-[var(--color-text)] font-mono">{team.id}</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <span className="text-gray-600">邀請碼</span>
-              <span className="text-black font-mono">{team.inviteCode}</span>
+            <div className="flex items-center justify-between p-4 bg-[var(--color-secondary)] rounded-xl">
+              <span className="text-[var(--color-text)]/70">邀請碼</span>
+              <span className="text-[var(--color-text)] font-mono">{team.inviteCode}</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <span className="text-gray-600">創建時間</span>
-              <span className="text-black">
+            <div className="flex items-center justify-between p-4 bg-[var(--color-secondary)] rounded-xl">
+              <span className="text-[var(--color-text)]/70">創建時間</span>
+              <span className="text-[var(--color-text)]">
                 {team.createdAt?.toDate?.().toLocaleString() || "未知"}
               </span>
             </div>
@@ -402,22 +381,22 @@ export default function TeamDetailPage() {
         </div>
 
         {/* 成員列表 */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-black mb-4">成員列表</h2>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-6 mb-6">
+          <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">成員列表</h2>
           <div className="space-y-3">
             {team.members?.slice(0, 4).map((member) => (
               <div
                 key={member.userId}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+                className="flex items-center justify-between p-4 bg-[var(--color-secondary)] rounded-xl"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span className="text-black font-medium">
+                  <div className="w-8 h-8 bg-[var(--color-secondary)] rounded-lg flex items-center justify-center">
+                    <span className="text-[var(--color-text)] font-medium">
                       {(userDisplayNames[member.userId] || "匿名").charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <p className="text-black font-medium">
+                    <p className="text-[var(--color-text)] font-medium">
                       {userDisplayNames[member.userId] || "匿名"}
                       {member.role === "A" && " (隊長)"}
                     </p>
@@ -426,7 +405,7 @@ export default function TeamDetailPage() {
                         value={member.role}
                         onChange={(e) => handleUpdateRole(member.userId, e.target.value)}
                         disabled={updatingRole || member.userId !== user?.uid}
-                        className="text-sm bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-black"
+                        className="text-sm bg-[var(--color-card)] border border-[var(--color-secondary)] rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                       >
                         <option value="A">隊長</option>
                         <option value="B">成員</option>
@@ -437,8 +416,8 @@ export default function TeamDetailPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-sm">狀態</span>
-                  <span className="text-black text-sm">{member.status}</span>
+                  <span className="text-[var(--color-text)]/70 text-sm">狀態</span>
+                  <span className="text-[var(--color-text)] text-sm">{member.status}</span>
                 </div>
               </div>
             ))}
@@ -454,7 +433,7 @@ export default function TeamDetailPage() {
         <button
           onClick={handleLeaveTeam}
           disabled={leaving}
-          className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition disabled:opacity-50"
+          className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-3 rounded-xl font-semibold shadow hover:bg-[var(--color-accent)] transition disabled:opacity-50"
         >
           {leaving ? "離開中..." : "離開團隊"}
         </button>
