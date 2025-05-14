@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, getDocs, collection, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, getDocs, collection, onSnapshot, query, where } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const [userTeams, setUserTeams] = useState<Team[]>([]);
   const [completedMissions, setCompletedMissions] = useState<any[]>([]);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [missionCheckpoints, setMissionCheckpoints] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -113,6 +114,21 @@ export default function DashboardPage() {
     fetchUserData();
   }, [user]);
 
+  useEffect(() => {
+    async function fetchCheckpoints() {
+      const result: Record<string, number> = {};
+      for (const m of activeTeamMissions) {
+        if (m.missionId) {
+          const q = query(collection(db, "checkpoints"), where("missionId", "==", m.missionId));
+          const cpSnap = await getDocs(q);
+          result[m.missionId] = cpSnap.size;
+        }
+      }
+      setMissionCheckpoints(result);
+    }
+    if (activeTeamMissions.length > 0) fetchCheckpoints();
+  }, [activeTeamMissions]);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
   }
@@ -164,21 +180,30 @@ export default function DashboardPage() {
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
             <h2 className="text-xl font-bold text-black mb-4">進行中任務</h2>
             <div className="space-y-4">
-              {activeTeamMissions.map(m => (
-                <div key={m.teamId} className="bg-gray-50 p-4 rounded-xl">
-                  <div className="text-black font-semibold">{m.teamName}</div>
-                  <div className="text-gray-700">任務：{m.missionTitle}</div>
-                  <div className="text-gray-500 text-sm mb-2">
-                    進度：{m.missionProgress.completedCheckpoints?.length || 0} / ?
+              {activeTeamMissions.map(m => {
+                const total = missionCheckpoints[m.missionId] || 0;
+                const done = m.missionProgress.completedCheckpoints?.length || 0;
+                const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+                return (
+                  <div key={m.teamId} className="bg-gray-50 p-4 rounded-xl">
+                    <div className="text-black font-semibold">{m.teamName}</div>
+                    <div className="text-gray-700">任務：{m.missionTitle}</div>
+                    <div className="text-gray-500 text-sm mb-2 flex items-center gap-2">
+                      進度：{done} / {total} 檢查點
+                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden mx-2" style={{ minWidth: 60 }}>
+                        <div className="h-2 bg-black rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+                      </div>
+                      <span className="text-xs text-gray-400">{percent}%</span>
+                    </div>
+                    <button
+                      onClick={() => router.push(`/missions/${m.missionId}/active?teamId=${m.teamId}`)}
+                      className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                    >
+                      繼續任務
+                    </button>
                   </div>
-                  <button
-                    onClick={() => router.push(`/missions/${m.missionId}/active?teamId=${m.teamId}`)}
-                    className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
-                  >
-                    繼續任務
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
