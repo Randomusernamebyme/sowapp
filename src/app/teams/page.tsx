@@ -156,86 +156,97 @@ export default function TeamsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
-        <p className="text-gray-600">請先登入以查看團隊</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg)] p-4">
+        <p className="text-[var(--color-text)]">請先登入以查看團隊</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">
+        載入中...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-[var(--color-bg)] p-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">我的團隊</h1>
-          <div className="space-x-4">
-            <Link
-              href="/teams/join"
-              className="inline-block px-4 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
-            >
-              加入團隊
-            </Link>
-            <Link
-              href="/teams/create"
-              className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
-            >
-              創建團隊
-            </Link>
-          </div>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">我的團隊</h1>
+          <Link
+            href="/teams/create"
+            className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
+          >
+            創建新團隊
+          </Link>
         </div>
 
-        {loading ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">載入中...</p>
-          </div>
-        ) : teams.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">你還沒有加入任何團隊</p>
+        {teams.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-[var(--color-text)] mb-4">你還沒有加入任何團隊</p>
+            <Link
+              href="/teams/create"
+              className="inline-block px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
+            >
+              創建第一個團隊
+            </Link>
           </div>
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-2 mb-6">
-              {teams.map(team => (
-                <div key={team.id} className="block p-6 bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-semibold text-black">{team.name}</h2>
-                    <span className="text-sm text-gray-500">
-                      完成任務：{teamStats[team.id]?.completedMissions || 0}
-                    </span>
-                  </div>
+            {/* 最近完成任務 */}
+            {recentMissions.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-[var(--color-text)] mb-4">最近完成任務</h2>
+                <div className="space-y-4">
+                  {recentMissions.map((mission, index) => (
+                    <div
+                      key={index}
+                      className="bg-[var(--color-card)] p-4 rounded-xl shadow-lg border border-gray-200"
+                    >
+                      <div className="text-[var(--color-text)] font-semibold">{mission.missionTitle}</div>
+                      <div className="text-[var(--color-text)] text-sm">
+                        團隊：{mission.teamName}
+                      </div>
+                      <div className="text-[var(--color-text)] text-sm">
+                        完成時間：{typeof mission.completedAt?.toDate === 'function' ? mission.completedAt.toDate().toLocaleString() : (mission.completedAt ? new Date(mission.completedAt).toLocaleString() : "未知")}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                  {/* 團隊成員 */}
-                  <div className="mb-4">
-                    <h3 className="text-sm font-medium text-gray-600 mb-2">團隊成員</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {team.members?.map(member => (
-                        <span 
-                          key={member.userId} 
-                          className={`inline-block px-3 py-1 rounded-full text-sm ${
-                            member.role === "A" 
-                              ? "bg-black text-white" 
-                              : "bg-gray-100 text-black"
-                          }`}
-                        >
-                          {userDisplayNames[member.userId] || "匿名"}
-                          {member.role === "A" && " (隊長)"}
-                        </span>
-                      ))}
+            {/* 團隊列表 */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {teams.map(team => (
+                <div key={team.id} className="block p-6 bg-[var(--color-card)] rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-[var(--color-text)]">{team.name}</h3>
+                      <p className="text-[var(--color-text)] text-sm">
+                        成員數：{team.members?.length || 0}
+                      </p>
+                    </div>
+                    <div className="text-[var(--color-text)] text-sm">
+                      創建於：{team.createdAt?.toDate?.().toLocaleDateString() || "未知"}
                     </div>
                   </div>
 
                   {/* 當前任務進度 */}
                   {teamStats[team.id]?.activeMission && team.activeMission && (
                     <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-600 mb-2">當前任務進度</h3>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
+                      <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">當前任務進度</h3>
+                      <div className="w-full bg-[var(--color-secondary)] rounded-full h-2">
                         <div
-                          className="bg-black h-2 rounded-full transition-all duration-300"
+                          className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
                           style={{
                             width: `${missionCheckpoints[team.activeMission] ? (teamStats[team.id].activeMission.progress / missionCheckpoints[team.activeMission]) * 100 : 0}%`
                           }}
                         />
                       </div>
-                      <div className="text-sm text-gray-500 mt-1">
+                      <div className="text-sm text-[var(--color-text)] mt-1">
                         {teamStats[team.id].activeMission.progress} / {missionCheckpoints[team.activeMission] || 0} 檢查點
                       </div>
                     </div>
@@ -246,14 +257,14 @@ export default function TeamsPage() {
                     {team.activeMission && (
                       <Link
                         href={`/missions/${team.activeMission}/active?teamId=${team.id}`}
-                        className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                        className="inline-block px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
                       >
                         繼續任務
                       </Link>
                     )}
                     <Link
                       href={`/teams/${team.id}`}
-                      className="inline-block px-4 py-2 bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
+                      className="inline-block px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text)] rounded-xl hover:bg-gray-200 transition"
                     >
                       查看詳情
                     </Link>

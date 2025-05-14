@@ -130,45 +130,45 @@ export default function DashboardPage() {
   }, [activeTeamMissions]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">載入中...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-[var(--color-bg)] p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 用戶資訊卡片 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-          <h1 className="text-2xl font-bold mb-4 text-black tracking-tight">歡迎，{userData?.displayName || "用戶"}！</h1>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h1 className="text-2xl font-bold mb-4 text-[var(--color-text)] tracking-tight">歡迎，{userData?.displayName || "用戶"}！</h1>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">積分</div>
-              <div className="text-2xl font-bold text-black">{userData?.points || 0}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)] text-sm">積分</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{userData?.points || 0}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">完成任務</div>
-              <div className="text-2xl font-bold text-black">{completedMissions.length}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)] text-sm">完成任務</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{completedMissions.length}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">加入團隊</div>
-              <div className="text-2xl font-bold text-black">{userTeams.length}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)] text-sm">加入團隊</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{userTeams.length}</div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-600 text-sm">體能等級</div>
-              <div className="text-2xl font-bold text-black">{userData?.fitnessLevel || "未設定"}</div>
+            <div className="bg-[var(--color-secondary)] p-4 rounded-xl">
+              <div className="text-[var(--color-text)] text-sm">體能等級</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">{userData?.fitnessLevel || "未設定"}</div>
             </div>
           </div>
         </div>
 
         {/* 快速操作按鈕 */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
           <button
-            className="w-full bg-black text-white py-3 rounded-xl font-semibold shadow hover:bg-gray-800 transition"
+            className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-3 rounded-xl font-semibold shadow hover:bg-[var(--color-accent)] transition"
             onClick={() => router.push("/missions")}
           >
             開始新任務
           </button>
           <button
-            className="w-full bg-gray-200 text-black py-3 rounded-xl font-semibold shadow hover:bg-gray-300 transition"
+            className="w-full bg-[var(--color-secondary)] text-[var(--color-text)] py-3 rounded-xl font-semibold shadow hover:bg-gray-300 transition"
             onClick={() => router.push("/teams")}
           >
             加入/創建團隊
@@ -177,27 +177,27 @@ export default function DashboardPage() {
 
         {/* 進行中任務 */}
         {activeTeamMissions.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-black mb-4">進行中任務</h2>
+          <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-xl font-bold text-[var(--color-text)] mb-4">進行中任務</h2>
             <div className="space-y-4">
               {activeTeamMissions.map(m => {
                 const total = missionCheckpoints[m.missionId] || 0;
                 const done = m.missionProgress.completedCheckpoints?.length || 0;
                 const percent = total > 0 ? Math.round((done / total) * 100) : 0;
                 return (
-                  <div key={m.teamId} className="bg-gray-50 p-4 rounded-xl">
-                    <div className="text-black font-semibold">{m.teamName}</div>
-                    <div className="text-gray-700">任務：{m.missionTitle}</div>
-                    <div className="text-gray-500 text-sm mb-2 flex items-center gap-2">
+                  <div key={m.teamId} className="bg-[var(--color-secondary)] p-4 rounded-xl">
+                    <div className="text-[var(--color-text)] font-semibold">{m.teamName}</div>
+                    <div className="text-[var(--color-text)]">任務：{m.missionTitle}</div>
+                    <div className="text-[var(--color-text)] text-sm mb-2 flex items-center gap-2">
                       進度：{done} / {total} 檢查點
                       <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden mx-2" style={{ minWidth: 60 }}>
-                        <div className="h-2 bg-black rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+                        <div className="h-2 bg-[var(--color-primary)] rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
                       </div>
-                      <span className="text-xs text-gray-400">{percent}%</span>
+                      <span className="text-xs text-[var(--color-text)]">{percent}%</span>
                     </div>
                     <button
                       onClick={() => router.push(`/missions/${m.missionId}/active?teamId=${m.teamId}`)}
-                      className="inline-block px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition"
+                      className="inline-block px-4 py-2 bg-[var(--color-primary)] text-[var(--color-bg)] rounded-xl hover:bg-[var(--color-accent)] transition"
                     >
                       繼續任務
                     </button>
@@ -210,17 +210,17 @@ export default function DashboardPage() {
 
         {/* 我的團隊 */}
         {userTeams.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-black mb-4">我的團隊</h2>
+          <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-xl font-bold text-[var(--color-text)] mb-4">我的團隊</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {userTeams.map(team => (
                 <div 
                   key={team.id} 
-                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  className="bg-[var(--color-secondary)] p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
                   onClick={() => router.push(`/teams/${team.id}`)}
                 >
-                  <div className="text-black font-semibold">{team.name}</div>
-                  <div className="text-gray-600 text-sm">
+                  <div className="text-[var(--color-text)] font-semibold">{team.name}</div>
+                  <div className="text-[var(--color-text)] text-sm">
                     成員數：{team.members?.length || 0}
                   </div>
                 </div>
@@ -231,20 +231,20 @@ export default function DashboardPage() {
 
         {/* 最近活動 */}
         {recentActivities.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-black mb-4">最近活動</h2>
+          <div className="bg-[var(--color-card)] rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-xl font-bold text-[var(--color-text)] mb-4">最近活動</h2>
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
                 <div 
                   key={index} 
-                  className="bg-gray-50 p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                  className="bg-[var(--color-secondary)] p-4 rounded-xl cursor-pointer hover:bg-gray-100 transition"
                   onClick={() => router.push(`/missions/${activity.missionId}/complete?teamId=${activity.teamId}`)}
                 >
-                  <div className="text-black font-semibold">{activity.missionTitle}</div>
-                  <div className="text-gray-600 text-sm">
+                  <div className="text-[var(--color-text)] font-semibold">{activity.missionTitle}</div>
+                  <div className="text-[var(--color-text)] text-sm">
                     團隊：{activity.teamName}
                   </div>
-                  <div className="text-gray-500 text-sm">
+                  <div className="text-[var(--color-text)] text-sm">
                     完成時間：{activity.completedAt?.toDate?.().toLocaleString() || "未知"}
                   </div>
                 </div>

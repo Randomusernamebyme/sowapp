@@ -1,0 +1,338 @@
+[debug] [2025-05-11T15:35:55.145Z] ----------------------------------------------------------------------
+[debug] [2025-05-11T15:35:55.159Z] Command:       C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-05-11T15:35:55.160Z] CLI Version:   13.31.1
+[debug] [2025-05-11T15:35:55.160Z] Platform:      win32
+[debug] [2025-05-11T15:35:55.160Z] Node Version:  v22.13.1
+[debug] [2025-05-11T15:35:55.161Z] Time:          Sun May 11 2025 23:35:55 GMT+0800 (Hong Kong Standard Time)
+[debug] [2025-05-11T15:35:55.161Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-11T15:35:55.179Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-05-11T15:35:55.268Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T15:35:55.269Z] > authorizing via signed-in user (jiayiannie@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\annie\OneDrive\Desktop\sow
+
+[debug] [2025-05-11T15:35:55.845Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-05-11T15:35:55.845Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-05-11T15:38:31.635Z] ----------------------------------------------------------------------
+[debug] [2025-05-11T15:38:31.638Z] Command:       C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-05-11T15:38:31.638Z] CLI Version:   13.31.1
+[debug] [2025-05-11T15:38:31.638Z] Platform:      win32
+[debug] [2025-05-11T15:38:31.638Z] Node Version:  v22.13.1
+[debug] [2025-05-11T15:38:31.639Z] Time:          Sun May 11 2025 23:38:31 GMT+0800 (Hong Kong Standard Time)
+[debug] [2025-05-11T15:38:31.639Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-11T15:38:31.646Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T15:38:31.647Z] > authorizing via signed-in user (jiayiannie@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\annie\OneDrive\Desktop\sow
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-05-11T15:41:49.384Z] Checked if tokens are valid: false, expires at: 1739966788413
+[debug] [2025-05-11T15:41:49.385Z] Checked if tokens are valid: false, expires at: 1739966788413
+[debug] [2025-05-11T15:41:49.385Z] > refreshing access token with scopes: []
+[debug] [2025-05-11T15:41:49.387Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-11T15:41:49.387Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-11T15:41:49.657Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-11T15:41:49.657Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-11T15:41:49.680Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2025-05-11T15:41:50.419Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2025-05-11T15:41:50.419Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] i  Using project sowapp-3d85f (sowapp) 
+[info] 
+=== Dataconnect Setup
+[debug] [2025-05-11T15:41:53.165Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:53.165Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:53.165Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/sowapp-3d85f/billingInfo [none]
+[debug] [2025-05-11T15:41:54.342Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/sowapp-3d85f/billingInfo 200
+[debug] [2025-05-11T15:41:54.343Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/sowapp-3d85f/billingInfo {"name":"projects/sowapp-3d85f/billingInfo","projectId":"sowapp-3d85f","billingAccountName":"billingAccounts/01A694-8885DC-78C45F","billingEnabled":true}
+[info] i  dataconnect: ensuring required API firebasedataconnect.googleapis.com is enabled... 
+[debug] [2025-05-11T15:41:54.346Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:54.347Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:54.347Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-05-11T15:41:54.347Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:41:55.698Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-05-11T15:41:55.698Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com [omitted]
+[warn] !  dataconnect: missing required API firebasedataconnect.googleapis.com. Enabling now... 
+[debug] [2025-05-11T15:41:55.701Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:55.701Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:41:55.702Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com:enable [none]
+[debug] [2025-05-11T15:41:55.702Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com:enable x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:41:56.978Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com:enable 200
+[debug] [2025-05-11T15:41:56.978Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com:enable [omitted]
+[debug] [2025-05-11T15:42:06.981Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:06.982Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:06.982Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-05-11T15:42:06.982Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:08.215Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-05-11T15:42:08.215Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firebasedataconnect.googleapis.com [omitted]
+[info] +  dataconnect: required API firebasedataconnect.googleapis.com is enabled 
+[info] i  dataconnect: ensuring required API sqladmin.googleapis.com is enabled... 
+[debug] [2025-05-11T15:42:08.219Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:08.219Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:08.219Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com [none]
+[debug] [2025-05-11T15:42:08.219Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:09.615Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com 200
+[debug] [2025-05-11T15:42:09.615Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com [omitted]
+[warn] !  dataconnect: missing required API sqladmin.googleapis.com. Enabling now... 
+[debug] [2025-05-11T15:42:09.618Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:09.618Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:09.618Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com:enable [none]
+[debug] [2025-05-11T15:42:09.618Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com:enable x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:10.861Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com:enable 200
+[debug] [2025-05-11T15:42:10.862Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com:enable [omitted]
+[debug] [2025-05-11T15:42:20.864Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:20.864Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:20.864Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com [none]
+[debug] [2025-05-11T15:42:20.865Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:22.200Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com 200
+[debug] [2025-05-11T15:42:22.200Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/sqladmin.googleapis.com [omitted]
+[info] +  dataconnect: required API sqladmin.googleapis.com is enabled 
+[info] i  dataconnect: ensuring required API compute.googleapis.com is enabled... 
+[debug] [2025-05-11T15:42:22.203Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:22.203Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:22.203Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:42:22.203Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:25.806Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:42:25.806Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[warn] !  dataconnect: missing required API compute.googleapis.com. Enabling now... 
+[debug] [2025-05-11T15:42:25.807Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:25.807Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:25.807Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com:enable [none]
+[debug] [2025-05-11T15:42:25.807Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com:enable x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:28.960Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com:enable 200
+[debug] [2025-05-11T15:42:28.960Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com:enable [omitted]
+[debug] [2025-05-11T15:42:38.961Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:38.962Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:38.962Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:42:38.962Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:40.599Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:42:40.600Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] i  dataconnect: waiting for API compute.googleapis.com to activate... 
+[debug] [2025-05-11T15:42:50.605Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:50.606Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:42:50.606Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:42:50.606Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:42:52.476Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:42:52.476Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] i  dataconnect: waiting for API compute.googleapis.com to activate... 
+[debug] [2025-05-11T15:43:02.490Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:02.490Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:02.490Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:43:02.490Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:43:04.075Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:43:04.075Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] i  dataconnect: waiting for API compute.googleapis.com to activate... 
+[debug] [2025-05-11T15:43:14.079Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:14.079Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:14.079Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:43:14.079Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:43:15.719Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:43:15.719Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] i  dataconnect: waiting for API compute.googleapis.com to activate... 
+[debug] [2025-05-11T15:43:25.724Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:25.724Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:25.724Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:43:25.724Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:43:27.511Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:43:27.511Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] i  dataconnect: waiting for API compute.googleapis.com to activate... 
+[debug] [2025-05-11T15:43:37.533Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:37.534Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:37.534Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [none]
+[debug] [2025-05-11T15:43:37.534Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:43:39.119Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com 200
+[debug] [2025-05-11T15:43:39.119Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/compute.googleapis.com [omitted]
+[info] +  dataconnect: required API compute.googleapis.com is enabled 
+[debug] [2025-05-11T15:43:39.122Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:39.122Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:43:39.122Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations/-/services [none]
+[debug] [2025-05-11T15:43:40.699Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations/-/services 200
+[debug] [2025-05-11T15:43:40.699Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations/-/services {}
+[debug] [2025-05-11T15:50:53.136Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:53.136Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:53.136Z] >>> [apiv2][query] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances [none]
+[debug] [2025-05-11T15:50:54.063Z] <<< [apiv2][status] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances 200
+[debug] [2025-05-11T15:50:54.063Z] <<< [apiv2][body] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances {}
+[debug] [2025-05-11T15:50:55.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:55.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:55.306Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations [none]
+[debug] [2025-05-11T15:50:56.550Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations 200
+[debug] [2025-05-11T15:50:56.550Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/sowapp-3d85f/locations {"locations":[{"name":"projects/sowapp-3d85f/locations/asia-east1","locationId":"asia-east1","displayName":"Taiwan"},{"name":"projects/sowapp-3d85f/locations/asia-east2","locationId":"asia-east2","displayName":"Hong Kong"},{"name":"projects/sowapp-3d85f/locations/asia-northeast1","locationId":"asia-northeast1","displayName":"Tokyo"},{"name":"projects/sowapp-3d85f/locations/asia-northeast2","locationId":"asia-northeast2","displayName":"Osaka"},{"name":"projects/sowapp-3d85f/locations/asia-northeast3","locationId":"asia-northeast3","displayName":"Seoul"},{"name":"projects/sowapp-3d85f/locations/asia-south1","locationId":"asia-south1","displayName":"Mumbai"},{"name":"projects/sowapp-3d85f/locations/asia-southeast1","locationId":"asia-southeast1","displayName":"Singapore"},{"name":"projects/sowapp-3d85f/locations/asia-southeast2","locationId":"asia-southeast2","displayName":"Jakarta"},{"name":"projects/sowapp-3d85f/locations/australia-southeast1","locationId":"australia-southeast1","displayName":"Sydney"},{"name":"projects/sowapp-3d85f/locations/australia-southeast2","locationId":"australia-southeast2","displayName":"Melbourne"},{"name":"projects/sowapp-3d85f/locations/europe-central2","locationId":"europe-central2","displayName":"Warsaw"},{"name":"projects/sowapp-3d85f/locations/europe-north1","locationId":"europe-north1","displayName":"Finland"},{"name":"projects/sowapp-3d85f/locations/europe-southwest1","locationId":"europe-southwest1","displayName":"Madrid"},{"name":"projects/sowapp-3d85f/locations/europe-west1","locationId":"europe-west1","displayName":"Belgium"},{"name":"projects/sowapp-3d85f/locations/europe-west2","locationId":"europe-west2","displayName":"London"},{"name":"projects/sowapp-3d85f/locations/europe-west3","locationId":"europe-west3","displayName":"Frankfurt"},{"name":"projects/sowapp-3d85f/locations/europe-west4","locationId":"europe-west4","displayName":"Netherlands"},{"name":"projects/sowapp-3d85f/locations/europe-west6","locationId":"europe-west6","displayName":"Zurich"},{"name":"projects/sowapp-3d85f/locations/europe-west8","locationId":"europe-west8","displayName":"Milan"},{"name":"projects/sowapp-3d85f/locations/europe-west9","locationId":"europe-west9","displayName":"Paris"},{"name":"projects/sowapp-3d85f/locations/me-west1","locationId":"me-west1","displayName":"Tel Aviv"},{"name":"projects/sowapp-3d85f/locations/northamerica-northeast1","locationId":"northamerica-northeast1","displayName":"Montréal"},{"name":"projects/sowapp-3d85f/locations/northamerica-northeast2","locationId":"northamerica-northeast2","displayName":"Toronto"},{"name":"projects/sowapp-3d85f/locations/southamerica-east1","locationId":"southamerica-east1","displayName":"São Paulo"},{"name":"projects/sowapp-3d85f/locations/southamerica-west1","locationId":"southamerica-west1","displayName":"Santiago"},{"name":"projects/sowapp-3d85f/locations/us-central1","locationId":"us-central1","displayName":"Iowa"},{"name":"projects/sowapp-3d85f/locations/us-east1","locationId":"us-east1","displayName":"South Carolina"},{"name":"projects/sowapp-3d85f/locations/us-east4","locationId":"us-east4","displayName":"Northern Virginia"},{"name":"projects/sowapp-3d85f/locations/us-south1","locationId":"us-south1","displayName":"Dallas"},{"name":"projects/sowapp-3d85f/locations/us-west1","locationId":"us-west1","displayName":"Oregon"},{"name":"projects/sowapp-3d85f/locations/us-west2","locationId":"us-west2","displayName":"Los Angeles"},{"name":"projects/sowapp-3d85f/locations/us-west3","locationId":"us-west3","displayName":"Salt Lake City"},{"name":"projects/sowapp-3d85f/locations/us-west4","locationId":"us-west4","displayName":"Las Vegas"}]}
+[debug] [2025-05-11T15:50:59.035Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:59.035Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:50:59.035Z] >>> [apiv2][query] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc/databases [none]
+[debug] [2025-05-11T15:50:59.471Z] <<< [apiv2][status] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc/databases 404
+[debug] [2025-05-11T15:50:59.471Z] <<< [apiv2][body] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc/databases {"error":{"code":404,"message":"Not Found","errors":[{"message":"Not Found","domain":"global","reason":"notFound"}]}}
+[debug] [2025-05-11T15:50:59.473Z] [dataconnect] Cannot list databases during init: FirebaseError: Request to https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc/databases had HTTP Error: 404, Not Found
+[info] +  Wrote dataconnect\dataconnect.yaml 
+[info] +  Wrote dataconnect\schema\schema.gql 
+[info] +  Wrote dataconnect\connector\connector.yaml 
+[info] +  Wrote dataconnect\connector\queries.gql 
+[info] +  Wrote dataconnect\connector\mutations.gql 
+[debug] [2025-05-11T15:51:06.988Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:51:06.988Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:51:06.988Z] >>> [apiv2][query] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc [none]
+[debug] [2025-05-11T15:51:07.405Z] <<< [apiv2][status] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc 404
+[debug] [2025-05-11T15:51:07.405Z] <<< [apiv2][body] GET https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc {"error":{"code":404,"message":"The Cloud SQL instance does not exist.","errors":[{"message":"The Cloud SQL instance does not exist.","domain":"global","reason":"instanceDoesNotExist"}]}}
+[warn] !  dataconnect: The no-cost Cloud SQL trial instance does not support customer managed encryption keys.
+If you'd like to use a CMEK to encrypt your data, first create a CMEK encrypted instance (https://cloud.google.com/sql/docs/postgres/configure-cmek#createcmekinstance).
+Then, edit your `dataconnect.yaml` file to use the encrypted instance and redeploy. 
+[info] i  dataconnect: CloudSQL instance 'sow-fdc' not found.Creating it now.
+This instance is provided under the terms of the Data Connect no-cost trial https://firebase.google.com/pricing
+Monitor the progress at https://console.cloud.google.com/sql/instances/sow-fdc/overview?project=sowapp-3d85f 
+[debug] [2025-05-11T15:51:07.413Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:51:07.413Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:51:07.413Z] >>> [apiv2][query] POST https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances [none]
+[debug] [2025-05-11T15:51:07.414Z] >>> [apiv2][body] POST https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances {"name":"sow-fdc","region":"asia-east1","databaseVersion":"POSTGRES_15","settings":{"tier":"db-f1-micro","edition":"ENTERPRISE","ipConfiguration":{"authorizedNetworks":[]},"enableGoogleMlIntegration":false,"databaseFlags":[{"name":"cloudsql.iam_authentication","value":"on"}],"storageAutoResize":false,"userLabels":{"firebase-data-connect":"ft"},"insightsConfig":{"queryInsightsEnabled":true,"queryPlansPerMinute":5,"queryStringLength":1024}}}
+[debug] [2025-05-11T15:51:12.596Z] <<< [apiv2][status] POST https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances 200
+[debug] [2025-05-11T15:51:12.597Z] <<< [apiv2][body] POST https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances {"kind":"sql#operation","targetLink":"https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/instances/sow-fdc","status":"PENDING","user":"jiayiannie@gmail.com","insertTime":"2025-05-11T15:51:13.383Z","operationType":"CREATE","name":"664a15b8-37c1-4cb5-994b-3a6d00000025","targetId":"sow-fdc","selfLink":"https://sqladmin.googleapis.com/v1/projects/sowapp-3d85f/operations/664a15b8-37c1-4cb5-994b-3a6d00000025","targetProject":"sowapp-3d85f"}
+[info] i  dataconnect: Cloud SQL instance creation started - it should be ready shortly. Database and users will be created on your next deploy. 
+[info] +  Detected WEB app in directory C:\Users\annie\OneDrive\Desktop\sow 
+[info] i  Wrote new config to C:\Users\annie\OneDrive\Desktop\sow\dataconnect\connector/connector.yaml 
+[info] i  dataconnect: downloading dataconnect-emulator-1.8.1.exe... {"metadata":{"emulator":{"name":"dataconnect"},"message":"downloading dataconnect-emulator-1.8.1.exe..."}}
+[debug] [2025-05-11T15:52:03.493Z] >>> [apiv2][query] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.8.1 
+[debug] [2025-05-11T15:52:04.092Z] <<< [apiv2][status] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.8.1 200
+[debug] [2025-05-11T15:52:04.092Z] <<< [apiv2][body] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-v1.8.1 [stream]
+[info] I0511 23:53:27.777501   13696 codegen.go:82] [connector "default" javascriptSdk] Generating sources into "C:\\Users\\annie\\OneDrive\\Desktop\\sow\\dataconnect-generated\\js\\default-connector"
+I0511 23:53:27.788120   13696 generate.go:40] Generated all sources. Writing them to disk...
+I0511 23:53:27.822402   13696 collector.go:107] connector "default" javascriptSdk wrote into "C:\\Users\\annie\\OneDrive\\Desktop\\sow\\dataconnect-generated\\js\\default-connector"
+Generated sources: index.d.ts [259B] esm\index.esm.js [161B] react\esm\index.esm.js [182B] react\index.d.ts [181B] react\package.json [468B] react\esm\package.json [17B] react\index.cjs.js [195B] esm\package.json [17B] index.cjs.js [202B] package.json [819B] README.md [2740B] 
+I0511 23:53:27.854761   13696 installsdk.go:76] Running command: C:\nvm4w\nodejs\npm.cmd install file:dataconnect-generated\js\default-connector
+E0511 23:53:54.251803   13696 installsdk.go:78] Failed to install package: exit status 1
+
+[info] i  Generated SDK code for default 
+[info] +  If you'd like to add more generated SDKs to your app your later, run firebase init dataconnect:sdk again 
+[info] 
+=== Firestore Setup
+[debug] [2025-05-11T15:53:54.256Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:54.256Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:54.256Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firestore.googleapis.com [none]
+[debug] [2025-05-11T15:53:54.257Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firestore.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:53:55.545Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firestore.googleapis.com 200
+[debug] [2025-05-11T15:53:55.546Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/firestore.googleapis.com [omitted]
+[debug] [2025-05-11T15:53:55.547Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:55.547Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:55.547Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default) [none]
+[debug] [2025-05-11T15:53:56.822Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default) 200
+[debug] [2025-05-11T15:53:56.822Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default) {"name":"projects/sowapp-3d85f/databases/(default)","uid":"78e9cc19-4ddf-416a-b20b-ad8a67e3b9df","createTime":"2025-05-09T16:20:00.919293Z","updateTime":"2025-05-09T16:20:00.919293Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2025-05-11T14:53:57.585113Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"etag":"IOu0rajjm40DMOT6747nlo0D"}
+[debug] [2025-05-11T15:53:56.822Z] database_type: FIRESTORE_NATIVE
+[debug] [2025-05-11T15:53:56.822Z] database_type: FIRESTORE_NATIVE
+[debug] [2025-05-11T15:53:56.822Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T15:53:56.823Z] > authorizing via signed-in user (jiayiannie@gmail.com)
+[debug] [2025-05-11T15:53:56.823Z] [iam] checking project sowapp-3d85f for permissions ["firebase.projects.get"]
+[debug] [2025-05-11T15:53:56.823Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:56.823Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:53:56.823Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions [none]
+[debug] [2025-05-11T15:53:56.823Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:53:56.823Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-05-11T15:53:57.801Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions 200
+[debug] [2025-05-11T15:53:57.801Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[info] 
+[info] Firestore Security Rules allow you to define how and when to allow
+[info] requests. You can keep these rules in your project directory
+[info] and publish them with firebase deploy.
+[info] 
+[debug] [2025-05-11T15:56:26.164Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:26.165Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:26.165Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/releases pageSize=10&pageToken=
+[debug] [2025-05-11T15:56:27.383Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/releases 200
+[debug] [2025-05-11T15:56:27.383Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/releases {"releases":[{"name":"projects/sowapp-3d85f/releases/cloud.firestore","rulesetName":"projects/sowapp-3d85f/rulesets/dd41c7aa-dd46-45d0-a7c0-ad9cf9c89001","createTime":"2025-05-09T16:20:05.971152Z","updateTime":"2025-05-11T15:20:26.197186Z"},{"name":"projects/sowapp-3d85f/releases/firebase.storage/sowapp-3d85f.firebasestorage.app","rulesetName":"projects/sowapp-3d85f/rulesets/c4317e4c-db23-4727-9c9a-c0945287350d","createTime":"2025-05-09T16:15:19.687979Z","updateTime":"2025-05-09T16:20:59.456434Z"}]}
+[debug] [2025-05-11T15:56:27.383Z] Found ruleset: projects/sowapp-3d85f/rulesets/dd41c7aa-dd46-45d0-a7c0-ad9cf9c89001
+[debug] [2025-05-11T15:56:27.384Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:27.384Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:27.384Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/rulesets/dd41c7aa-dd46-45d0-a7c0-ad9cf9c89001 [none]
+[debug] [2025-05-11T15:56:28.382Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/rulesets/dd41c7aa-dd46-45d0-a7c0-ad9cf9c89001 200
+[debug] [2025-05-11T15:56:28.382Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/sowapp-3d85f/rulesets/dd41c7aa-dd46-45d0-a7c0-ad9cf9c89001 [omitted]
+[info] 
+[info] Firestore indexes allow you to perform complex queries while
+[info] maintaining performance that scales with the size of the result
+[info] set. You can keep index definitions in your project directory
+[info] and publish them with firebase deploy.
+[info] 
+[debug] [2025-05-11T15:56:42.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:42.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:42.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:42.306Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:42.306Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/indexes [none]
+[debug] [2025-05-11T15:56:42.307Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* [none]
+[debug] [2025-05-11T15:56:43.521Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/indexes 200
+[debug] [2025-05-11T15:56:43.522Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/indexes {}
+[debug] [2025-05-11T15:56:43.550Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* 200
+[debug] [2025-05-11T15:56:43.550Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/sowapp-3d85f/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* {"fields":[{"name":"projects/sowapp-3d85f/databases/(default)/collectionGroups/__default__/fields/*","indexConfig":{"indexes":[{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"ASCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"DESCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","arrayConfig":"CONTAINS"}],"state":"READY"}]}}]}
+[info] 
+=== Genkit Setup
+[debug] [2025-05-11T15:56:51.401Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T15:56:51.401Z] > authorizing via signed-in user (jiayiannie@gmail.com)
+[debug] [2025-05-11T15:56:51.401Z] [iam] checking project sowapp-3d85f for permissions ["firebase.projects.get"]
+[debug] [2025-05-11T15:56:51.402Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:51.402Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:51.402Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions [none]
+[debug] [2025-05-11T15:56:51.402Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:56:51.402Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-05-11T15:56:52.333Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions 200
+[debug] [2025-05-11T15:56:52.333Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/sowapp-3d85f:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-05-11T15:56:52.333Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:52.333Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:52.333Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:52.334Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:52.334Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-11T15:56:52.334Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:56:52.335Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-05-11T15:56:52.335Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:56:53.575Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/runtimeconfig.googleapis.com 200
+[debug] [2025-05-11T15:56:53.575Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-05-11T15:56:53.586Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-11T15:56:53.586Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-05-11T15:56:53.587Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:53.587Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:56:53.587Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com:enable [none]
+[debug] [2025-05-11T15:56:53.587Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com:enable x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:56:54.905Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com:enable 200
+[debug] [2025-05-11T15:56:54.906Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com:enable [omitted]
+[debug] [2025-05-11T15:57:04.909Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:57:04.910Z] Checked if tokens are valid: true, expires at: 1746981708657
+[debug] [2025-05-11T15:57:04.911Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-11T15:57:04.911Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/sowapp-3d85f
+[debug] [2025-05-11T15:57:06.375Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-11T15:57:06.375Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/sowapp-3d85f/services/cloudfunctions.googleapis.com [omitted]
+[info] Let's create a new codebase for your functions.
+[info] A directory corresponding to the codebase will be created in your project
+[info] with sample code pre-configured.
+
+[info] See https://firebase.google.com/docs/functions/organize-functions for
+[info] more information on organizing your functions using codebases.
+
+[info] Functions can be deployed with firebase deploy.
+
+[info] +  Wrote functions/package.json 
+[info] +  Wrote functions/.eslintrc.js 
+[info] +  Wrote functions/tsconfig.json 
+[info] +  Wrote functions/tsconfig.dev.json 
+[info] +  Wrote functions/src/index.ts 
+[info] +  Wrote functions/.gitignore 
+[info] 
+[info] i  genkit: Installing Genkit CLI version 1.8.0
+ 
