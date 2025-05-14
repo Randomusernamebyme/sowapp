@@ -43,9 +43,12 @@ export default function ProfileSetupPage() {
         setSelectedCheckpointTypes(data.preferredCheckpointTypes || []);
         setSelectedGeographicalAreas(data.preferredGeographicalAreas || []);
         setSelectedMissionTypes(data.preferredMissionTypes || []);
+        if (data.theme) {
+          setTheme(data.theme);
+        }
       }
     });
-  }, [router]);
+  }, [router, setTheme]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +70,7 @@ export default function ProfileSetupPage() {
           preferredMissionTypes: selectedMissionTypes,
           email: user.email,
           updatedAt: new Date(),
+          theme,
         }, { merge: true });
         router.push("/dashboard");
       } catch (err: any) {
