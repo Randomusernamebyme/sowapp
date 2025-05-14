@@ -179,8 +179,8 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
 
       {/* 距離和方向指示器 */}
       {distance !== null && bearing !== null && (
-        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow">
-          <div className="flex justify-between items-center">
+        <>
+          <div className="bg-white rounded-xl p-4 border border-gray-200 shadow flex justify-between items-center">
             <div>
               <div className="text-gray-600 text-sm">距離下一個檢查點</div>
               <div className="text-xl font-bold text-black">
@@ -203,7 +203,10 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
               </div>
             </div>
           </div>
-        </div>
+          <div className="w-full flex justify-center items-center my-2">
+            <span className="text-orange-500 font-bold text-base bg-white rounded-full px-4 py-1 shadow border border-orange-200">小心道路安全</span>
+          </div>
+        </>
       )}
     </div>
   );
