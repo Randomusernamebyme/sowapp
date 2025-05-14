@@ -231,15 +231,15 @@ export default function ActiveMissionPage() {
   const PasswordModal = () => (
     showPasswordModal ? (
       <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
-          <div className="text-2xl font-bold text-black mb-2">{lastPasswordDigit ? '密碼數字' : '完成檢查點'}</div>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+          <div className="text-2xl font-bold text-[var(--color-text)] mb-2">{lastPasswordDigit ? '密碼數字' : '完成檢查點'}</div>
           {lastPasswordDigit ? (
-            <div className="text-5xl font-mono text-black mb-4 tracking-widest">{lastPasswordDigit}</div>
+            <div className="text-5xl font-mono text-[var(--color-text)] mb-4 tracking-widest">{lastPasswordDigit}</div>
           ) : (
-            <div className="text-lg text-black mb-4">已完成此檢查點！</div>
+            <div className="text-lg text-[var(--color-text)] mb-4">已完成此檢查點！</div>
           )}
           <button
-            className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition"
+            className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-2 rounded-xl font-semibold hover:bg-[var(--color-accent)] transition"
             onClick={async () => {
               setShowPasswordModal(false);
               const allCompleted = checkpoints.length > 0 && completedCheckpoints.length === checkpoints.length && checkpoints.every(cp => completedCheckpoints.includes(cp.id));
@@ -260,15 +260,15 @@ export default function ActiveMissionPage() {
   const TimeReminderModal = () => (
     showTimeReminder ? (
       <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
-          <div className="text-2xl font-bold text-black mb-2">剩餘時間提醒</div>
+        <div className="bg-[var(--color-card)] rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
+          <div className="text-2xl font-bold text-[var(--color-text)] mb-2">剩餘時間提醒</div>
           <Image src={reminderImage} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
-          <div className="text-lg text-black mb-4">
+          <div className="text-lg text-[var(--color-text)] mb-4">
             剩餘 {timeLeft ? Math.floor(timeLeft/60) : 0} 分鐘
             {timeLeft && timeLeft % 60 > 0 ? ` ${timeLeft % 60} 秒` : ''}
           </div>
           <button 
-            className="w-full bg-black text-white py-2 rounded-xl font-semibold hover:bg-gray-800 transition" 
+            className="w-full bg-[var(--color-primary)] text-[var(--color-bg)] py-2 rounded-xl font-semibold hover:bg-[var(--color-accent)] transition" 
             onClick={() => setShowTimeReminder(false)}
           >
             確認
@@ -327,31 +327,31 @@ export default function ActiveMissionPage() {
   }, [teamId]);
 
   if (authLoading || loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-black">載入中...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">載入中...</div>;
   }
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">請先登入</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]/60">請先登入</div>;
   }
   if (!mission || checkpoints.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">找不到任務或檢查點</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]/60">找不到任務或檢查點</div>;
   }
 
   if (!currentCheckpointId) {
     if (completedCheckpoints.length === checkpoints.length && checkpoints.length > 0) {
       // 僅顯示等待用戶確認最後一個 passkey 彈窗
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-          <div className="text-black mb-4">請確認最後一個密碼數字後，系統將自動導向...</div>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg)]">
+          <div className="text-[var(--color-text)] mb-4">請確認最後一個密碼數字後，系統將自動導向...</div>
           <PasswordModal />
         </div>
       );
     } else {
-      return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
+      return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]/60">資料同步中，請稍候...</div>;
     }
   }
   const currentCheckpoint = checkpoints.find(cp => cp.id === currentCheckpointId);
   if (!currentCheckpoint) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-gray-400">資料同步中，請稍候...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]/60">資料同步中，請稍候...</div>;
   }
 
   const renderChallenge = () => {
@@ -403,10 +403,10 @@ export default function ActiveMissionPage() {
         );
       default:
         return (
-          <div className="w-full p-4 bg-white rounded-xl border border-gray-200">
-            <p className="text-gray-600">此檢查點沒有挑戰內容</p>
+          <div className="w-full p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-secondary)]">
+            <p className="text-[var(--color-text)]/70">此檢查點沒有挑戰內容</p>
             <button
-              className="w-full px-4 py-2 rounded-xl bg-black text-white font-semibold mt-4"
+              className="w-full px-4 py-2 rounded-xl bg-[var(--color-primary)] text-[var(--color-bg)] font-semibold mt-4 hover:bg-[var(--color-accent)] transition"
               onClick={() => handleChallengeComplete()}
               disabled={buttonLoading}
             >
@@ -418,26 +418,26 @@ export default function ActiveMissionPage() {
   };
 
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center bg-white text-red-500">{error}</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-red-500">{error}</div>;
   }
 
   return (
     <>
       <PasswordModal />
       <TimeReminderModal />
-      <div className="min-h-screen flex flex-col items-center bg-white pt-8 z-0">
+      <div className="min-h-screen flex flex-col items-center bg-[var(--color-bg)] pt-8 z-0">
         {/* 倒數計時器 */}
         {timeLeft !== null && mission && (
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mb-4">
+          <div className="w-full max-w-xl bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-4 mb-4">
             <div className="flex justify-between items-center">
-              <div className="text-gray-600">剩餘時間</div>
-              <div className="text-2xl font-bold text-black">
+              <div className="text-[var(--color-text)]/70">剩餘時間</div>
+              <div className="text-2xl font-bold text-[var(--color-text)]">
                 {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
               </div>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
+            <div className="w-full bg-[var(--color-secondary)] rounded-full h-2 mt-2">
               <div 
-                className="bg-black h-2 rounded-full transition-all duration-300"
+                className="bg-[var(--color-primary)] h-2 rounded-full transition-all duration-300"
                 style={{ 
                   width: `${Math.max(0, Math.min(100, (timeLeft / (parseInt(mission.estimatedDuration) * 60)) * 100))}%` 
                 }}
@@ -445,7 +445,7 @@ export default function ActiveMissionPage() {
             </div>
           </div>
         )}
-        <div className={`w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 ${showPasswordModal ? 'z-0 pointer-events-none' : ''}`}>
+        <div className={`w-full max-w-xl bg-[var(--color-card)] rounded-2xl shadow-lg border border-[var(--color-secondary)] p-6 mb-6 ${showPasswordModal ? 'z-0 pointer-events-none' : ''}`}>
           <MapView
             checkpoints={checkpoints}
             startLocation={mission.startLocation}
@@ -454,8 +454,8 @@ export default function ActiveMissionPage() {
             members={memberLocations}
           />
           <div className="mt-4">
-            <div className="text-lg font-bold text-black mb-1">目前檢查點：{currentCheckpoint.name}</div>
-            <div className="text-gray-600 mb-2">{currentCheckpoint.description}</div>
+            <div className="text-lg font-bold text-[var(--color-text)] mb-1">目前檢查點：{currentCheckpoint.name}</div>
+            <div className="text-[var(--color-text)]/70 mb-2">{currentCheckpoint.description}</div>
             {renderChallenge()}
           </div>
         </div>
@@ -484,7 +484,7 @@ export default function ActiveMissionPage() {
       {/* 通知 bar */}
       {latestNotification && (
         <div
-          className="fixed top-0 left-0 w-full h-10 bg-black text-white flex items-center justify-center z-[1100] cursor-pointer shadow"
+          className="fixed top-0 left-0 w-full h-10 bg-[var(--color-primary)] text-[var(--color-bg)] flex items-center justify-center z-[1100] cursor-pointer shadow"
           onClick={() => setShowNotificationModal(true)}
           style={{ fontSize: '16px', fontWeight: 500 }}
         >
@@ -494,19 +494,19 @@ export default function ActiveMissionPage() {
       {/* 歷史通知 modal */}
       {showNotificationModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center relative">
+          <div className="bg-[var(--color-card)] rounded-2xl shadow-xl p-6 max-w-md w-full text-center relative">
             <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl"
+              className="absolute top-2 right-2 text-[var(--color-text)] hover:text-[var(--color-primary)] text-2xl"
               onClick={() => setShowNotificationModal(false)}
             >×</button>
-            <h2 className="text-xl font-bold mb-4 text-black">任務通知紀錄</h2>
+            <h2 className="text-xl font-bold mb-4 text-[var(--color-text)]">任務通知紀錄</h2>
             <div className="max-h-80 overflow-y-auto text-left space-y-2">
               {notifications.length === 0 ? (
-                <div className="text-gray-500 text-center">暫無通知</div>
+                <div className="text-[var(--color-text)]/60 text-center">暫無通知</div>
               ) : notifications.map((n) => (
-                <div key={n.id} className="p-2 rounded bg-gray-50 border border-gray-200">
-                  <div className="text-black">{n.message}</div>
-                  <div className="text-xs text-gray-400 mt-1">{n.createdAt?.toDate?.().toLocaleString?.() || ''}</div>
+                <div key={n.id} className="p-2 rounded bg-[var(--color-secondary)] border border-[var(--color-secondary)]">
+                  <div className="text-[var(--color-text)]">{n.message}</div>
+                  <div className="text-xs text-[var(--color-text)]/50 mt-1">{n.createdAt?.toDate?.().toLocaleString?.() || ''}</div>
                 </div>
               ))}
             </div>
