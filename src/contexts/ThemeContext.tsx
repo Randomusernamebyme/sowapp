@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useLayoutEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
@@ -21,20 +21,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const unsub = onSnapshot(userRef, (userSnap) => {
       if (userSnap.exists() && userSnap.data().theme) {
         setThemeState(userSnap.data().theme);
-        document.documentElement.className = `theme-${userSnap.data().theme}`;
         console.log("[ThemeContext] onSnapshot user theme:", userSnap.data().theme);
       } else {
         setThemeState("bw");
-        document.documentElement.className = "theme-bw";
         console.log("[ThemeContext] 預設 theme-bw");
       }
     });
     return () => unsub();
   }, [user]);
 
+  useLayoutEffect(() => {
+    document.documentElement.className = `theme-${theme}`;
+  }, [theme]);
+
   const setTheme = async (t: "bw" | "pastel") => {
     setThemeState(t);
-    document.documentElement.className = `theme-${t}`;
     console.log("[ThemeContext] setTheme called:", t);
     if (user) {
       const userRef = doc(db, "users", user.uid);
