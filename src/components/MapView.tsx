@@ -156,14 +156,14 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
                 position={{ lat: Number(m.lat), lng: Number(m.lng) }}
                 icon={L.divIcon({
                   className: 'member-marker',
-                  html: m.avatarUrl
+                  html: m.avatarUrl && m.avatarUrl !== ''
                     ? `<img src='${m.avatarUrl}' style="width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px #0002;object-fit:cover;" />`
                     : `<div style="width:32px;height:32px;border-radius:50%;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:18px;border:2px solid #fff;box-shadow:0 2px 6px #0002;">${m.displayName?.[0] || '?'}</div>`
                 })}
               >
                 <Popup>
                   <div className="text-black">
-                    <div className="font-bold">{m.displayName || uid}</div>
+                    <div className="font-bold">{m.displayName || '未知用戶'}</div>
                     <div className="text-xs text-gray-500">({Number(m.lat).toFixed(5)}, {Number(m.lng).toFixed(5)})</div>
                     {userLocation && (uid !== '你') && (
                       <div className="text-xs mt-1">距離你：{Math.round(calculateDistance(userLocation.lat, userLocation.lng, Number(m.lat), Number(m.lng)))} 米</div>
