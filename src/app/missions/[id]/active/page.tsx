@@ -230,7 +230,7 @@ export default function ActiveMissionPage() {
   // 密碼彈窗
   const PasswordModal = () => (
     showPasswordModal ? (
-      <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-40">
+      <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
           <div className="text-2xl font-bold text-black mb-2">{lastPasswordDigit ? '密碼數字' : '完成檢查點'}</div>
           {lastPasswordDigit ? (
@@ -259,7 +259,7 @@ export default function ActiveMissionPage() {
   // 時間提醒彈窗
   const TimeReminderModal = () => (
     showTimeReminder ? (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xs w-full text-center">
           <div className="text-2xl font-bold text-black mb-2">剩餘時間提醒</div>
           <Image src={reminderImage} width={180} height={120} alt="提醒圖片" className="mx-auto mb-4" />
@@ -425,7 +425,7 @@ export default function ActiveMissionPage() {
     <>
       <PasswordModal />
       <TimeReminderModal />
-      <div className="min-h-screen flex flex-col items-center bg-white pt-8">
+      <div className="min-h-screen flex flex-col items-center bg-white pt-8 z-0">
         {/* 倒數計時器 */}
         {timeLeft !== null && mission && (
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mb-4">
@@ -493,7 +493,7 @@ export default function ActiveMissionPage() {
       )}
       {/* 歷史通知 modal */}
       {showNotificationModal && (
-        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black bg-opacity-40">
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full text-center relative">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl"
