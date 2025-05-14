@@ -126,7 +126,7 @@ export default function MapView({ checkpoints, startLocation, endLocation, userL
   return (
     <div className="space-y-4">
       <div className="w-full h-64 rounded-2xl overflow-hidden border border-gray-200 shadow bg-[#f7f7f7] z-0">
-        <MapContainer center={center} zoom={15} scrollWheelZoom={false} className="w-full h-full" style={{ background: '#f7f7f7' }}>
+        <MapContainer center={center} zoom={15} scrollWheelZoom={false} className="w-full h-full z-0" style={{ background: '#f7f7f7', zIndex: 0 }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
